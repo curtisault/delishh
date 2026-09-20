@@ -1,0 +1,399 @@
+/* delishh — the recipe page (Page/Recipe.elm), DS-01 §06.
+
+   Its own sheet, because sheet.css frames DOCUMENTS — the site nav,
+   Doc.elm's masthead, rail, sections and clause marks — and a recipe
+   is a different object that deliberately does not wear that chrome.
+   Consumes the role tokens in theme.css; raw hex here is a bug.
+
+   The quiet layer. One acid dominates, set by the recipe's method on
+   the wrapper (.acid-heat / -cold / -live / -act) and read through
+   --acid below, and it appears as MARKS only: rules, the step number,
+   the method chip's edge. Never a fill behind procedure, and never on
+   a quantity — amounts, temperatures and times are ink, which is the
+   rule that makes a dense page trustworthy (§04). */
+
+.acid-heat {
+  --acid: var(--page-heat);
+}
+.acid-cold {
+  --acid: var(--page-cold);
+}
+.acid-live {
+  --acid: var(--page-live);
+}
+.acid-act {
+  --acid: var(--page-act);
+}
+
+.recipe-layout {
+  padding: 1.6rem 1.2rem 4rem;
+  display: flex;
+  justify-content: center;
+}
+.recipe {
+  width: 100%;
+  max-width: var(--measure);
+}
+
+.recipe-state {
+  color: var(--tx-dim);
+}
+
+/* ---------- 1 · the plate ---------- */
+
+.recipe-plate {
+  border-bottom: 3px solid var(--rule);
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.6rem;
+}
+.recipe-serial {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--tx-dim);
+  margin-bottom: 0.5rem;
+}
+/* The collector's plate, not a compliance artifact (§01) — so the
+   number is the one serial that gets the acid. */
+.recipe-no {
+  color: var(--acid);
+  font-weight: 700;
+}
+.recipe-title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  line-height: 0.95;
+  margin: 0 0 0.8rem;
+}
+
+.recipe-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin-bottom: 0.9rem;
+}
+.recipe-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.recipe-fact-k {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+}
+/* A quantity is ink. This is the rule, in one declaration. */
+.recipe-fact-v {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx);
+}
+
+/* ---------- chips: outlined here, filled on the shelf ----------
+   Four coloured chips would be four acids on one surface. On a recipe
+   page they are neutral capsules that keep their WORDS — information
+   is never colour-only — which is also exactly how they print (§09).
+   The method chip is the one exception: it names the dominant acid,
+   so it wears it. */
+.recipe-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.chip {
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  padding: 0.22rem 0.5rem;
+  border: 1.5px solid var(--hairline);
+  color: var(--tx-dim);
+  white-space: nowrap;
+}
+.chip-method {
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+/* ---------- the scale control ---------- */
+
+.scaler {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+.scaler-k {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+}
+.scaler-set {
+  display: flex;
+  border: 1.5px solid var(--rule);
+}
+.scaler-btn {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  background: none;
+  border: 0;
+  border-right: 1.5px solid var(--rule);
+  color: var(--tx);
+  padding: 0.34rem 0.6rem;
+  cursor: pointer;
+  /* DS-01 §08: tap targets scale with text and never below 2.75rem in
+     cook mode. This is the browse-side control; cook mode gets its own
+     sizing when it lands. */
+  min-height: 2rem;
+}
+.scaler-btn:last-child {
+  border-right: 0;
+}
+/* The one thing on a recipe page you press, so it takes the
+   actionable acid as a fill with ink on it (§04). */
+.scaler-btn.active {
+  background: var(--accent);
+  color: var(--ink);
+  font-weight: 700;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+/* A scaled recipe that does not say it is scaled is dangerous (§08). */
+.scaler-live {
+  font-size: 0.58rem;
+  background: var(--block-bg);
+  color: var(--block-tx);
+  padding: 0.22rem 0.5rem;
+}
+
+/* ---------- 2 · the photograph ----------
+   Clamped toward the neutral family: the food supplies the warmth in
+   ONE image, and an unclamped photo blows the page's colour budget on
+   its own (§06). */
+.recipe-photo {
+  margin-bottom: 1.6rem;
+}
+.recipe-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(0.72) contrast(1.06);
+}
+
+/* ---------- blocks ---------- */
+
+.recipe-block {
+  margin-bottom: 1.8rem;
+}
+.recipe-h {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  border-bottom: 1.5px solid var(--acid);
+  padding-bottom: 0.3rem;
+  margin: 0 0 0.8rem;
+}
+.recipe-sub {
+  font-size: 0.62rem;
+  color: var(--tx-dim);
+  margin: 0.9rem 0 0.4rem;
+}
+
+/* ---------- 3 · ingredients ---------- */
+
+.ing-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ing {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.2rem 0.8rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+/* Mass first, in the data voice, in ink. Tabular so a column of
+   quantities reads as a column. */
+.ing-qty {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--tx);
+}
+.ing-note {
+  color: var(--tx-dim);
+}
+/* The honest note: an indivisible count the arithmetic wanted a
+   fraction of. It sits under the row it is about, in the acid, because
+   it is the one thing here the reader must not skim past. */
+.ing-scaled {
+  grid-column: 2;
+  font-size: 0.72rem;
+  color: var(--acid);
+  border-left: 2px solid var(--acid);
+  padding-left: 0.5rem;
+}
+
+/* ---------- 5 · steps ---------- */
+
+.step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: none;
+}
+.step {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.8rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.step-n {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--acid);
+  line-height: 1.2;
+}
+.step-text {
+  margin: 0;
+}
+/* Every step states its own temperature, duration and doneness tell,
+   on its own line. No tooltip, no hover, no "see notes below" (§2.5).
+   The numbers in it are ink; only the rule beside them is acid. */
+.step-cue {
+  margin: 0.35rem 0 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--tx);
+  border-left: 2px solid var(--acid);
+  padding-left: 0.5rem;
+}
+
+/* ---------- 6 · watchpoints ---------- */
+
+.watch-list li::marker {
+  color: var(--acid);
+}
+
+/* ---------- 7 · rescues ---------- */
+
+.rescue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rescue {
+  padding: 0.6rem 0 0.6rem 0.7rem;
+  border-left: 3px solid var(--hairline);
+  margin-bottom: 0.5rem;
+}
+.rescue-sym {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.2rem;
+}
+/* Cannot be saved. Carries its WORD as well as its mark, so the
+   warning survives a monochrome printout and a colour-blind reader —
+   one rule, two payoffs (§04). */
+.rescue.terminal {
+  border-left-color: var(--page-heat);
+}
+.rescue-flag {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  border: 1.5px solid var(--page-heat);
+  color: var(--page-heat);
+  padding: 0.12rem 0.4rem;
+}
+
+/* ---------- 9 · the note ----------
+   Yours. Serif, sentence case, first person, unedited — and the one
+   human voice on the page (§01). It is the reward for having read the
+   document, so it is set to be read, not scanned. */
+.recipe-note {
+  font-size: 1.1rem;
+  line-height: 1.45;
+  border-left: 3px solid var(--rule-soft);
+  padding-left: 0.9rem;
+}
+.recipe-note p {
+  margin: 0 0 0.7rem;
+}
+.recipe-note p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- 10 · history ---------- */
+
+.rev-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rev {
+  display: grid;
+  grid-template-columns: 4rem 6rem 1fr;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 0.88rem;
+}
+.rev-n {
+  font-weight: 700;
+  font-size: 0.66rem;
+  color: var(--tx-dim);
+}
+.rev-date {
+  font-size: 0.66rem;
+  color: var(--tx-dim);
+}
+
+.recipe-back {
+  font-size: 0.62rem;
+  color: var(--tx);
+  border-bottom: 2px solid var(--accent);
+  text-decoration: none;
+}
+
+/* ---------- narrow ----------
+   One tier, in rem, no device detection. Nothing clips and nothing
+   hides behind a gesture. */
+@media (max-width: 34rem) {
+  .ing {
+    grid-template-columns: 5.5rem 1fr;
+  }
+  .rev {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+  .recipe-facts {
+    gap: 1rem;
+  }
+}
+
+/* ---------- motion ---------- DS-01 §10.
+
+   The recipe page is the QUIET half. §10: "Recipe pages hold still."
+   No press responses, no hover lifts — the shelf is where a surface
+   answers your hand, and a page you read with a pan on the heat is
+   not.
+
+   What is here is focus, which is not motion and not decoration: it
+   is how a keyboard says where it is, and it is defined outside any
+   motion query because a reduced-motion reader needs it just as
+   much. */
+.scaler-btn:focus-visible,
+.printer-btn:focus-visible,
+.printer-prep:focus-visible,
+.cook-enter:focus-visible,
+.recipe-back:focus-visible {
+  outline: 3px solid var(--tx);
+  outline-offset: 2px;
+}

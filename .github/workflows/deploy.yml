@@ -60,7 +60,9 @@ jobs:
             || { echo "::error::dist/404.html missing — Pages would turn the SPA fallback back on (see public/404.html)"; exit 1; }
           grep -q '^/\* ' dist/_redirects \
             && { echo "::error::wildcard rule in _redirects — reinstates the SPA-fallback MIME failure (see public/_redirects)"; exit 1; }
-          echo "404.html present, no wildcard redirect"
+          grep -q '^/content/\*' dist/_headers \
+            || { echo "::error::no /content/* cache rule in _headers — generated JSON is unhashed and would serve stale (see public/_headers)"; exit 1; }
+          echo "404.html present, no wildcard redirect, content revalidates"
 
       # NOTE: this action runs Node internally — it is a JavaScript
       # GitHub Action, and that is its own implementation detail, not

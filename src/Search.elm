@@ -110,83 +110,73 @@ matchesAll needles entry =
 {-| Every searchable section on the site, in page order. A section
 without an entry is a section nobody can find, so adding one to a page
 means adding it here.
+
+**The front page is not in here, and that is not an oversight.** `/`
+is the shelf now, and a shelf is not a prose document: it has no
+numbered sections to address and wears no `Doc` chrome to search from.
+It carries its own search, over recipes rather than over sections —
+a different index answering a different question.
 -}
 curated : List Entry
 curated =
-    [ { page = "DELISHH"
+    [ { page = "ABOUT"
       , label = "What this is"
-      , blurb = "The scaffold, and what the document format frames"
-      , path = "/"
-      , anchor = "sec-what"
-      , terms = [ "scaffold", "masthead", "clause" ]
-      , aliases = [ "boilerplate", "skeleton" ]
-      }
-    , { page = "DELISHH"
-      , label = "The format"
-      , blurb = "Where the boundary falls between Doc and a page"
-      , path = "/"
-      , anchor = "sec-format"
-      , terms = [ "numbering", "rail", "kicker" ]
-      , aliases = [ "layout", "wireframe" ]
-      }
-    , { page = "ABOUT"
-      , label = "Who made it"
-      , blurb = "The author, and who to ask about the rest"
+      , blurb = "A personal archive rather than a publication, and who to ask"
       , path = "/about"
       , anchor = "sec-who"
-      , terms = [ "author", "responsible" ]
+      , terms = [ "archive", "markdown", "author" ]
       , aliases = [ "contact", "credits" ]
       }
     , { page = "ABOUT"
       , label = "Colophon"
-      , blurb = "The type and the tooling, and what is never kept about a reader"
+      , blurb = "The four voices, the tooling, and what is never kept about a reader"
       , path = "/about"
       , anchor = "sec-colophon"
-      , terms = [ "Archivo", "analytics", "Vite" ]
-      , aliases = [ "privacy", "tracking" ]
+      , terms = [ "Archivo", "analytics", "tracking" ]
+      , aliases = [ "privacy", "cookies" ]
       }
     , ds "Scope" "Which file owns which rule, and the amendment-first law" "sec-scope"
-        [ "amendment", "silently" ]
-        [ "changelog" ]
-    , ds "The premise" "The in-fiction issuer, and the inversion that retargets the register" "sec-premise"
-        [ "institution", "inversion", "deadpan" ]
-        [ "mascot" ]
-    , ds "Pillars" "The six, and the wear clause that keeps the screen immaculate" "sec-pillars"
-        [ "placard", "cosplay" ]
-        [ "skeuomorphic" ]
+        [ "amendment", "silently", "Enforcement" ]
+        [ "changelog", "roadmap" ]
+    , ds "Premise" "Loud shelf, quiet page, ink sheet — the split everything follows from" "sec-premise"
+        [ "sticker", "notebook", "collector" ]
+        [ "mascot", "brand" ]
+    , ds "Pillars" "The six claims, and what each one forbids" "sec-pillars"
+        [ "cosplay", "silk-screened", "gloss" ]
+        [ "skeuomorphic", "flourish" ]
     , ds "References" "What the look is taken from, and what it refuses to be" "sec-refs"
-        [ "HACCP", "vaporwave", "farmhouse" ]
-        [ "pinterest" ]
-    , ds "Colour" "An acid names a physical process; the light and dark strata" "sec-color"
-        [ "sourdough", "magenta", "stratum" ]
+        [ "vaporwave", "farmhouse", "grotesk" ]
+        [ "pinterest", "moodboard" ]
+    , ds "Colour" "Where acid runs loud, and where it narrows to a physical state" "sec-color"
+        [ "confetti", "volt", "contrast" ]
         [ "hue", "swatch" ]
     , ds "Type" "The four voices, and how a quantity is set on the page" "sec-type"
-        [ "ladder", "tabular", "fractional" ]
+        [ "glyph", "tabular", "authoritative" ]
         [ "kerning", "ligature" ]
-    , ds "The document" "The ten blocks, in the one order every recipe wears" "sec-document"
-        [ "halftone", "specimen", "materials" ]
-        [ "nutrition" ]
-    , ds "The index" "A manifest rather than a gallery; filters tag instead of hiding" "sec-index"
-        [ "manifest", "retrieval", "lockout" ]
-        [ "pagination" ]
+    , ds "The document" "One markdown file, its frontmatter schema, and the ten blocks" "sec-document"
+        [ "halftone", "frontmatter", "placeholder" ]
+        [ "nutrition", "database" ]
+    , ds "Browse" "Four ways in, and filters that tag instead of hiding" "sec-browse"
+        [ "scannable", "dictionary", "facet" ]
+        [ "pagination", "carousel" ]
     , ds "Cook mode" "The arm's-length constraint: wet hands, bad light, a pan on the heat" "sec-cook"
-        [ "greasy", "awake", "pointer" ]
-        [ "voice", "dictation" ]
-    , ds "Print" "The issued sheet: the ink budget, the break law, traceability" "sec-print"
-        [ "toner", "photocopy", "knockout" ]
-        [ "pdf" ]
-    , ds "Motion" "The register opens empty, and the one exception that earned a line" "sec-motion"
-        [ "ambient", "jelly", "timer" ]
+        [ "awake", "pointer", "stamp" ]
+        [ "dictation", "timer" ]
+    , ds "Print" "Black ink, four templates, and a footer that knows what it is" "sec-print"
+        [ "knockout", "booklet", "laser" ]
+        [ "pdf", "typst" ]
+    , ds "Motion" "Playful on the shelf, still on the page, ambient nowhere" "sec-motion"
+        [ "ambient", "detent", "overshoot" ]
         [ "parallax", "carousel" ]
-    , ds "Lexicon" "The banned and approved word fields, enforced in the test suite" "sec-lexicon"
-        [ "vocabulary", "linter", "foolproof" ]
-        [ "thesaurus" ]
+    , ds "Voice" "Warm where it sells nothing, exact where it counts" "sec-voice"
+        [ "register", "engagement", "exempt" ]
+        [ "thesaurus", "grammar" ]
     , ds "Hard constraints" "The bars that are never waived, at any density" "sec-constraints"
-        [ "WCAG", "JavaScript" ]
-        [ "lighthouse" ]
+        [ "WCAG", "zoom", "self-hosted" ]
+        [ "lighthouse", "audit" ]
     , ds "Governance" "Dated amendments, benching, and the first five things to build" "sec-governance"
-        [ "bench", "token" ]
-        [ "roadmap" ]
+        [ "bench", "amendment", "token" ]
+        [ "roadmap", "sprint" ]
     ]
 
 

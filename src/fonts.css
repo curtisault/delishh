@@ -3,29 +3,32 @@
    fetch-fonts script, so faces are added here by hand and the .woff2
    files are committed under public/fonts/.
 
-   Inherited from the parent project as a working default, not as a
-   decision. Two families:
+   All four voices of DS-01 §05 are now shipped, one family each:
 
-   - Archivo Expanded 700 → the DISPLAY voice. Note this is *expanded*
+   - Archivo Expanded 700  → DISPLAY. Note this is *expanded*
      (usWidthClass 7), not condensed. Do not add `font-stretch`
      anywhere: the only cut shipped is the wide one, and asking for
      condensed just makes a browser synthesise it.
-   - JetBrains Mono 400/700 → the DATA voice.
+   - Inter 500             → BODY. Every word read while cooking, at
+     arm's length in bad light. One weight: procedure is never bold,
+     and a second cut would be 24 kB for emphasis the layout already
+     carries.
+   - JetBrains Mono 400/700 → DATA. Every number that means something.
+   - Instrument Serif 400  → HUMAN. Notes, and nothing else.
 
-   The body voice stays a system serif (--font-body in theme.css): it
-   is the only voice that needs real bold, real italic and fractions.
-
-   Both families are SIL Open Font License 1.1. The licence text ships
-   beside the fonts as the OFL requires:
-   public/fonts/Archivo-OFL.txt, public/fonts/JetBrainsMono-OFL.txt.
+   All four are SIL Open Font License 1.1, and each licence text ships
+   beside the fonts as the OFL requires: Archivo-OFL.txt, Inter-OFL.txt,
+   JetBrainsMono-OFL.txt, InstrumentSerif-OFL.txt.
 
    Swapping a face means: new .woff2 under public/fonts (a NEW
    filename — /fonts/* is cached immutably), new @font-face here, new
-   --font-display / --font-data in theme.css, and new <link rel=preload>
-   in index.html. Four places, all of them named here.
+   --font-* in theme.css, and — if it is above the fold — a new
+   <link rel=preload> in index.html. Four places, all named here.
 
    Only the latin and latin-ext subsets are carried. unicode-range
-   means latin-ext is only fetched if a document needs it. */
+   means latin-ext is only fetched if a document needs it, and the
+   ranges below are Google's own cuts, identical across all four
+   families so a glyph never falls between two definitions. */
 
 /* ---------- display: Archivo Expanded ---------- */
 @font-face {
@@ -44,6 +47,31 @@
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/archivo-expanded-700-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/* ---------- body: Inter ----------
+   The procedure voice. 500 only — see the note above on why there is
+   no second cut. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-500-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-500-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
     U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
     U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
@@ -88,6 +116,33 @@
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/jetbrains-mono-700-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/* ---------- human: Instrument Serif ----------
+   The one human voice on the page: your note, in sentence case, in
+   the first person. Never procedure, never a quantity, never a label.
+   400 only, and no italic cut — the voice is marked by being a serif
+   at all, and an italic would be a fifth voice nobody asked for. */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-400-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
     U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
     U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,

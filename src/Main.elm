@@ -32,15 +32,25 @@ route because no page mirrors yet.
 import Browser
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
+import Cook
 import Doc
 import Html exposing (Html, a, button, div, nav, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
+import Http
 import Page.About
+import Page.Cook
 import Page.DesignStandard
-import Page.Home
+import Page.Recipe
+import Page.Shelf
+import Print
+import Recipe exposing (Recipe)
 import Route exposing (Route)
+import Scale
+import Set exposing (Set)
+import Shelf
 import Task
+import Time
 import Url exposing (Url)
 import Viewport
 
@@ -58,6 +68,24 @@ question that changes a few times a minute.
 
 -}
 port sectionSeen : (String -> msg) -> Sub msg
+
+
+{-| Ask the browser to hold the screen awake, or give the lock back.
+
+Out through a port because `navigator.wakeLock` has no Elm binding,
+and back through `wakeLockChanged` because **the answer matters**.
+DS-01 §08 says hold the screen awake and say so on screen; a badge
+that claims "held" on a browser that refused is the system lying
+about its status, and the reader finds out when the screen goes black
+with their hands covered in flour. boot.js reports what actually
+happened, including the re-acquisition the spec forces after the tab
+is hidden.
+
+-}
+port setWakeLock : Bool -> Cmd msg
+
+
+port wakeLockChanged : (String -> msg) -> Sub msg
 
 
 main : Program Flags Model Msg
@@ -126,7 +154,11 @@ themeLabel theme =
 
 
 type alias Flags =
-    { theme : Maybe String }
+    { theme : Maybe String
+
+    -- the date a printed sheet says it was pulled (DS-01 §09)
+    , today : String
+    }
 
 
 type alias Model =
@@ -157,7 +189,61 @@ type alias Model =
     -- that comes back is an echo, not a navigation, and must not move
     -- the reader — see Viewport
     , mirroring : Bool
+
+    -- the recipe being read, if the route is one. Keyed by nothing:
+    -- arriving at a different recipe replaces it outright, because a
+    -- stale document under a new address is the one thing worse than
+    -- a spinner
+    , recipe : Fetch Recipe
+
+    -- the scale the reader set. Deliberately NOT in the URL: it is
+    -- reset by any navigation, because a factor that survived from
+    -- the last recipe would silently rescale this one. Mirroring it
+    -- would mean `arrivalMirrors` and the echo handling that goes
+    -- with it — worth doing when a shared scaled link is wanted,
+    -- not before
+    , factor : Scale.Factor
+
+    -- which of the four print forms the reader has chosen, and
+    -- whether the supplemental prep card rides along. Both are
+    -- reset by navigation for the same reason the scale is: a form
+    -- chosen for one recipe is not a preference about the next
+    , form : Print.Form
+    , prepCard : Bool
+
+    -- where this document lives, for the printed footer's short URL.
+    -- A sheet found in a drawer in three years should be able to say
+    -- what it is and how out of date it is
+    , origin : String
+    , today : String
+
+    -- the shelf: the index, what the reader has narrowed to, and
+    -- which path tile is open. Filters are NOT in the URL — see the
+    -- note on `arrivalMirrors`
+    , index : Fetch Shelf.Index
+    , filters : Shelf.Filters
+    , openPath : Maybe Shelf.Path
+
+    -- cook mode. `done` and `timer` are reset by navigation like
+    -- every other page state; the SCALE is not held here at all — it
+    -- rides in the URL, so entering cook mode cannot silently change
+    -- the quantities (DS-01 §08)
+    , done : Set Int
+    , timer : Maybe Cook.Timer
+    , now : Time.Posix
+    , wake : Cook.Wake
     }
+
+
+{-| Something fetched over the network, in the three states a reader
+can actually be in. No `NotAsked`: the fetch is issued by arriving at
+the route, so there is no moment where the page exists and the request
+does not.
+-}
+type Fetch a
+    = Fetching
+    | Fetched a
+    | FetchFailed
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -170,16 +256,68 @@ init flags url key =
       , active = Nothing
       , query = ""
       , menuOpen = False
+      , recipe = Fetching
+      , factor = factorFor (Route.fromUrl url) url
+      , form = Print.Sheet
+      , prepCard = False
+      , origin = origin url
+      , today = flags.today
+      , index = Fetching
+      , filters = Shelf.noFilters
+      , openPath = Nothing
+      , done = Set.empty
+      , timer = Nothing
+      , now = Time.millisToPosix 0
+      , wake = Cook.Off
       }
-      -- a cold load with a fragment (a shared deep link) still owes a
-      -- jump — the browser cannot do it, because Elm renders after load
-    , case url.fragment of
-        Just anchor ->
-            jumpTo anchor
+    , Cmd.batch
+        [ routeCmd (Route.fromUrl url)
+        , setWakeLock (isCooking (Route.fromUrl url))
 
-        Nothing ->
-            Cmd.none
+        -- a cold load with a fragment (a shared deep link) still owes
+        -- a jump — the browser cannot do it, because Elm renders
+        -- after load
+        , case url.fragment of
+            Just anchor ->
+                jumpTo anchor
+
+            Nothing ->
+                Cmd.none
+        ]
     )
+
+
+{-| What arriving at a route costs in requests.
+
+Every route but `Recipe` is already in the bundle — DS-01 is generated
+into Elm at build time precisely so it needs no fetch (see
+`scripts/build-docs.ts`). Recipes are a growing corpus and are fetched
+one at a time.
+
+-}
+routeCmd : Route -> Cmd Msg
+routeCmd route =
+    case route of
+        Route.Recipe slug ->
+            Http.get
+                { url = Recipe.path slug
+                , expect = Http.expectJson GotRecipe Recipe.decoder
+                }
+
+        Route.Cook slug ->
+            Http.get
+                { url = Recipe.path slug
+                , expect = Http.expectJson GotRecipe Recipe.decoder
+                }
+
+        Route.Home ->
+            Http.get
+                { url = "/content/index.json"
+                , expect = Http.expectJson GotIndex Shelf.decoder
+                }
+
+        _ ->
+            Cmd.none
 
 
 
@@ -193,6 +331,21 @@ type Msg
     | SectionSeen String
     | QueryChanged String
     | ToggleMenu
+    | GotRecipe (Result Http.Error Recipe)
+    | SetFactor Scale.Factor
+    | SetForm Print.Form
+    | TogglePrepCard
+    | GotIndex (Result Http.Error Shelf.Index)
+    | OpenPath (Maybe Shelf.Path)
+    | ToggleFacet Shelf.Path String
+    | ShelfQuery String
+    | ClearFilters
+    | Stamp Int
+    | StartTimer Int Int
+    | TimerStarted Int Int Time.Posix
+    | StopTimer
+    | Tick Time.Posix
+    | WakeChanged String
     | NoOp
 
 
@@ -236,27 +389,100 @@ update msg model =
 
                             else
                                 model.active
+
+                        -- a real navigation drops the previous
+                        -- recipe and its scale. Keeping either would
+                        -- render one recipe's quantities under
+                        -- another's name for as long as the fetch
+                        -- takes, which is a wrong page rather than a
+                        -- slow one
+                        , recipe =
+                            if arrived then
+                                Fetching
+
+                            else
+                                model.recipe
+                        , factor =
+                            if arrived then
+                                factorFor route url
+
+                            else
+                                model.factor
+                        , form =
+                            if arrived then
+                                Print.Sheet
+
+                            else
+                                model.form
+                        , prepCard =
+                            if arrived then
+                                False
+
+                            else
+                                model.prepCard
+
+                        -- The shelf resets too. A filter set for last
+                        -- week's dinner is not a preference about
+                        -- this visit, and a reader arriving at "/"
+                        -- expecting the archive should see the
+                        -- archive.
+                        , filters =
+                            if arrived then
+                                Shelf.noFilters
+
+                            else
+                                model.filters
+                        , openPath =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.openPath
+                        , done =
+                            if arrived then
+                                Set.empty
+
+                            else
+                                model.done
+                        , timer =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.timer
                     }
             in
             ( -- an arrival on a mirroring route writes the URL back in
               -- the same batch, so the *next* UrlChanged is this
               -- shell's echo; anything else clears the flag
               { updated | mirroring = arrived && arrivalMirrors route }
-            , case
-                Viewport.actionFor
-                    { mirroring = model.mirroring
-                    , arrived = arrived
-                    , fragment = url.fragment
-                    }
-              of
-                Viewport.Stay ->
+            , Cmd.batch
+                [ if arrived then
+                    routeCmd route
+
+                  else
                     Cmd.none
+                , if arrived then
+                    setWakeLock (isCooking route)
 
-                Viewport.ToTop ->
-                    Task.perform (\_ -> NoOp) (Dom.setViewport 0 0)
+                  else
+                    Cmd.none
+                , case
+                    Viewport.actionFor
+                        { mirroring = model.mirroring
+                        , arrived = arrived
+                        , fragment = url.fragment
+                        }
+                  of
+                    Viewport.Stay ->
+                        Cmd.none
 
-                Viewport.ToAnchor anchor ->
-                    jumpTo anchor
+                    Viewport.ToTop ->
+                        Task.perform (\_ -> NoOp) (Dom.setViewport 0 0)
+
+                    Viewport.ToAnchor anchor ->
+                        jumpTo anchor
+                ]
             )
 
         LinkClicked (Browser.Internal url) ->
@@ -285,6 +511,83 @@ update msg model =
         ToggleMenu ->
             ( { model | menuOpen = not model.menuOpen }, Cmd.none )
 
+        GotRecipe (Ok recipe) ->
+            -- The recipe's own `print:` field chooses the form it
+            -- wants; the reader can still override it. A long-form
+            -- recipe that defaults to the one-page card would be the
+            -- schema saying something the page ignored.
+            ( { model | recipe = Fetched recipe, form = Print.fromSlug recipe.print }
+            , Cmd.none
+            )
+
+        GotRecipe (Err _) ->
+            -- The error is not shown. A reader who asked for a recipe
+            -- cannot act on a 404 versus a timeout, and the page says
+            -- the useful thing instead: this is not in the archive.
+            ( { model | recipe = FetchFailed }, Cmd.none )
+
+        SetFactor factor ->
+            ( { model | factor = factor }, Cmd.none )
+
+        SetForm form ->
+            ( { model | form = form }, Cmd.none )
+
+        GotIndex (Ok index) ->
+            ( { model | index = Fetched index }, Cmd.none )
+
+        GotIndex (Err _) ->
+            ( { model | index = FetchFailed }, Cmd.none )
+
+        OpenPath p ->
+            ( { model | openPath = p }, Cmd.none )
+
+        ToggleFacet p value ->
+            ( { model | filters = Shelf.toggle p value model.filters }, Cmd.none )
+
+        ShelfQuery q ->
+            ( { model | filters = (\f -> { f | query = q }) model.filters }, Cmd.none )
+
+        Stamp n ->
+            ( { model
+                | done =
+                    if Set.member n model.done then
+                        Set.remove n model.done
+
+                    else
+                        Set.insert n model.done
+              }
+            , Cmd.none
+            )
+
+        StartTimer n seconds ->
+            -- The current instant has to be fetched before the timer
+            -- can exist: it counts to an absolute end, not down a
+            -- decrementing counter, so a throttled background tab
+            -- resumes correct instead of minutes behind.
+            ( model, Task.perform (TimerStarted n seconds) Time.now )
+
+        TimerStarted n seconds now ->
+            ( { model | timer = Just (Cook.start n seconds now), now = now }
+            , Cmd.none
+            )
+
+        StopTimer ->
+            ( { model | timer = Nothing }, Cmd.none )
+
+        Tick now ->
+            ( { model | now = now }, Cmd.none )
+
+        WakeChanged flag ->
+            ( { model | wake = Cook.wakeFromFlag flag }, Cmd.none )
+
+        ClearFilters ->
+            ( { model | filters = Shelf.clear model.filters, openPath = Nothing }
+            , Cmd.none
+            )
+
+        TogglePrepCard ->
+            ( { model | prepCard = not model.prepCard }, Cmd.none )
+
         SectionSeen anchor ->
             ( { model
                 | active =
@@ -305,16 +608,61 @@ update msg model =
 -- SUBSCRIPTIONS
 
 
-{-| The contents rail's active row, and nothing else.
+{-| The contents rail's active row, the wake-lock status — and the
+step timer, **only while one is running**.
 
-Add a subscription here only when something on screen genuinely
-changes on its own. A timer on a document that does not change is a
-battery cost with no reader.
+The rule this module has carried since the start: add a subscription
+only when something on screen genuinely changes on its own. A timer
+on a document that does not change is a battery cost with no reader,
+which is exactly why `Time.every` is absent unless `model.timer` is
+`Just`. A running duration is DS-01 §10's one sanctioned piece of
+motion, and it stops being sanctioned the moment nothing is counting.
 
 -}
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    sectionSeen SectionSeen
+subscriptions model =
+    Sub.batch
+        [ sectionSeen SectionSeen
+        , wakeLockChanged WakeChanged
+        , case model.timer of
+            Just _ ->
+                Time.every 1000 Tick
+
+            Nothing ->
+                Sub.none
+        ]
+
+
+{-| The scale a route arrives at.
+
+**Cook mode reads its factor off the address; everything else starts
+at ×1.** That is what lets the scale be "set before you start"
+(DS-01 §08) without the shell carrying it invisibly across a
+navigation — a factor that survived a page change unseen is precisely
+the silent rescaling `Scale` exists to prevent. It also makes a half
+batch a thing you can bookmark.
+
+-}
+factorFor : Route -> Url -> Scale.Factor
+factorFor route url =
+    case route of
+        Route.Cook _ ->
+            Scale.fromString (Route.queryParam "scale" url)
+
+        _ ->
+            Scale.one
+
+
+{-| Whether a route wants the screen held awake. Only one does.
+-}
+isCooking : Route -> Bool
+isCooking route =
+    case route of
+        Route.Cook _ ->
+            True
+
+        _ ->
+            False
 
 
 
@@ -324,16 +672,45 @@ subscriptions _ =
 {-| Whether arriving on this route writes the URL back, and therefore
 whether the `UrlChanged` that follows is this shell's own echo.
 
-No route mirrors yet. When one does — a form, a filter, a setting
-worth sharing — name it here and add its `Nav.replaceUrl` alongside
-the viewport command in `UrlChanged`. Leaving this as `False` for a
-route that *does* mirror makes its every keystroke scroll the reader
-to the top of the page.
+No route mirrors yet, and the shelf's filters are the first real
+candidate — a narrowed archive is exactly the thing worth sharing.
+They are deliberately left out for now, because mirroring carries a
+contract this comment is the only record of: **a route that answers
+True here MUST issue a `Nav.replaceUrl` on arrival.** If it does not,
+`mirroring` stays set, and the next genuine navigation is mistaken
+for this shell's own echo and never moves the reader. Arriving at the
+shelf with no filters has no URL to write, so satisfying that
+contract needs its own careful pass rather than a line added in
+passing.
+
+Leaving this as `False` for a route that *does* mirror makes its
+every keystroke scroll the reader to the top of the page.
 
 -}
 arrivalMirrors : Route -> Bool
 arrivalMirrors _ =
     False
+
+
+{-| The scheme and host this document was served from, for the
+printed footer's short URL. Taken from the boot URL rather than
+hard-coded, so a local preview prints a local address and does not
+claim to be the published one.
+-}
+origin : Url -> String
+origin url =
+    let
+        scheme =
+            case url.protocol of
+                Url.Https ->
+                    "https://"
+
+                Url.Http ->
+                    "http://"
+    in
+    scheme
+        ++ url.host
+        ++ Maybe.withDefault "" (Maybe.map (\p -> ":" ++ String.fromInt p) url.port_)
 
 
 {-| Scroll the window to an anchor. `Dom.getElement` reports
@@ -406,13 +783,75 @@ view model =
         [ siteNav model
         , case model.route of
             Route.Home ->
-                Page.Home.view (chrome model)
+                case model.index of
+                    Fetching ->
+                        Page.Shelf.viewLoading
+
+                    FetchFailed ->
+                        Page.Shelf.viewFailed
+
+                    Fetched index ->
+                        Page.Shelf.view
+                            { index = index
+                            , filters = model.filters
+                            , openPath = model.openPath
+                            , onOpen = OpenPath
+                            , onToggle = ToggleFacet
+                            , onQuery = ShelfQuery
+                            , onClear = ClearFilters
+                            }
 
             Route.About ->
                 Page.About.view (chrome model)
 
             Route.DesignStandard ->
                 Page.DesignStandard.view (chrome model)
+
+            Route.Cook slug ->
+                case model.recipe of
+                    Fetching ->
+                        Page.Recipe.viewLoading
+
+                    FetchFailed ->
+                        Page.Recipe.viewFailed slug
+
+                    Fetched recipe ->
+                        Page.Cook.view
+                            { recipe = recipe
+
+                            -- Off the URL, never inherited through
+                            -- navigation: entering cook mode must not
+                            -- be able to change the quantities.
+                            , factor = model.factor
+                            , done = model.done
+                            , onStamp = Stamp
+                            , timer = model.timer
+                            , now = model.now
+                            , onStartTimer = StartTimer
+                            , onStopTimer = StopTimer
+                            , wake = model.wake
+                            }
+
+            Route.Recipe slug ->
+                case model.recipe of
+                    Fetching ->
+                        Page.Recipe.viewLoading
+
+                    FetchFailed ->
+                        Page.Recipe.viewFailed slug
+
+                    Fetched recipe ->
+                        Page.Recipe.view
+                            { recipe = recipe
+                            , factor = model.factor
+                            , onScale = SetFactor
+                            , form = model.form
+                            , onForm = SetForm
+                            , prepCard = model.prepCard
+                            , onPrepCard = TogglePrepCard
+                            , origin = model.origin
+                            , today = model.today
+                            }
         ]
     }
 

@@ -9,7 +9,15 @@
      so the tokens below are inlined from theme.css and must be updated
      by hand if those change. Both themes, same three-state contract as
      the app: bare :root is light, prefers-color-scheme is guarded with
-     :not([data-theme='light']), [data-theme='dark'] repeats it. -->
+     :not([data-theme='light']), [data-theme='dark'] repeats it.
+
+     `--accent` here is theme.css's actionable role — the shelf cut of
+     volt, drawn as a fill with --ink on it (13.42:1). The page-layer
+     tokens are deliberately absent: this page has no procedure on it.
+
+     The three @font-face blocks are the faces this page actually uses.
+     They are not preloaded: a 404 is a dead end nobody waits on, and
+     `font-display: swap` is the whole mechanism here. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -22,6 +30,12 @@
         font-family: 'Archivo Expanded';
         src: url('/fonts/archivo-expanded-700-latin.woff2') format('woff2');
         font-weight: 700;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/inter-500-latin.woff2') format('woff2');
+        font-weight: 500;
         font-display: swap;
       }
       @font-face {

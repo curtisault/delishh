@@ -17,7 +17,6 @@ import Expect
 import Html.Attributes as Attr
 import Page.About
 import Page.DesignStandard
-import Page.Home
 import Search
 import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
@@ -29,11 +28,15 @@ chrome =
     { active = Nothing, query = "", onQuery = always () }
 
 
-{-| The home page as it renders while a search is open.
+{-| A document page as it renders while a search is open.
+
+About rather than the front page: `/` is the shelf now, and the shelf
+wears no `Doc` chrome. Search is chrome, so any document demonstrates
+it — this is the smallest one.
 -}
 searched : String -> Query.Single ()
 searched query =
-    Query.fromHtml (Page.Home.view { chrome | query = query })
+    Query.fromHtml (Page.About.view { chrome | query = query })
 
 
 pageAt : String -> Query.Single ()
@@ -43,11 +46,8 @@ pageAt path =
             "/about" ->
                 Page.About.view chrome
 
-            "/design-standard" ->
-                Page.DesignStandard.view chrome
-
             _ ->
-                Page.Home.view chrome
+                Page.DesignStandard.view chrome
 
 
 {-| `Selector.text` matches a substring of one text node, case
@@ -102,10 +102,10 @@ suite =
                 \_ -> Search.run "   " |> Expect.equal []
             , test "a term finds its section" <|
                 \_ ->
-                    Search.run "scaffold"
+                    Search.run "author"
                         |> List.head
                         |> Maybe.map .anchor
-                        |> Expect.equal (Just "sec-what")
+                        |> Expect.equal (Just "sec-who")
             , test "an alias finds a section that never says the word" <|
                 \_ ->
                     Search.run "privacy"
@@ -131,9 +131,9 @@ suite =
                 \_ -> Search.run "zzzzq" |> Expect.equal []
             , test "single letters are ignored, so a stray keystroke does not empty the results" <|
                 \_ ->
-                    Search.run "scaffold x"
+                    Search.run "author x"
                         |> List.length
-                        |> Expect.equal (List.length (Search.run "scaffold"))
+                        |> Expect.equal (List.length (Search.run "author"))
             ]
         , describe "searching replaces the sheet"
             -- the query lives in the model rather than the URL, so a
@@ -141,58 +141,58 @@ suite =
             -- view directly is the only way to hold it
             [ test "the results are in the sheet, at full measure" <|
                 \_ ->
-                    searched "scaffold"
+                    searched "colophon"
                         |> Query.findAll [ Selector.class "hit" ]
                         |> Query.count (Expect.greaterThan 0)
             , test "and the document's own sections are not" <|
                 -- a result list floating over the page it came from
                 -- would be two documents at once
-                \_ -> searched "scaffold" |> Query.hasNot [ Selector.id "sec-what" ]
+                \_ -> searched "colophon" |> Query.hasNot [ Selector.id "sec-who" ]
             , test "the first hit is the section that has the word" <|
                 \_ ->
-                    searched "scaffold"
+                    searched "colophon"
                         |> Query.findAll [ Selector.class "hit" ]
                         |> Query.first
-                        |> Query.has [ Selector.attribute (Attr.href "/#sec-what") ]
+                        |> Query.has [ Selector.attribute (Attr.href "/about#sec-colophon") ]
             , test "a query that finds nothing says so, rather than showing an empty page" <|
                 \_ ->
                     searched "zzzzq"
                         |> Query.has [ Selector.text "Nothing found" ]
             , test "the rail counts what was found instead of listing it twice" <|
                 \_ ->
-                    searched "scaffold"
+                    searched "colophon"
                         |> Query.find [ Selector.id "doc-toc" ]
                         |> Query.hasNot [ Selector.class "doc-toc-link" ]
             , test "the box holds what was typed" <|
                 \_ ->
-                    searched "scaffold"
+                    searched "colophon"
                         |> Query.find [ Selector.class "doc-search-input" ]
-                        |> Query.has [ Selector.attribute (Attr.value "scaffold") ]
+                        |> Query.has [ Selector.attribute (Attr.value "colophon") ]
             , test "and offers a way out of it" <|
-                \_ -> searched "scaffold" |> Query.has [ Selector.class "doc-search-clear" ]
+                \_ -> searched "colophon" |> Query.has [ Selector.class "doc-search-clear" ]
             , test "an empty box leaves the document alone" <|
                 \_ ->
                     searched ""
                         |> Expect.all
-                            [ Query.has [ Selector.id "sec-what" ]
+                            [ Query.has [ Selector.id "sec-who" ]
                             , Query.hasNot [ Selector.class "hit" ]
                             , Query.hasNot [ Selector.class "doc-search-clear" ]
                             ]
             , test "whitespace is not a search" <|
-                \_ -> searched "   " |> Query.has [ Selector.id "sec-what" ]
+                \_ -> searched "   " |> Query.has [ Selector.id "sec-who" ]
             ]
         , describe "addresses"
             [ test "a section hit carries its anchor" <|
                 \_ ->
-                    Search.run "scaffold"
+                    Search.run "colophon"
                         |> List.head
                         |> Maybe.map Search.address
-                        |> Expect.equal (Just "/#sec-what")
+                        |> Expect.equal (Just "/about#sec-colophon")
             , test "every entry names a page the site has" <|
                 \_ ->
                     Search.index
                         |> List.map .path
-                        |> List.filter (\path -> not (List.member path [ "/", "/about", "/design-standard" ]))
+                        |> List.filter (\path -> not (List.member path [ "/about", "/design-standard" ]))
                         |> Expect.equal []
             ]
         ]

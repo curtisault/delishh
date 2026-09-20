@@ -8,36 +8,53 @@
    (.tag-accent), which takes --accent/--ink directly because a volt
    block with ink on it reads the same in both lightings.
 
-   ---- DS-01 §04: an acid names a physical process ----
+   ---- DS-01 §04: two layers, one honesty rule ----
 
-   Each acid names a thermal or biological state of the food, never a
-   cuisine or a category. Port the rule, not the mapping:
+   The acids are the same four everywhere. What changes is WHERE they
+   are allowed, and that split is carried in the token NAMES so it is
+   reviewable without reading the component:
 
-     --accent       the ACTIONABLE — the primary verb, the active
-                    step, the scale control, the print button. One per
-                    surface, and the loudest thing on it.
-     --acid-cyan    COLD CHAIN — chill, freeze, cure, set, raw, hold.
-     --acid-orange  HEAT AND HAZARD — fry, sear, sugar work, smoke
-                    point, anything that burns you.
-     --acid-mag     LIVE — ferment, culture, proof, brine, anything
-                    alive in the jar.
+     --shelf-*   THE LOUD LAYER. Browse surfaces — tiles, chips,
+                 category plates. Acid as a FILL, with ink text on it.
+                 Decoration is permitted here and nowhere else.
+     --page-*    THE QUIET LAYER. Recipe reading surfaces. Acid as a
+                 MARK only — a word, a rule, a border. Never a fill
+                 behind procedure, and never on a quantity.
+
+   A `--shelf-*` token inside a recipe page is a bug, and so is a
+   `--page-*` token used as a background. That is the whole reason
+   they are not one set of four.
+
+   Each acid names a physical state of the food, never a cuisine and
+   never a category:
+
+     act    THE ACTIONABLE — the primary verb, the active step, the
+            scale control, the print button. One per surface.
+     cold   COLD CHAIN — chill, freeze, cure, set, raw, hold.
+     heat   HEAT AND HAZARD — fry, sear, sugar work, smoke point.
+     live   LIVE & SWEET — ferment, culture, proof; the dessert end.
 
    Two rules that govern every use of them:
    - ACID NEVER LANDS ON A QUANTITY. Amounts, temperatures and times
-     are set in ink or frost; the dazzle lives in labels and structure.
-     This is what makes a dense page trustworthy.
-   - INFORMATION IS NEVER COLOR-ONLY. A thermal class carries its word
-     as well as its mark — required for color-blind readers, and the
-     same rule is what makes the black-and-white printout work.
+     are set in ink; the dazzle lives in labels and structure. This is
+     what makes a dense page trustworthy.
+   - INFORMATION IS NEVER COLOR-ONLY. A chip carries its word as well
+     as its fill — required for color-blind readers, and the same rule
+     is what makes the black-and-white printout work.
 
-   ---- the field: light and dark are strata, not themes ----
+   ---- the field, and why the page layer is darkened ----
 
-   Light is the lit surface (clinical, ink text). Dark is the deep
-   stratum (near-black, acid at full strength). Volt-on-light FAILS
-   contrast at text size, so on light an acid appears as a block or
-   fill with ink text, never as small colored type; the *-tx variants
-   are the darkened cuts for the cases that need colored words, and
-   every one of them is at or above 4.5:1 on its own field.
+   Light is a lit bench (near-white, ink text). Dark is the same
+   system at night (near-black, acid at full strength). Volt-on-light
+   is ~1.1:1 — a
+   mark nobody can see — so on light every `--page-*` is a DARKENED
+   cut of its acid, and the fills keep the bright one. In dark the two
+   converge, because the contrast is there without help.
+
+   Every ratio below is measured, not estimated, and
+   `scripts/contrast_test.ts` recomputes them from this file on every
+   `deno task test`. A number in a comment here that disagrees with
+   the hex beside it fails the build.
 
    ---- the three-state contract ----
    Get this right or the toggle half-works:
@@ -63,8 +80,8 @@
 
   /* ---- role tokens (light: the lit surface) ---- */
   --surface: #e7e8e4; /* page ground */
-  --tx: #12150e; /* body text */
-  --tx-dim: #4c5147; /* secondary text, section intents */
+  --tx: #12150e; /* body text · 14.97:1 on --surface */
+  --tx-dim: #4c5147; /* secondary text, section intents · 6.62:1 */
   --rule: #12150e; /* STRUCTURAL rules: section underlines, borders,
                       the masthead's 3px. Note this is ink, not
                       DS-01's mid-grey `--rule` — in the app sheet the
@@ -74,30 +91,44 @@
   --rule-soft: #9aa093; /* DS-01's --rule: borders that divide without
                            structuring */
   --hairline: #c2c5bc; /* non-structural separators */
-  --tint: #d2d5ce; /* inset fields, hero table rows */
-  --panel: #dddfd9; /* note panels */
+  --tint: #d2d5ce; /* inset fields, hero rows · --tx on it 12.42:1 */
+  --panel: #dddfd9; /* note panels · --tx on it 13.72:1 */
   --stencil-bg: #12150e; /* the stencil: site nav, slab titles, strip */
-  --stencil-tx: #f2f3ef;
+  --stencil-tx: #f2f3ef; /* 16.54:1 on --stencil-bg */
   --stencil-mark: var(--accent); /* accents ON the stencil field */
   --block-bg: #12150e; /* applied blocks: <mark>, the skip chip */
   --block-tx: #f2f3ef;
-  --mark: #4c5147; /* §N.M clause marks, rail numbers */
+  --mark: #4c5147; /* §N.M clause marks, rail numbers · 6.62:1 */
   --data-accent: #12150e; /* numerals & section numbers: ink while the
-                             lights are on, volt in the deep stratum */
-  --here: #3e5200; /* the "you are here" mark — the rail's active
-                      section. Volt itself is ~1.1:1 on this ground,
-                      a mark nobody can see, so on light it is the
-                      darkened cut. */
+                             lights are on, volt after dark */
+  --here: var(--page-act); /* 7.07:1 — the "you are here" mark on the
+                              rail's active section. Raw volt on this
+                              ground is a hair over 1:1, a mark nobody
+                              can see, which is exactly what the page
+                              layer exists to fix, so it takes that
+                              cut rather than the fill. */
 
-  /* ---- the acids (DS-01 §04) ---- */
-  --accent: #b9ee00; /* THE actionable */
-  --accent-tx: #3e5200; /* ...as text, at AA on light */
-  --acid-cyan: #00c8dc; /* cold chain */
-  --cyan-tx: #05555f;
-  --acid-orange: #ff6a00; /* heat and hazard */
-  --orange-tx: #8c3200;
-  --acid-mag: #ff2e88; /* live */
-  --mag-tx: #9c0b4a;
+  /* ---- the shelf layer: acid as a FILL, ink on top (DS-01 §04) ----
+     Browse surfaces only. Every ratio is ink-on-fill, measured. */
+  --shelf-act: #b9ee00; /* volt · --shelf-tx on it 13.42:1 */
+  --shelf-cold: #00c8dc; /* cyan · --shelf-tx on it 9.04:1 */
+  --shelf-heat: #ff6a00; /* orange · --shelf-tx on it 6.42:1 */
+  --shelf-live: #ff2e88; /* magenta · --shelf-tx on it 5.26:1 — the
+                            tightest pair in the system, and the reason
+                            no fill goes darker than this one */
+  --shelf-tx: #12150e; /* the ink that sits on all four */
+
+  /* ---- the page layer: acid as a MARK, never a fill ----
+     Darkened cuts, measured on --surface #e7e8e4. */
+  --page-act: #3e5200; /* 7.07:1 */
+  --page-cold: #05555f; /* 6.90:1 */
+  --page-heat: #8c3200; /* 6.63:1 */
+  --page-live: #9c0b4a; /* 6.66:1 */
+
+  /* --accent is the actionable, as the existing chrome consumes it:
+     a fill, with --ink on it. It is the shelf cut, because every
+     surface that draws it draws it as a block. */
+  --accent: var(--shelf-act);
 
   /* ---- type: four voices, strictly cast (DS-01 §05) ----
      A glyph's typeface tells you what KIND of information it is.
@@ -107,12 +138,11 @@
        data       JetBrains Mono 400/700 every number that means something
        human      Instrument Serif 400  notes, and nothing else
 
-     NOT YET IN FORCE: public/fonts/ ships Archivo Expanded and
-     JetBrains Mono only. Inter and Instrument Serif must be added —
-     the .woff2 files, their OFL text, an @font-face block in
-     fonts.css, and a <link rel=preload> in index.html for whichever
-     is above the fold. Until then those two stacks fall through to
-     the system faces named below, which is why they are named. */
+     All four ship as self-hosted .woff2 under public/fonts/ — see
+     fonts.css for the @font-face blocks and the licence files. The
+     system faces named below are the fallbacks used for the few
+     milliseconds of `font-display: swap`, and for the latin-ext
+     ranges a face happens not to cover. */
   --font-display: 'Archivo Expanded', 'Archivo', ui-sans-serif,
     system-ui, sans-serif;
   --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -129,7 +159,7 @@
                       measures from here. */
 }
 
-/* ---- dark: the deep stratum ----
+/* ---- dark: the same system at night ----
    Near-black ground, acid at full strength: every *-tx variant
    collapses back onto its own acid because the contrast is there now.
    The stencil inverts to frost so the nav does not vanish into the
@@ -147,21 +177,29 @@
     --panel: #111519;
     --stencil-bg: #e4e9e6;
     --stencil-tx: #0a0d10;
-    --stencil-mark: #3e5200;
+    --stencil-mark: #3e5200; /* 7.09:1 on the inverted stencil */ /* 7.09:1 on the inverted stencil */
     --block-bg: #c8ff00;
     --block-tx: #0a0d10;
     --mark: var(--accent);
     --data-accent: var(--accent);
     --here: var(--accent);
 
-    --accent: #c8ff00;
-    --accent-tx: #c8ff00;
-    --acid-cyan: #4de3f2;
-    --cyan-tx: #4de3f2;
-    --acid-orange: #ff8a3d;
-    --orange-tx: #ff8a3d;
-    --acid-mag: #ff4d97;
-    --mag-tx: #ff4d97;
+    /* the shelf layer — brighter cuts, ratios are ink-on-fill */
+    --shelf-act: #c8ff00; /* --shelf-tx on it 16.48:1 */
+    --shelf-cold: #4de3f2; /* --shelf-tx on it 12.60:1 */
+    --shelf-heat: #ff8a3d; /* --shelf-tx on it 8.31:1 */
+    --shelf-live: #ff4d97; /* --shelf-tx on it 6.27:1 */
+    --shelf-tx: #0a0d10;
+
+    /* the page layer — no darkening needed down here: the acids
+       clear AA on near-black on their own, so mark and fill
+       converge. Measured on --surface #0a0d10. */
+    --page-act: #c8ff00; /* 16.48:1 */
+    --page-cold: #4de3f2; /* 12.60:1 */
+    --page-heat: #ff8a3d; /*  8.31:1 */
+    --page-live: #ff4d97; /*  6.27:1 */
+
+    --accent: var(--shelf-act);
   }
 }
 
@@ -176,21 +214,29 @@
   --panel: #111519;
   --stencil-bg: #e4e9e6;
   --stencil-tx: #0a0d10;
-  --stencil-mark: #3e5200;
+  --stencil-mark: #3e5200; /* 7.09:1 on the inverted stencil */
   --block-bg: #c8ff00;
   --block-tx: #0a0d10;
   --mark: var(--accent);
   --data-accent: var(--accent);
   --here: var(--accent);
 
-  --accent: #c8ff00;
-  --accent-tx: #c8ff00;
-  --acid-cyan: #4de3f2;
-  --cyan-tx: #4de3f2;
-  --acid-orange: #ff8a3d;
-  --orange-tx: #ff8a3d;
-  --acid-mag: #ff4d97;
-  --mag-tx: #ff4d97;
+  /* the shelf layer — brighter cuts, ratios are ink-on-fill */
+  --shelf-act: #c8ff00; /* --shelf-tx on it 16.48:1 */
+  --shelf-cold: #4de3f2; /* --shelf-tx on it 12.60:1 */
+  --shelf-heat: #ff8a3d; /* --shelf-tx on it 8.31:1 */
+  --shelf-live: #ff4d97; /* --shelf-tx on it 6.27:1 */
+  --shelf-tx: #0a0d10;
+
+  /* the page layer — no darkening needed down here: the acids
+     clear AA on near-black on their own, so mark and fill
+     converge. Measured on --surface #0a0d10. */
+  --page-act: #c8ff00; /* 16.48:1 */
+  --page-cold: #4de3f2; /* 12.60:1 */
+  --page-heat: #ff8a3d; /*  8.31:1 */
+  --page-live: #ff4d97; /*  6.27:1 */
+
+  --accent: var(--shelf-act);
 }
 
 * {

@@ -1,21 +1,38 @@
+---
+tag: DS-01
+kicker: DELISHH DESIGN STANDARD
+rev: REV 2
+revDate: 2026-09-19
+titleLines: [The design, standard]
+standfirst: >-
+  A personal recipe archive — browse, search, filter, print — built in
+  the acid-Y2K idiom. This document owns look, feel and voice. Where a
+  mechanic and the aesthetic disagree, we redesign the mechanic's
+  presentation, never the aesthetic.
+footNote: >-
+  This page is generated from docs/design-standard.md, which is the
+  prose of record. When build reality contradicts a decided rule, the
+  dated amendment is written first and the code changes second.
+---
+
 # Design Standard — DS-01
 
-> **delishh** · a personal recipe archive — browse, search, filter, print
-> Document DS-01 · Revision 2 · Issued 2026-09-19 · Status: IN FORCE
->
-> The aesthetic contract for delishh. This doc owns *look, feel, and
-> voice*. Where a mechanic and the aesthetic disagree, we redesign the
-> mechanic's presentation — never the aesthetic.
->
-> Revision 2 is a wholesale reframe. Revision 1 borrowed another
-> project's institutional register; this revision replaces it with
-> delishh's own premise (§01) and keeps only what earns its place in a
-> recipe archive: the measurement discipline, the print rigor, and the
-> honesty rules.
+Document DS-01 · Revision 2 · Issued 2026-09-19 · Status: IN FORCE
+
+Revision 2 is a wholesale reframe. Revision 1 borrowed another
+project's institutional register; this revision replaces it with
+delishh's own premise (§01) and keeps only what earns its place in a
+recipe archive: the measurement discipline, the print rigour, and the
+honesty rules.
+
+*Everything above the first `##` is the header of the raw file. The
+app takes its masthead from the frontmatter, so this preamble is not
+rendered — and the two must be kept in step by hand.*
 
 ---
 
 ## 00. Scope, and where things live
+<!-- doc anchor=sec-scope toc="Scope" intent="Which file owns which rule" body=clauses -->
 
 This standard covers a single-operator recipe archive: a place to keep
 recipes, find them again, and print them. The idiom is **acid-Y2K** —
@@ -37,6 +54,7 @@ diverge silently.
 ---
 
 ## 01. The premise — loud shelf, quiet page
+<!-- doc anchor=sec-premise toc="Premise" intent="The split every other rule follows from" body=clauses -->
 
 **The one-line vibe:** a shelf of recipes that looks like a sticker
 sheet and reads like a lab notebook — loud where you're choosing,
@@ -73,6 +91,7 @@ note is the reason the archive is yours.
 ---
 
 ## 02. Design pillars
+<!-- doc anchor=sec-pillars toc="Pillars" intent="The six claims, and what each one forbids" body=clauses -->
 
 ### 2.1 Printed, not simulated
 
@@ -120,6 +139,7 @@ does — in your kitchen, honestly, and then you reprint it.
 ---
 
 ## 03. Reference points, and the anti-references
+<!-- doc anchor=sec-refs toc="References" intent="What the look is taken from, and what it refuses" body=panel -->
 
 | Source | What to take |
 |--------|--------------|
@@ -146,6 +166,7 @@ does — in your kitchen, honestly, and then you reprint it.
 ---
 
 ## 04. Color — two layers, one honesty rule
+<!-- doc anchor=sec-color toc="Colour" intent="Where acid runs loud, and where it narrows" body=clauses -->
 
 The palette is four acids on a cold-neutral field, in light and dark
 themes. What changed in Revision 2 is *where* acid is allowed, split
@@ -197,6 +218,7 @@ mechanism, both themes verified independently.
 ---
 
 ## 05. Type, and the measurement ladder
+<!-- doc anchor=sec-type toc="Type" intent="The four voices, and how a quantity is set" body=clauses -->
 
 Four voices, strictly cast. A glyph's typeface tells you what *kind*
 of information it is, every time.
@@ -241,6 +263,7 @@ enforced in the build:
 ---
 
 ## 06. The recipe document — one markdown file, ten blocks
+<!-- doc anchor=sec-document toc="The document" intent="One markdown file, and the ten blocks in it" body=clauses -->
 
 Every recipe is **one markdown file** in `content/recipes/`. The
 frontmatter is the schema of record — it drives search, filtering,
@@ -363,6 +386,7 @@ photo means the block is absent. Never a placeholder.
 ---
 
 ## 07. Browse — choose your own path
+<!-- doc anchor=sec-browse toc="Browse" intent="Four ways in, and filters that never hide" body=clauses -->
 
 The shelf is the fun half of the product, and its job is to let you
 choose *how* you want to choose. Four browse paths, one per required
@@ -412,6 +436,7 @@ SEARCH ▸ caram_
 ---
 
 ## 08. Cook mode — the arm's-length constraint
+<!-- doc anchor=sec-cook toc="Cook mode" intent="Wet hands, bad light, a pan on the heat" body=clauses -->
 
 Reading a recipe while cooking imposes constraints no other screen
 has: you're two to three feet away, your hands are wet or full, the
@@ -433,6 +458,7 @@ light is bad, and something is on the heat.
 ---
 
 ## 09. Print — black and white, by design
+<!-- doc anchor=sec-print toc="Print" intent="Black ink, four templates, a footer that knows itself" body=clauses -->
 
 > The web page is rich, colorful, and alive. The printed sheet is
 > none of those things, on purpose: it is black ink on white paper,
@@ -487,6 +513,7 @@ ink, small in pages, and traceable to its current revision.
 ---
 
 ## 10. Motion — playful hands, still pages
+<!-- doc anchor=sec-motion toc="Motion" intent="Playful on the shelf, still on the page" body=clauses -->
 
 Revision 2 relaxes the total-stillness rule, but only on the shelf,
 and never ambiently.
@@ -511,6 +538,7 @@ and never ambiently.
 ---
 
 ## 11. Voice — warm, direct, precise
+<!-- doc anchor=sec-voice toc="Voice" intent="Warm where it sells nothing, exact where it counts" body=clauses -->
 
 delishh speaks like a friend who cooks seriously: enthusiastic about
 the food, exact about the numbers. Two registers, split on the same
@@ -540,6 +568,7 @@ copy is written in a hurry and nobody reviews a tooltip.
 ---
 
 ## 12. Hard constraints — never waived
+<!-- doc anchor=sec-constraints toc="Hard constraints" intent="The bars that are never waived" body=panel -->
 
 - **Dense but never broken.** No overlapping text, no clipped
   quantities, no unreadable state, at any density.
@@ -563,6 +592,7 @@ copy is written in a hurry and nobody reviews a tooltip.
 ---
 
 ## 13. Governance, and the first five things to build
+<!-- doc anchor=sec-governance toc="Governance" intent="Dated amendments, and where to start" body=clauses -->
 
 - **Amendments are dated blocks, not rewrites.** A new ruling is
   appended with its date and overrides the prose beneath it. The

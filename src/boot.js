@@ -8,6 +8,10 @@
 import './theme.css'
 import './fonts.css'
 import './sheet.css'
+import './shelf.css'
+import './recipe.css'
+import './cook.css'
+import './print.css'
 import { Elm } from './Main.elm'
 
 const THEME_KEY = 'delishh-theme'
@@ -26,7 +30,63 @@ if (storedTheme === 'light' || storedTheme === 'dark') {
 }
 
 const app = Elm.Main.init({
-  flags: { theme: storedTheme },
+  flags: {
+    theme: storedTheme,
+    // The date a printed sheet says it was pulled (DS-01 §09). Elm
+    // cannot read a clock without a subscription, and a document does
+    // not need one ticking — this is the load date, which for a page
+    // opened in order to print it IS the print date.
+    today: new Date().toLocaleDateString('en-CA'),
+  },
+})
+
+// The screen wake lock — DS-01 §08.
+//
+// Elm asks for it and is TOLD WHAT HAPPENED, because the badge on
+// screen says which. A page that claims "screen held" on a browser
+// that refused is lying about its status, and the reader finds out
+// when the screen goes black with their hands covered in flour.
+//
+// The spec releases the lock whenever the document is hidden, so it
+// has to be re-taken when the tab comes back — otherwise the lock
+// silently stops working the first time you check a message.
+let wakeLock = null
+let wakeWanted = false
+
+const reportWake = (state) => app.ports.wakeLockChanged.send(state)
+
+async function takeWakeLock() {
+  if (!('wakeLock' in navigator)) return reportWake('unsupported')
+  try {
+    wakeLock = await navigator.wakeLock.request('screen')
+    wakeLock.addEventListener('release', () => {
+      wakeLock = null
+      if (!wakeWanted) reportWake('off')
+    })
+    reportWake('held')
+  } catch {
+    // No user gesture, battery saver, an insecure origin — the
+    // reasons differ and the consequence does not.
+    wakeLock = null
+    reportWake('refused')
+  }
+}
+
+app.ports.setWakeLock.subscribe(async (want) => {
+  wakeWanted = want
+  if (want) {
+    await takeWakeLock()
+  } else {
+    if (wakeLock) await wakeLock.release()
+    wakeLock = null
+    reportWake('off')
+  }
+})
+
+document.addEventListener('visibilitychange', () => {
+  if (wakeWanted && wakeLock === null && document.visibilityState === 'visible') {
+    takeWakeLock()
+  }
 })
 
 app.ports.saveTheme.subscribe((theme) => {

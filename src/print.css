@@ -1,0 +1,511 @@
+/* delishh — the issued sheet. DS-01 §09.
+
+   THE WHOLE OF PRINT LIVES HERE. There is no print-specific
+   JavaScript anywhere in this project (§12): the four forms are
+   classes on the recipe wrapper, set by a picker that does nothing
+   else, and everything below is `@media print` over the document the
+   screen already rendered.
+
+   The screen and the sheet are two renderings of one markdown file.
+   The screen never pretends to be paper; the paper never apologises
+   for not being the screen. Concretely:
+
+     BLACK AND WHITE, ALWAYS. Acid does not survive a monochrome
+     laser and wastes colour toner on a page that will be thrown
+     away. A fill becomes a solid black block with knockout text; a
+     chip becomes an outlined capsule with its word; a hazard becomes
+     45° hatching. Every one of those still carries its WORD, which
+     is the same rule that makes the screen readable to a colour-blind
+     reader — one rule, two payoffs (§04).
+
+     NO REVERSED BODY TYPE. Knockout survives on a heading and fills
+     into a smear at 9pt after one photocopy.
+
+     THE SHEET IS DESIGNED TO BE DESTROYED. Reprinting is the intended
+     lifecycle, which is exactly why it must be cheap in ink, small in
+     pages, and traceable back to its current revision.
+
+   Body floor is 11pt and step numbers 14pt — LARGER than the screen,
+   because the sheet sits on a counter and you are standing. */
+
+/* Margins in physical units, sized for the sheet to be handled at the
+   edge and held by a clip. The extra foot is the traceability line. */
+@page {
+  margin: 14mm 14mm 16mm;
+}
+
+/* The prep card is furniture for paper and hidden on screen until
+   asked for. Off-screen rather than `display: none` so that turning
+   it on is a layout the reader can actually check before printing. */
+.prep-card {
+  display: none;
+}
+.with-prep .prep-card {
+  display: block;
+  margin-top: 1.8rem;
+  border-top: 3px solid var(--rule);
+  padding-top: 1rem;
+}
+.print-footer {
+  display: none;
+}
+
+.prep-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0 2rem;
+}
+.prep-list {
+  list-style: none;
+  margin: 0 0 0.8rem;
+  padding: 0;
+}
+.prep-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.22rem 0;
+  font-size: 0.92rem;
+}
+/* An unticked box drawn as a rule, not a glyph: a character checkbox
+   is a font dependency, and this one gets ticked with a pen. */
+.prep-box {
+  flex: none;
+  width: 0.72rem;
+  height: 0.72rem;
+  border: 1.5px solid var(--rule);
+}
+.prep-qty {
+  flex: none;
+  min-width: 4.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- the print picker (screen furniture) ---------- */
+
+.printer {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+.printer-k {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+  align-self: center;
+}
+.printer-set {
+  display: flex;
+  border: 1.5px solid var(--rule);
+}
+.printer-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  background: none;
+  border: 0;
+  border-right: 1.5px solid var(--rule);
+  color: var(--tx);
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  text-align: left;
+  min-height: 2rem;
+}
+.printer-btn:last-child {
+  border-right: 0;
+}
+.printer-btn.active {
+  background: var(--accent);
+  color: var(--ink);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.printer-btn-k {
+  font-size: 0.6rem;
+}
+/* Every control states its own use, so nobody prints one to find out
+   what it does (§2.5). */
+.printer-btn-note {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+}
+.printer-btn.active .printer-btn-note {
+  color: var(--ink);
+}
+.printer-prep {
+  font-size: 0.6rem;
+  background: none;
+  border: 1.5px solid var(--rule);
+  color: var(--tx);
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  min-height: 2rem;
+}
+.printer-prep.active {
+  background: var(--block-bg);
+  color: var(--block-tx);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ==========================================================================
+   @media print — everything below here is the sheet
+   ========================================================================== */
+
+@media print {
+  /* Black on white, and say so at the root so no token leaks a hue
+     into a monochrome queue. The acid custom property is overridden
+     to ink, which turns every rule, mark and step number black
+     without touching a single component rule.
+
+     EVERY DECLARATION HERE IS `!important`, and that is not laziness.
+     A media query contributes NO specificity, so this block competes
+     with theme.css on selector weight alone — and it loses:
+     `:root:not([data-theme='light'])` scores (0,2,0) against a bare
+     `:root`'s (0,1,0). Without `!important`, a reader with dark mode
+     on prints a near-black page and empties a toner cartridge doing
+     it. Found by screenshotting the print rules, not by reading them.
+
+     Matching the dark selector's shape instead would work only while
+     print.css stays last in the bundle, which is a load-order
+     promise no stylesheet should have to keep. */
+  :root,
+  :root:not([data-theme='light']),
+  :root[data-theme='dark'] {
+    --surface: #fff !important;
+    --tx: #000 !important;
+    --tx-dim: #000 !important;
+    --rule: #000 !important;
+    --rule-soft: #000 !important;
+    --hairline: #999 !important;
+    --tint: #fff !important;
+    --panel: #fff !important;
+    --block-bg: #000 !important;
+    --block-tx: #fff !important;
+    --stencil-bg: #000 !important;
+    --stencil-tx: #fff !important;
+    --accent: #000 !important;
+    --ink: #fff !important;
+    --acid: #000 !important;
+    --page-heat: #000 !important;
+    --page-cold: #000 !important;
+    --page-live: #000 !important;
+    --page-act: #000 !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+    line-height: 1.35;
+  }
+
+  /* Screen furniture. The nav, the two controls and the way-back link
+     are all things you press, and paper has nothing to press. */
+  .site-nav,
+  .scaler,
+  .printer,
+  .recipe-back {
+    display: none !important;
+  }
+
+  .recipe-layout {
+    display: block;
+    padding: 0;
+  }
+  .recipe {
+    max-width: none;
+  }
+
+  /* ---------- the plate ---------- */
+
+  .recipe-plate {
+    border-bottom: 2pt solid #000;
+    padding-bottom: 6pt;
+    margin-bottom: 10pt;
+  }
+  .recipe-title {
+    font-size: 24pt;
+    line-height: 0.95;
+  }
+  .recipe-serial {
+    font-size: 8pt;
+  }
+  .recipe-no {
+    font-weight: 700;
+  }
+  .recipe-facts {
+    gap: 14pt;
+  }
+  .recipe-fact-k {
+    font-size: 7pt;
+  }
+  .recipe-fact-v {
+    font-size: 11pt;
+  }
+
+  /* A chip prints as an outlined capsule carrying its word. The fill
+     is gone; the information is not (§04). */
+  .chip {
+    border: 0.75pt solid #000;
+    color: #000;
+    font-size: 6.5pt;
+    padding: 1pt 3pt;
+  }
+
+  /* ---------- blocks ---------- */
+
+  .recipe-h {
+    font-size: 8.5pt;
+    border-bottom: 1pt solid #000;
+    /* never a heading orphaned from what it heads */
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .recipe-block {
+    margin-bottom: 10pt;
+    /* a block that fits should not be split for the sake of it */
+    break-inside: auto;
+  }
+
+  /* ---------- the break law (§09) ----------
+     Never between a heading and its table, never inside a step,
+     never orphan the rescues. */
+  .ing,
+  .step,
+  .rescue,
+  .rev,
+  .prep-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  #rescues,
+  #note,
+  .prep-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ---------- ingredients: two columns on paper ----------
+     A sheet is read standing up, at a glance, and a single column of
+     quantities wastes the half of the page you are holding. */
+  .ing-list {
+    columns: 2;
+    column-gap: 14pt;
+  }
+  .ing {
+    grid-template-columns: 4.5rem 1fr;
+    padding: 1.5pt 0;
+    border-bottom: 0.5pt solid #999;
+    break-inside: avoid;
+  }
+  .ing-qty {
+    font-size: 10pt;
+  }
+
+  /* ---------- steps ---------- */
+
+  .step {
+    padding: 4pt 0;
+    border-bottom: 0.5pt solid #999;
+  }
+  /* 14pt, larger than the screen: the sheet is on a counter and you
+     are standing over it (§09). */
+  .step-n {
+    font-size: 14pt;
+    font-weight: 700;
+  }
+  .step-cue {
+    font-size: 8.5pt;
+    border-left: 1.5pt solid #000;
+  }
+
+  /* ---------- rescues ----------
+     A rescue that cannot be saved becomes 45° hatching plus its word.
+     Never colour, never colour alone. */
+  .rescue {
+    border-left: 2pt solid #000;
+    padding: 3pt 0 3pt 6pt;
+  }
+  .rescue.terminal {
+    border-left: 0;
+    padding-left: 8pt;
+    background: repeating-linear-gradient(
+      45deg,
+      #000 0,
+      #000 1pt,
+      #fff 1pt,
+      #fff 4pt
+    );
+    background-size: 4pt 100%;
+    background-repeat: repeat-y;
+    background-position: left top;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .rescue-flag {
+    border: 0.75pt solid #000;
+    color: #000;
+    font-size: 6.5pt;
+  }
+
+  /* ---------- the note ---------- */
+
+  .recipe-note {
+    font-size: 11pt;
+    border-left: 1.5pt solid #000;
+  }
+
+  /* ---------- the photograph ----------
+     Greyscale and high contrast: a 300-dpi photo on a home laser is a
+     smear that eats the toner budget, so what survives is closer to a
+     coarse halftone than a photograph (§09). */
+  .recipe-photo img {
+    filter: grayscale(1) contrast(1.5);
+    max-height: 55mm;
+    width: auto;
+  }
+
+  /* ---------- the traceability line (§09) ----------
+     A sheet found in a drawer in three years should be able to tell
+     you what it is and how out of date it is. On every page: fixed to
+     the page box, which is what `@page`'s bottom margin was reserved
+     for. */
+  .print-footer {
+    display: flex;
+    position: fixed;
+    bottom: -12mm;
+    left: 0;
+    right: 0;
+    gap: 8pt;
+    justify-content: space-between;
+    border-top: 0.5pt solid #000;
+    padding-top: 2pt;
+    font-size: 7pt;
+  }
+  .print-url {
+    text-align: right;
+  }
+
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  /* ======================================================================
+     FORM: SHEET (.form-sheet) — 1–2 pages, the workhorse.
+
+     No rule targets `.form-sheet`, deliberately: everything above IS
+     the sheet, and it neither adds nor hides anything. The class is
+     still emitted so the wrapper always names its form.
+     ====================================================================== */
+
+  /* ======================================================================
+     FORM: CARD — one page, dense, for a recipe you already know.
+     Larger type where it is read at a glance, and the blocks you do
+     not consult mid-cook are dropped: the photograph, the note and
+     the revision history. Not "abbreviated steps" by truncation —
+     nothing is cut from a procedure — but everything around them is.
+     ====================================================================== */
+
+  .form-card .recipe-photo,
+  .form-card #note,
+  .form-card #history,
+  .form-card #equipment {
+    display: none;
+  }
+  .form-card body,
+  .form-card {
+    font-size: 10pt;
+  }
+  .form-card .recipe-title {
+    font-size: 18pt;
+  }
+  .form-card .recipe-block {
+    margin-bottom: 6pt;
+  }
+  .form-card .step {
+    padding: 2pt 0;
+  }
+  .form-card .step-text {
+    font-size: 10.5pt;
+  }
+  .form-card .ing-list {
+    columns: 3;
+  }
+  .form-card .ing {
+    grid-template-columns: 3.6rem 1fr;
+    font-size: 9.5pt;
+  }
+  /* A card is one page by contract. If a recipe will not fit, that is
+     a signal about the recipe — print it as a sheet. */
+  .form-card .recipe {
+    max-height: none;
+  }
+
+  /* ======================================================================
+     FORM: BOOKLET — up to 4 pages, multi-component or multi-day.
+     Generous, and deliberately paginated: the procedure starts on its
+     own page so the bench never holds a step split across a fold.
+     ====================================================================== */
+
+  .form-booklet {
+    font-size: 11.5pt;
+    line-height: 1.45;
+  }
+  .form-booklet #steps {
+    break-before: page;
+    page-break-before: always;
+  }
+  .form-booklet .step {
+    padding: 7pt 0;
+  }
+  .form-booklet .step-n {
+    font-size: 16pt;
+  }
+  /* Each sub-preparation is a component, and a component does not
+     straddle a fold. */
+  .form-booklet .recipe-sub {
+    break-before: auto;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .form-booklet .ing-list {
+    columns: 2;
+  }
+  .form-booklet #rescues,
+  .form-booklet #keeps {
+    break-before: auto;
+  }
+
+  /* ======================================================================
+     THE PREP CARD — supplemental, alongside any of the three.
+     Its own page, always: it is used the day before, at a different
+     bench, and it is the one page you want to hand to somebody else.
+     ====================================================================== */
+
+  .with-prep .prep-card {
+    display: block;
+    break-before: page;
+    page-break-before: always;
+    border-top: 0;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .prep-cols {
+    grid-template-columns: 1fr 1fr;
+    gap: 0 14pt;
+  }
+  .prep-item {
+    font-size: 10pt;
+    padding: 2.5pt 0;
+  }
+  .prep-box {
+    width: 9pt;
+    height: 9pt;
+    border: 0.75pt solid #000;
+  }
+}

@@ -4,17 +4,40 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <!-- The two faces that are on screen before anything is scrolled:
-         the masthead/labels (display) and the § marks and numerals
-         (data). Served from public/fonts, so these paths are stable —
-         Vite copies public/ verbatim and does not hash it. `crossorigin`
-         is required even same-origin: fonts are fetched in CORS mode,
-         and without it the preload is discarded and fetched twice.
+    <!-- The three faces on screen before anything is scrolled: the
+         masthead and labels (display), the prose under them (body),
+         and the § marks and numerals (data). Served from public/fonts,
+         so these paths are stable — Vite copies public/ verbatim and
+         does not hash it. `crossorigin` is required even same-origin:
+         fonts are fetched in CORS mode, and without it the preload is
+         discarded and fetched twice.
 
-         Swap the faces and these two lines swap with them. -->
+         Only the 400 cut of the data voice is preloaded. 700 carries
+         quantities and step numbers, so preloading it was tried and
+         REVERTED: the symptom that prompted it — blank amounts in a
+         headless screenshot — turned out to be the headless browser
+         not rendering the data voice at all, not a swap-period flash.
+         `font-display: swap` already covers the real case with a
+         fallback rather than invisibility, and 22 kB of render-
+         blocking fetch is not worth a brief FOUT on a phone in a
+         kitchen (DS-01 §12).
+
+         Instrument Serif is deliberately NOT here. The human voice
+         appears in asides and in a recipe's note at the foot of the
+         document — never above the fold — so preloading it would buy
+         21 kB of nothing on a phone in a kitchen (DS-01 §12).
+
+         Swap a face and its line swaps with it. -->
     <link
       rel="preload"
       href="/fonts/archivo-expanded-700-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/inter-500-latin.woff2"
       as="font"
       type="font/woff2"
       crossorigin

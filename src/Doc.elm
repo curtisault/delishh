@@ -180,9 +180,19 @@ viewMasthead config =
 -- SECTIONS
 
 
+{-| Sections are numbered from **00**, not 01.
+
+The numbers are citable — `§04` appears in the prose of DS-01 and in
+`CLAUDE.md` — and the markdown the document is generated from writes
+its own headings as `## 00.` onward. Numbering from 1 here would put
+every written cross-reference one section off its target, silently.
+`scripts/build-docs.ts` checks each heading against its position to
+hold the two together.
+
+-}
 sectionNum : Int -> String
 sectionNum i =
-    String.padLeft 2 '0' (String.fromInt (i + 1))
+    String.padLeft 2 '0' (String.fromInt i)
 
 
 viewSection : Int -> Section msg -> Html msg
@@ -193,7 +203,11 @@ viewSection i s =
             , h2 [] [ text s.title ]
             , span [ class "sec-intent u" ] [ text s.intent ]
             ]
-            :: viewBody s.anchor (i + 1) s.body
+            -- `i`, not `i + 1`: a clause mark is the section's own
+            -- number and a position within it, so §04's first clause
+            -- is §4.1. Numbering the two halves from different bases
+            -- puts every clause under a section that is not its own.
+            :: viewBody s.anchor i s.body
         )
 
 

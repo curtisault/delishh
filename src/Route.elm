@@ -8,10 +8,17 @@ name. That friction is deliberate: a wildcard rule makes Cloudflare
 Pages answer every missing hashed asset with index.html as 200
 text/html, and `public/_headers` then pins that mistake for a year.
 
+`Recipe` and `Cook` are the routes that cannot be named — its slug is content,
+not a route, and adding a recipe must not mean editing a redirect
+file. It takes a wildcard SCOPED to `/recipe/*`, which is safe for the
+same reason the bare `/*` is not: hashed assets live under `/assets/`
+and never under `/recipe/`, so nothing but a recipe address can fall
+into it.
+
 -}
 
 import Url exposing (Url)
-import Url.Parser as Parser exposing (Parser, oneOf, s, top)
+import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, string, top)
 
 
 type Route
@@ -21,6 +28,10 @@ type Route
     | About
       -- DS-01, the aesthetic contract
     | DesignStandard
+      -- one recipe, by its slug — the filename under content/recipes
+    | Recipe String
+      -- the same recipe at arm's length, with a pan on the heat
+    | Cook String
 
 
 {-| The address of a page. Lowercase, hyphenated.
@@ -36,6 +47,12 @@ toPath route =
 
         DesignStandard ->
             "/design-standard"
+
+        Recipe slug ->
+            "/recipe/" ++ slug
+
+        Cook slug ->
+            "/recipe/" ++ slug ++ "/cook"
 
 
 {-| The document title. `Browser.application` owns the title, so
@@ -54,6 +71,16 @@ title route =
         DesignStandard ->
             "DELISHH — DESIGN STANDARD"
 
+        Recipe slug ->
+            -- The slug, not the recipe's title: the shell titles the
+            -- document before the fetch resolves, and a tab that reads
+            -- "Loading" while you hunt through twenty of them is worse
+            -- than one that reads the address you asked for.
+            "DELISHH — " ++ String.toUpper (String.replace "-" " " slug)
+
+        Cook slug ->
+            "DELISHH — COOK — " ++ String.toUpper (String.replace "-" " " slug)
+
 
 parser : Parser (Route -> a) a
 parser =
@@ -61,6 +88,8 @@ parser =
         [ Parser.map Home top
         , Parser.map About (s "about")
         , Parser.map DesignStandard (s "design-standard")
+        , Parser.map Cook (s "recipe" </> string </> s "cook")
+        , Parser.map Recipe (s "recipe" </> string)
         ]
 
 

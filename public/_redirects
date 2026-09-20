@@ -7,3 +7,13 @@
 
 /about /index.html 200
 /design-standard /index.html 200
+
+# The one wildcard, and the one route that cannot be named: a recipe's
+# slug is CONTENT, and adding a recipe must not mean editing this file.
+#
+# Scoped to /recipe/, which is what makes it safe where a bare `/*` is
+# not. The failure `/*` causes is that a missing hashed asset comes
+# back as index.html with a 200 and a text/html type; hashed assets
+# live under /assets/ and nothing but a recipe address can ever fall
+# into /recipe/. CI still rejects a root-level wildcard.
+/recipe/* /index.html 200

@@ -24,11 +24,17 @@
 /404.html
   Cache-Control: public, max-age=0, must-revalidate
 
-# The frozen copy of DS-01 (docs/design-standard.md is the prose of
-# record). Self-contained — its fonts are inlined, so it pulls nothing
-# from /fonts and survives being saved or mailed on its own. Unhashed
-# HTML, so it revalidates like the rest of the HTML above.
-/design-standard.html
+# The generated content: every recipe document and the shelf index.
+#
+# UNHASHED, and it changes every time a recipe is edited — so it
+# revalidates exactly like the HTML above. Without this rule it takes
+# Pages' default instead, and an edited recipe serves stale from the
+# edge: the shelf can list a revision the document has not caught up
+# to, which is the archive disagreeing with itself in public.
+#
+# Note it is the mirror of /assets/*: hashed things may be immutable
+# BECAUSE their name changes with their content. These cannot.
+/content/*
   Cache-Control: public, max-age=0, must-revalidate
 
 # NOTE: if this project ever ships generated artifacts under

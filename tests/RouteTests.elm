@@ -64,8 +64,53 @@ suite =
                 -- check a hand-written list, so adding a route means
                 -- adding it below as well, AND adding a line to
                 -- public/_redirects
-                [ Home, About, DesignStandard ]
+                [ Home, About, DesignStandard, Recipe "salted-caramel", Cook "salted-caramel" ]
             )
+        , describe "cook mode is its own address"
+            [ test "reads the slug off the path" <|
+                \_ ->
+                    Route.fromUrl (urlAt "/recipe/salted-caramel/cook")
+                        |> Expect.equal (Cook "salted-caramel")
+            , test "the recipe and its cook view are different routes" <|
+                \_ ->
+                    -- `s "recipe" </> string` must not swallow the
+                    -- third segment, or /cook would render the
+                    -- document with "salted-caramel/cook" as a slug.
+                    Route.fromUrl (urlAt "/recipe/salted-caramel")
+                        |> Expect.notEqual (Cook "salted-caramel")
+            , test "the scale rides in the query, not the path" <|
+                \_ ->
+                    Route.withQuery (Cook "salted-caramel") [ ( "scale", "1.5" ) ]
+                        |> Expect.equal "/recipe/salted-caramel/cook?scale=1.5"
+            , test "an unscaled cook link carries no query at all" <|
+                \_ ->
+                    Route.withQuery (Cook "salted-caramel") [ ( "scale", "" ) ]
+                        |> Expect.equal "/recipe/salted-caramel/cook"
+            ]
+        , describe "a recipe route carries its slug"
+            [ test "reads the slug off the path" <|
+                \_ ->
+                    Route.fromUrl (urlAt "/recipe/salted-caramel")
+                        |> Expect.equal (Recipe "salted-caramel")
+            , test "a bare /recipe is not a route" <|
+                \_ ->
+                    -- It has no slug to fetch, so it must fall back
+                    -- rather than request /content/recipes/.json
+                    Route.parse (urlAt "/recipe")
+                        |> Expect.equal Nothing
+            , test "a deeper path under /recipe is not a route either" <|
+                \_ ->
+                    Route.parse (urlAt "/recipe/a/b")
+                        |> Expect.equal Nothing
+            , test "the title is the slug, not a loading state" <|
+                \_ ->
+                    -- The shell titles the document before the fetch
+                    -- resolves; a tab reading "Loading" while you hunt
+                    -- through twenty of them is worse than one reading
+                    -- the address you asked for.
+                    Route.title (Recipe "salted-caramel")
+                        |> Expect.equal "DELISHH — SALTED CARAMEL"
+            ]
         , describe "queryParam reads a page's state off a URL"
             [ test "finds a parameter" <|
                 \_ ->

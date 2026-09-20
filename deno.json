@@ -1,15 +1,21 @@
 {
   "nodeModulesDir": "auto",
   "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.19",
+    "@std/yaml": "jsr:@std/yaml@^1.0.5",
     "vite": "npm:vite@^8.2.0",
     "vite-plugin-elm": "npm:vite-plugin-elm@^3.0.1",
     "wrangler": "npm:wrangler@^4.122.0"
   },
   "tasks": {
-    "dev": "vite",
-    "build": "vite build",
+    "content": "deno task content:recipes && deno task content:docs",
+    "content:recipes": "deno run --allow-read=content,public --allow-write=public/content scripts/build-content.ts",
+    "content:docs": "deno run --allow-read=docs --allow-write=src/Generated scripts/build-docs.ts",
+    "dev": "deno task content && vite",
+    "build": "deno task content && vite build",
     "preview": "vite preview",
-    "test": "elm-test-rs --deno",
+    "test:content": "deno test --allow-read=content,docs,src,public,index.html scripts/",
+    "test": "deno task content && deno task test:content && elm-test-rs --deno",
     "deploy": "deno task build && wrangler pages deploy dist --project-name=delishh"
   }
 }

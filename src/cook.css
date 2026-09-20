@@ -1,0 +1,349 @@
+/* delishh — cook mode (Page/Cook.elm), DS-01 §08.
+
+   THE ARM'S-LENGTH SCREEN. Every number in this file is set by the
+   hands rather than by the layout: you are two to three feet away,
+   your hands are wet or greasy or full, the light is bad, and there
+   is something on the heat.
+
+   This is the ONE place the type scale steps UP. Everywhere else in
+   the product density is a virtue; here it is a hazard.
+
+   NO HOVER RULES AT ALL below, and that is the point rather than an
+   omission: there may be no pointer, and if there is one it is
+   attached to a dirty hand. Every state this screen has — stamped,
+   running, expired — is carried by a class the markup sets, so it is
+   as true to a finger as to a mouse.
+
+   Consumes the role tokens in theme.css; raw hex here is a bug. */
+
+.cook-layout {
+  padding: 1rem 1.1rem 6rem;
+  max-width: 44rem;
+  margin: 0 auto;
+  /* Body at 20px equivalent. Authored in rem so a reader who has
+     raised their browser default gets MORE, never a layout that
+     fights them (§12). */
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+/* ---------- the header ---------- */
+
+.cook-head {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 3px solid var(--rule);
+  padding: 0.7rem 0;
+  margin-bottom: 1.2rem;
+}
+.cook-head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.cook-title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1;
+  margin: 0;
+}
+.cook-exit {
+  flex: none;
+  font-size: 0.7rem;
+  color: var(--tx);
+  text-decoration: none;
+  border: 2px solid var(--rule);
+  padding: 0.5rem 0.8rem;
+  /* 2.75rem minimum, and it scales with the text rather than being
+     pinned to a pixel size (§08). */
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cook-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+/* The scale, permanently. The one number on this screen that, if
+   wrong, ruins the dish rather than merely the timing — so at ×1 it
+   is quiet and at anything else it is a block you cannot miss (§08). */
+.cook-scale {
+  font-size: 0.66rem;
+  border: 2px solid var(--rule-soft);
+  color: var(--tx-dim);
+  padding: 0.3rem 0.55rem;
+}
+.cook-scale.is-scaled {
+  background: var(--block-bg);
+  color: var(--block-tx);
+  border-color: var(--block-bg);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* The wake-lock notice. Carries its WORD, not just a colour — the bad
+   news has to be readable, and this is the one badge whose whole
+   purpose is to not lie (§04, §08). */
+.cook-wake {
+  font-size: 0.66rem;
+  border: 2px solid var(--page-heat);
+  color: var(--page-heat);
+  padding: 0.3rem 0.55rem;
+}
+.cook-wake.is-held {
+  border-color: var(--rule-soft);
+  color: var(--tx-dim);
+}
+
+/* ---------- blocks ---------- */
+
+.cook-block {
+  margin-bottom: 1.8rem;
+}
+.cook-h {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  border-bottom: 2px solid var(--acid);
+  padding-bottom: 0.3rem;
+  margin: 0 0 0.7rem;
+}
+.cook-sub {
+  font-size: 0.7rem;
+  color: var(--tx-dim);
+  margin: 0.8rem 0 0.3rem;
+}
+
+/* ---------- ingredients ---------- */
+
+.cook-ings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cook-ing {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.1rem 0.7rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.cook-qty {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--tx);
+}
+.cook-ing-note {
+  color: var(--tx-dim);
+}
+.cook-scaled-note {
+  grid-column: 2;
+  font-size: 0.8rem;
+  color: var(--acid);
+  border-left: 2px solid var(--acid);
+  padding-left: 0.5rem;
+}
+
+/* ---------- steps ---------- */
+
+.cook-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cook-step {
+  border-bottom: 2px solid var(--hairline);
+}
+
+/* The whole step is the tap target. A small button inside a step is a
+   thing to aim at, and aiming is what wet hands cannot do. */
+.cook-stamp {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2.6rem 1fr auto;
+  gap: 0.2rem 0.8rem;
+  align-items: start;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0.9rem 0.2rem;
+  margin: 0;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  min-height: 2.75rem;
+}
+.cook-n {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--acid);
+}
+.cook-text {
+  margin: 0;
+}
+.cook-cue {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--tx);
+  border-left: 3px solid var(--acid);
+  padding-left: 0.6rem;
+}
+
+/* STAMPED, NOT GREYED. A completed step stays fully legible, because
+   you WILL re-read it to check what you already did (§08). The mark
+   is added, the text is untouched — tagged, not disabled. */
+.cook-done-mark {
+  font-size: 0.6rem;
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+  padding: 0.25rem 0.5rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.cook-step.is-done .cook-n {
+  color: var(--tx-dim);
+}
+.cook-step.is-done .cook-stamp {
+  /* A rule down the left, and nothing else. No opacity, no
+     line-through: the words have to stay readable. */
+  box-shadow: inset 3px 0 0 var(--rule-soft);
+}
+
+/* ---------- the timer ----------
+   DS-01 §10's ONE sanctioned piece of motion: a running duration is
+   functional readout, so the number is allowed to change. Tabular
+   numerals, and the box is sized so it cannot reflow the step it
+   sits in as it counts. */
+
+.cook-timer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0 0.2rem 0.9rem 3.4rem;
+}
+.cook-timer-clock {
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  /* Room for the widest reading this timer can ever show, so the
+     layout does not shift by a pixel as it counts (§10). */
+  min-width: 4.5ch;
+}
+.cook-timer-btn {
+  font-size: 0.7rem;
+  background: none;
+  border: 2px solid var(--rule);
+  color: var(--tx);
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  min-height: 2.75rem;
+}
+.cook-timer.is-running .cook-timer-clock {
+  color: var(--acid);
+}
+/* Time up. The step's own doneness cue, not an alarm — the clock was
+   never the answer, the tell was (§05). */
+.cook-timer.is-up {
+  border-left: 4px solid var(--page-heat);
+  padding-left: 0.7rem;
+  margin-left: 3.4rem;
+}
+.cook-timer.is-up .cook-timer-clock {
+  color: var(--page-heat);
+}
+.cook-timer-tell {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--tx);
+}
+
+/* ---------- watchpoints ----------
+   The sentences that decide whether the dish works, kept on screen
+   rather than a tap away. */
+
+.cook-watch {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.cook-watch li {
+  margin-bottom: 0.5rem;
+}
+.cook-watch li::marker {
+  color: var(--acid);
+}
+
+/* ---------- the way in, on the recipe page ---------- */
+
+.cook-enter {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: 0.8rem;
+  font-size: 0.66rem;
+  background: var(--accent);
+  color: var(--ink);
+  text-decoration: none;
+  padding: 0.4rem 0.9rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---------- narrow ---------- */
+@media (max-width: 30rem) {
+  .cook-ing {
+    grid-template-columns: 5rem 1fr;
+  }
+  .cook-timer,
+  .cook-timer.is-up {
+    padding-left: 0.2rem;
+    margin-left: 0;
+  }
+}
+
+/* ---------- print ----------
+   Cook mode is a screen for standing in front of. The sheet is
+   `print.css`, and printing this view instead would give you the
+   same recipe without its rescues, keeps or note. Send the reader
+   to the document. */
+@media print {
+  .cook-layout {
+    display: none !important;
+  }
+  .cook-enter {
+    display: none !important;
+  }
+}
+
+/* ---------- motion ---------- DS-01 §10.
+
+   The stillest surface in the product. Cook mode has ONE moving
+   thing and it is the timer, which §10 sanctions by name: a running
+   duration is functional readout, the number IS the information, so
+   it is allowed to change. It is not a transition and it is not in a
+   motion query — a reader who asked for reduced motion still wants
+   to know how long is left.
+
+   Everything else holds absolutely still. Nothing here transitions,
+   including the stamp: a step that animates as you mark it done is a
+   thing to wait for, with your hands full. */
+.cook-stamp:focus-visible,
+.cook-timer-btn:focus-visible,
+.cook-exit:focus-visible {
+  outline: 3px solid var(--tx);
+  outline-offset: -3px;
+}

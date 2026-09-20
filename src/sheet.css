@@ -403,10 +403,43 @@ section {
      column */
   min-width: 32rem;
 }
-/* the left column is the term being defined — data voice, and it
-   never wraps mid-token */
+/* the left column is the term being defined — data voice. It may not
+   wrap mid-token, but it MAY wrap between them: a four-column table
+   whose first column refuses to break pushes the other three off the
+   scroller entirely. */
 .doc-grid td .mono {
-  white-space: nowrap;
+  overflow-wrap: break-word;
+}
+.doc-grid td:first-child .mono code,
+.doc-grid td:first-child .mono {
+  white-space: normal;
+}
+
+/* A specimen block: the bench recipe, a schema, a sample result row.
+   The one place the document shows instead of telling, which is why
+   it is never wrapped — the alignment IS the information, and a
+   soft-wrapped specimen is a different document. It scrolls in its
+   own box like any other wide content. */
+.doc-pre {
+  font-family: var(--font-data);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  /* `--panel`, not `--stencil-bg`: the stencil is a knockout, and a
+     specimen is dense body-size text. Reversed type at this size is
+     the smear DS-01 §09 refuses on paper, and it reads no better on
+     a screen. */
+  background: var(--panel);
+  border-left: 3px solid var(--rule);
+  white-space: pre;
+  tab-size: 2;
+}
+.doc-pre code {
+  font: inherit;
+  color: inherit;
+  background: none;
+  padding: 0;
 }
 
 /* ---------- slabs ---------- */
@@ -595,14 +628,12 @@ ul.tight li {
   font-size: 0.72rem;
 }
 
-/* ---------- print ----------
-   The live site is NOT the print surface. If this project ever ships
-   a printable, generate it (typst or equivalent) rather than forcing
-   the site's CSS through a printer. These rules exist only to keep an
-   emergency browser-print legible. */
-@page {
-  margin: 14mm;
-}
+/* ---------- print: the DOCUMENT pages only ----------
+   The recipe sheet is not here — DS-01 §09 lives in its own file,
+   `src/print.css`, and `@page` is set there. These rules print the
+   prose documents (Doc.elm): the standard, home, about. Same ink
+   discipline, far less to say, because a standard is read on a screen
+   and a recipe is read on a counter. */
 @media print {
   body {
     background: #fff;
