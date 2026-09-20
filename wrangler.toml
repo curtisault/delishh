@@ -1,0 +1,12 @@
+# Cloudflare Pages config.
+#
+# First deploy: `deno run -A npm:wrangler login`, then
+# `deno task deploy` — the Pages project is created on that first run,
+# NOT in the dashboard.
+#
+# `name` must stay in step with two other places: the `--project-name`
+# in .github/workflows/deploy.yml and the `deploy` task in deno.json.
+# All three say `delishh`.
+name = "delishh"
+compatibility_date = "2026-09-19"
+pages_build_output_dir = "dist"

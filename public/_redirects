@@ -1,0 +1,9 @@
+# Client routes — SCOPED, deliberately. No wildcard `/* /index.html
+# 200`: a wildcard makes Cloudflare Pages answer every missing hashed
+# asset with index.html as 200 text/html, which strict-MIME refuses and
+# the immutable cache header then pins for a year. Adding a route in
+# src/Route.elm means adding a line here by name, and that friction is
+# the point. CI fails the build if a wildcard appears.
+
+/about /index.html 200
+/design-standard /index.html 200

@@ -1,0 +1,156 @@
+<!doctype html>
+<!-- The 404 does double duty: its presence turns OFF Cloudflare Pages'
+     SPA fallback, so a missing hashed asset returns a real 404 instead
+     of index.html served as text/html — the strict-MIME failure that
+     then gets cached for a year by the immutable rule in
+     public/_headers. Do not delete this file.
+
+     Standalone by design: it cannot link the bundle CSS (hashed name),
+     so the tokens below are inlined from theme.css and must be updated
+     by hand if those change. Both themes, same three-state contract as
+     the app: bare :root is light, prefers-color-scheme is guarded with
+     :not([data-theme='light']), [data-theme='dark'] repeats it. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="robots" content="noindex" />
+    <title>DELISHH — NO SUCH PAGE</title>
+    <style>
+      @font-face {
+        font-family: 'Archivo Expanded';
+        src: url('/fonts/archivo-expanded-700-latin.woff2') format('woff2');
+        font-weight: 700;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        src: url('/fonts/jetbrains-mono-400-latin.woff2') format('woff2');
+        font-weight: 400;
+        font-display: swap;
+      }
+
+      :root {
+        --surface: #e7e8e4;
+        --tx: #12150e;
+        --tx-dim: #4c5147;
+        --rule: #12150e;
+        --accent: #b9ee00;
+        --ink: #12150e;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --surface: #0a0d10;
+          --tx: #e4e9e6;
+          --tx-dim: #98a19b;
+          --rule: #e4e9e6;
+          --accent: #c8ff00;
+        }
+      }
+      :root[data-theme='dark'] {
+        --surface: #0a0d10;
+        --tx: #e4e9e6;
+        --tx-dim: #98a19b;
+        --rule: #e4e9e6;
+        --accent: #c8ff00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem 1.5rem;
+        background: var(--surface);
+        color: var(--tx);
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      main {
+        width: 100%;
+        max-width: 34rem;
+      }
+      .kicker {
+        font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.04em;
+        color: var(--tx-dim);
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.1rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .kicker .code {
+        background: var(--accent);
+        color: var(--ink);
+        padding: 0.05rem 0.4rem;
+        font-weight: 700;
+      }
+      h1 {
+        font-family: 'Archivo Expanded', 'Helvetica Neue', Arial, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: -0.015em;
+        font-weight: 700;
+        font-size: 2.2rem;
+        line-height: 0.95;
+        margin: 0 0 0.7rem;
+      }
+      p {
+        margin: 0 0 1.2rem;
+        max-width: 30rem;
+      }
+      nav {
+        border-top: 3px solid var(--rule);
+        padding-top: 0.8rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4rem;
+        font-family: 'Archivo Expanded', 'Helvetica Neue', Arial, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        font-size: 0.62rem;
+      }
+      nav a {
+        color: var(--tx);
+        text-decoration: none;
+        padding-bottom: 0.15rem;
+        border-bottom: 2px solid transparent;
+      }
+      nav a:hover {
+        border-bottom-color: var(--accent);
+      }
+      @media (max-width: 640px) {
+        h1 {
+          font-size: 1.7rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="kicker">
+        <span class="code">404</span>
+        <span>No such page</span>
+      </div>
+      <h1>Nothing<br />at this address</h1>
+      <p>
+        The page you asked for does not exist. Nothing has been removed —
+        this address was never in the document.
+      </p>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/design-standard">Standard</a>
+        <a href="/about">About</a>
+      </nav>
+    </main>
+  </body>
+</html>

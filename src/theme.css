@@ -1,0 +1,251 @@
+/* delishh design tokens — the single source for color and type.
+   Contract: docs/design-standard.md (DS-01). That document is the
+   authority; this file is it expressed as CSS custom properties.
+
+   Components consume ROLE tokens. Raw hex in src/sheet.css is a bug,
+   and so is consuming a primitive where a role exists — the one
+   sanctioned exception is the theme-invariant block motif
+   (.tag-accent), which takes --accent/--ink directly because a volt
+   block with ink on it reads the same in both lightings.
+
+   ---- DS-01 §04: an acid names a physical process ----
+
+   Each acid names a thermal or biological state of the food, never a
+   cuisine or a category. Port the rule, not the mapping:
+
+     --accent       the ACTIONABLE — the primary verb, the active
+                    step, the scale control, the print button. One per
+                    surface, and the loudest thing on it.
+     --acid-cyan    COLD CHAIN — chill, freeze, cure, set, raw, hold.
+     --acid-orange  HEAT AND HAZARD — fry, sear, sugar work, smoke
+                    point, anything that burns you.
+     --acid-mag     LIVE — ferment, culture, proof, brine, anything
+                    alive in the jar.
+
+   Two rules that govern every use of them:
+   - ACID NEVER LANDS ON A QUANTITY. Amounts, temperatures and times
+     are set in ink or frost; the dazzle lives in labels and structure.
+     This is what makes a dense page trustworthy.
+   - INFORMATION IS NEVER COLOR-ONLY. A thermal class carries its word
+     as well as its mark — required for color-blind readers, and the
+     same rule is what makes the black-and-white printout work.
+
+   ---- the field: light and dark are strata, not themes ----
+
+   Light is the lit surface (clinical, ink text). Dark is the deep
+   stratum (near-black, acid at full strength). Volt-on-light FAILS
+   contrast at text size, so on light an acid appears as a block or
+   fill with ink text, never as small colored type; the *-tx variants
+   are the darkened cuts for the cases that need colored words, and
+   every one of them is at or above 4.5:1 on its own field.
+
+   ---- the three-state contract ----
+   Get this right or the toggle half-works:
+   - bare :root is the COMPLETE light set (never define a color only
+     inside a media query);
+   - the prefers-color-scheme block is guarded with
+     :not([data-theme="light"]), so an explicit light choice wins over
+     a dark OS;
+   - [data-theme="dark"] repeats the dark set, so an explicit dark
+     choice wins over a light OS.
+   boot.js stamps data-theme on <html> before Elm boots. "System" is
+   represented by absence: no attribute, no stored key.
+
+   public/404.html inlines a subset of these by hand (it cannot link
+   the hashed bundle). Change a value here and change it there. */
+
+:root {
+  /* ---- primitives (never theme-swapped) ---- */
+  --ink: #12150e; /* true ink — the block motif's text */
+  --frost: #f2f3ef; /* frost — never pure #fff */
+  --paper: #fbfbf8; /* the printed object's own surface */
+  --paper-tx: #101010;
+
+  /* ---- role tokens (light: the lit surface) ---- */
+  --surface: #e7e8e4; /* page ground */
+  --tx: #12150e; /* body text */
+  --tx-dim: #4c5147; /* secondary text, section intents */
+  --rule: #12150e; /* STRUCTURAL rules: section underlines, borders,
+                      the masthead's 3px. Note this is ink, not
+                      DS-01's mid-grey `--rule` — in the app sheet the
+                      name means "a rule that carries structure", and
+                      the standard's own cover rule is drawn in --tx.
+                      The mid-grey is --rule-soft below. */
+  --rule-soft: #9aa093; /* DS-01's --rule: borders that divide without
+                           structuring */
+  --hairline: #c2c5bc; /* non-structural separators */
+  --tint: #d2d5ce; /* inset fields, hero table rows */
+  --panel: #dddfd9; /* note panels */
+  --stencil-bg: #12150e; /* the stencil: site nav, slab titles, strip */
+  --stencil-tx: #f2f3ef;
+  --stencil-mark: var(--accent); /* accents ON the stencil field */
+  --block-bg: #12150e; /* applied blocks: <mark>, the skip chip */
+  --block-tx: #f2f3ef;
+  --mark: #4c5147; /* §N.M clause marks, rail numbers */
+  --data-accent: #12150e; /* numerals & section numbers: ink while the
+                             lights are on, volt in the deep stratum */
+  --here: #3e5200; /* the "you are here" mark — the rail's active
+                      section. Volt itself is ~1.1:1 on this ground,
+                      a mark nobody can see, so on light it is the
+                      darkened cut. */
+
+  /* ---- the acids (DS-01 §04) ---- */
+  --accent: #b9ee00; /* THE actionable */
+  --accent-tx: #3e5200; /* ...as text, at AA on light */
+  --acid-cyan: #00c8dc; /* cold chain */
+  --cyan-tx: #05555f;
+  --acid-orange: #ff6a00; /* heat and hazard */
+  --orange-tx: #8c3200;
+  --acid-mag: #ff2e88; /* live */
+  --mag-tx: #9c0b4a;
+
+  /* ---- type: four voices, strictly cast (DS-01 §05) ----
+     A glyph's typeface tells you what KIND of information it is.
+
+       display    Archivo Expanded 700  plates, titles, stencils
+       body       Inter 500             every word read while cooking
+       data       JetBrains Mono 400/700 every number that means something
+       human      Instrument Serif 400  notes, and nothing else
+
+     NOT YET IN FORCE: public/fonts/ ships Archivo Expanded and
+     JetBrains Mono only. Inter and Instrument Serif must be added —
+     the .woff2 files, their OFL text, an @font-face block in
+     fonts.css, and a <link rel=preload> in index.html for whichever
+     is above the fold. Until then those two stacks fall through to
+     the system faces named below, which is why they are named. */
+  --font-display: 'Archivo Expanded', 'Archivo', ui-sans-serif,
+    system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-data: 'JetBrains Mono', ui-monospace, 'SFMono-Regular',
+    Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-human: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+
+  /* ---- measure & chrome ---- */
+  --measure: 44rem;
+  --nav-h: 2.4rem; /* the sticky site nav's height — .site-nav sets it as
+                      a hard height, so this token and the rendered bar
+                      cannot disagree. Everything that has to clear the
+                      nav (the rail's sticky offset, the search strip)
+                      measures from here. */
+}
+
+/* ---- dark: the deep stratum ----
+   Near-black ground, acid at full strength: every *-tx variant
+   collapses back onto its own acid because the contrast is there now.
+   The stencil inverts to frost so the nav does not vanish into the
+   ground, which means accents ON the stencil swap to the darkened cut
+   — the mirror of the page, where --mark and --data-accent go volt. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --surface: #0a0d10;
+    --tx: #e4e9e6;
+    --tx-dim: #98a19b;
+    --rule: #e4e9e6;
+    --rule-soft: #39424a;
+    --hairline: #232a2f;
+    --tint: #171c21;
+    --panel: #111519;
+    --stencil-bg: #e4e9e6;
+    --stencil-tx: #0a0d10;
+    --stencil-mark: #3e5200;
+    --block-bg: #c8ff00;
+    --block-tx: #0a0d10;
+    --mark: var(--accent);
+    --data-accent: var(--accent);
+    --here: var(--accent);
+
+    --accent: #c8ff00;
+    --accent-tx: #c8ff00;
+    --acid-cyan: #4de3f2;
+    --cyan-tx: #4de3f2;
+    --acid-orange: #ff8a3d;
+    --orange-tx: #ff8a3d;
+    --acid-mag: #ff4d97;
+    --mag-tx: #ff4d97;
+  }
+}
+
+:root[data-theme='dark'] {
+  --surface: #0a0d10;
+  --tx: #e4e9e6;
+  --tx-dim: #98a19b;
+  --rule: #e4e9e6;
+  --rule-soft: #39424a;
+  --hairline: #232a2f;
+  --tint: #171c21;
+  --panel: #111519;
+  --stencil-bg: #e4e9e6;
+  --stencil-tx: #0a0d10;
+  --stencil-mark: #3e5200;
+  --block-bg: #c8ff00;
+  --block-tx: #0a0d10;
+  --mark: var(--accent);
+  --data-accent: var(--accent);
+  --here: var(--accent);
+
+  --accent: #c8ff00;
+  --accent-tx: #c8ff00;
+  --acid-cyan: #4de3f2;
+  --cyan-tx: #4de3f2;
+  --acid-orange: #ff8a3d;
+  --orange-tx: #ff8a3d;
+  --acid-mag: #ff4d97;
+  --mag-tx: #ff4d97;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--surface);
+}
+
+/* Procedure voice at 500, per DS-01 §05: this is read at arm's length
+   in bad light with wet hands, so it is sized and weighted for
+   distance rather than for density. */
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--tx);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ---- shared type roles ---- */
+
+/* Wide caps: headers, labels, system voice. An expanded face carries
+   its own width, so it needs markedly less tracking than a condensed
+   stack would. Never add `font-stretch`: the only cut shipped is the
+   wide one, and asking for condensed makes a browser synthesise it. */
+.u {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+/* Data voice: numbers never wobble, and a running timer must not
+   shift layout by a pixel as it counts (DS-01 §05). */
+.mono {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Human voice: notes, and nothing else. Never procedure. */
+.human {
+  font-family: var(--font-human);
+}
+
+/* Applied block — <mark> and the skip link. The one place a fill
+   changes color between strata. */
+mark {
+  background: var(--block-bg);
+  color: var(--block-tx);
+  padding: 0 0.15em;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}

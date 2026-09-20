@@ -1,0 +1,10 @@
+{
+  "_comment": "DO NOT DELETE, and do not grow this file. This project has no Node and no npm — dependencies and tasks live in deno.json. This file exists for exactly one reason: `overrides` is the only mechanism that can force a transitive npm dependency's version, and deno.json has no equivalent. Deno does read it.",
+  "private": true,
+  "_comment_overrides": "vite-plugin-elm (3.0.1, latest) hard-pins node-elm-compiler@5.0.6, which hard-pins cross-spawn@6.0.5 exactly — carrying the ReDoS advisory with no upstream release to move to. 6.0.6 is the patch for exactly that, same major, so force it here.",
+  "overrides": {
+    "node-elm-compiler": {
+      "cross-spawn": "^6.0.6"
+    }
+  }
+}

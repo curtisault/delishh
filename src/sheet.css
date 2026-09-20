@@ -1,0 +1,829 @@
+/* delishh — layout and components for the document pages.
+   Consumes the role tokens in theme.css; raw hex here is a bug.
+
+   This is the CHROME stylesheet: the site nav, the document layout
+   (Doc.elm), the masthead, sections, clause marks, search, and the
+   two responsive tiers. Page-specific components belong in their own
+   sheet, not appended to the bottom of this one. */
+
+/* ---------- site nav ----------
+   Sticky at the top of every page: the route links and the theme
+   control stay reachable at any scroll depth, and the contents rail
+   hangs its own sticky offset off --nav-h. The height is set, not
+   derived from padding, so the token cannot drift from the bar. */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: var(--nav-h);
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 3.5rem;
+}
+.site-nav .brand {
+  flex: none;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+}
+/* the routes and the theme control travel together: on a wide screen
+   they are the right-hand end of the bar, on a narrow one they are the
+   panel behind the Menu button. Same element, two shapes. */
+.site-nav .nav-menu {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+.site-nav .nav-links {
+  display: flex;
+  gap: 1.4rem;
+}
+/* chrome is never squashed by text pressure: a route that shrinks
+   below its own label does not wrap inside a bar of fixed height, it
+   prints through its neighbour */
+.site-nav .nav-links a,
+.site-nav .theme-btn {
+  flex: none;
+  white-space: nowrap;
+}
+/* the way in, on narrow layouts only */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0.6rem 0;
+  margin: 0;
+  color: var(--stencil-tx);
+  font-size: 0.62rem;
+  cursor: pointer;
+}
+/* three rules — the vocabulary the rest of the document is drawn in.
+   It does not change between states; the word beside it does. */
+.nav-toggle-mark {
+  position: relative;
+  width: 1.05rem;
+  height: 0.62rem;
+  border-top: 2px solid var(--stencil-tx);
+  border-bottom: 2px solid var(--stencil-tx);
+}
+.nav-toggle-mark::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--stencil-tx);
+}
+.site-nav a {
+  color: var(--stencil-tx);
+  text-decoration: none;
+  font-size: 0.62rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 2px solid transparent;
+}
+.site-nav a.active {
+  border-bottom-color: var(--stencil-mark);
+}
+.site-nav a:hover {
+  border-bottom-color: var(--stencil-tx);
+}
+
+/* the theme control: three-state, worn like the nav links */
+.theme-control {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  border-left: 1px solid var(--stencil-tx);
+  padding-left: 1.1rem;
+}
+.theme-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin: 0;
+  padding: 0 0 0.15rem;
+  color: var(--stencil-tx);
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.theme-btn:hover {
+  opacity: 1;
+  border-bottom-color: var(--stencil-tx);
+}
+.theme-btn.active {
+  opacity: 1;
+  border-bottom-color: var(--stencil-mark);
+}
+
+/* ---------- the document layout (Doc.elm) ----------
+   Full-bleed handbook dimensions: the contents rail holds
+   the left margin, the document takes the rest of the viewport.
+   Section rules run the full width; body text sits left at a reading
+   measure, leaving the right side open for the intent labels. The
+   rail is sticky on desktop and becomes an ink jump-strip on small
+   screens. */
+.doc-layout {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: 0 3rem;
+  padding: 0 3.5rem;
+  align-items: start;
+}
+
+/* The rail's grid cell must span the whole row for its sticky child to
+   have anywhere to travel — the layout's `align-items: start` would
+   otherwise shrink the cell to the rail's own height and sticky would
+   be a no-op (it was, until 2026-08-16). */
+.doc-toc {
+  align-self: stretch;
+}
+.doc-toc-inner {
+  position: sticky;
+  top: calc(var(--nav-h) + 1rem);
+  padding: 2.4rem 0;
+  /* a short viewport must still reach section 12: the rail scrolls
+     inside its own sticky box rather than running off the screen */
+  max-height: calc(100vh - var(--nav-h) - 2rem);
+  overflow-y: auto;
+}
+.doc-toc-head {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  border-bottom: 2px solid var(--rule);
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+.doc-toc-link {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+  padding: 0.3rem 0 0.28rem;
+  text-decoration: none;
+  color: var(--tx);
+  border-bottom: 1px solid var(--hairline);
+}
+.doc-toc-num {
+  font-size: 0.6rem;
+  color: var(--mark);
+  flex: none;
+}
+.doc-toc-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+}
+.doc-toc-link:hover .doc-toc-label {
+  box-shadow: inset 0 -3px 0 var(--here);
+}
+/* where the reader actually is: the persistent form of that hover.
+   The anchor arrives from boot.js through the sectionSeen port —
+   Elm has no scroll subscription.
+
+   `--here` and not --accent directly: the raw accent is a block
+   color, and as a 3px underline on the surface it can be very nearly
+   not there. Anything that draws this underline uses --here. */
+.doc-toc-link.is-active .doc-toc-label {
+  box-shadow: inset 0 -3px 0 var(--here);
+}
+.doc-toc-link.is-active .doc-toc-num {
+  color: var(--data-accent);
+}
+
+/* clause marks hold their own column, left of the body — citable */
+.doc-clause-row {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr);
+}
+.doc-clause-mark {
+  padding-top: 0.35rem;
+  font-size: 0.58rem;
+  color: var(--mark);
+}
+/* the mark is a link to its own clause, so "see §7.4" has somewhere
+   to point. It keeps the margin's quiet, and only answers on hover. */
+a.doc-clause-mark {
+  text-decoration: none;
+}
+a.doc-clause-mark:hover {
+  color: var(--tx);
+}
+
+/* body content reads at a measure; the open right side is deliberate */
+.doc-clause-body {
+  max-width: 56rem;
+}
+.sheet section > :not(.sec-head):not(.doc-clause-row) {
+  margin-left: 3.4rem;
+  max-width: 56rem;
+}
+
+/* ---------- the document body ----------
+   No paper card: the page is the surface. The rules span its width. */
+.sheet {
+  margin: 0 0 3rem;
+  padding: 2.2rem 0 4rem;
+}
+
+/* ---------- masthead ---------- */
+.masthead {
+  border-bottom: 3px solid var(--rule);
+  padding-bottom: 1rem;
+}
+.masthead .kicker {
+  font-size: 0.62rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+.masthead .kicker .tag-accent {
+  background: var(--accent);
+  color: var(--ink);
+  padding: 0.05rem 0.4rem;
+  margin: -0.05rem 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+/* the revision mark carries its date in the data voice — a date is a
+   number, and numbers never wobble */
+.masthead .kicker .rev {
+  white-space: nowrap;
+}
+.masthead .kicker .rev-date {
+  letter-spacing: 0.04em;
+  color: var(--tx-dim);
+}
+.masthead .kicker .rev-date::before {
+  content: ' · ';
+  color: var(--tx-dim);
+}
+/* Archivo Expanded ships a single 700 cut — asking for 800 makes the
+   browser synthesise a heavier one on top of an already-bold face,
+   which smears the display sizes. 700 everywhere the display voice
+   appears. 2.9rem fits a two-word line in the wide face at the
+   narrowest desktop column; measure your own longest title before
+   raising it. */
+.masthead h1 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  font-size: 2.9rem;
+  line-height: 0.92;
+  margin: 0 0 0.6rem;
+}
+.masthead .standfirst {
+  font-size: 1rem;
+  font-style: italic;
+  margin: 0;
+  max-width: 32rem;
+}
+
+/* ---------- sections ---------- */
+section {
+  margin-top: 2.6rem;
+}
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  border-bottom: 1.5px solid var(--rule);
+  padding-bottom: 0.35rem;
+  margin-bottom: 1.1rem;
+}
+.sec-intent {
+  margin-left: auto;
+  font-size: 0.5rem;
+  letter-spacing: 0.07em;
+  color: var(--tx-dim);
+  text-align: right;
+}
+/* the section chip is live data: ink in the light, accent in the dark
+   — currentColor keeps its border in step with its number */
+.sec-num {
+  font-size: 0.68rem;
+  color: var(--data-accent);
+  border: 1.5px solid currentColor;
+  padding: 0.12rem 0.4rem;
+  flex: none;
+}
+/* 1.3rem → 1.15rem: the expanded face carries the same authority at a
+   smaller size, and the old size pushed the head past the column once
+   the intent label was measured in it (see .sec-intent). */
+.sec-head h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 0;
+  line-height: 1.15;
+}
+.sheet p {
+  margin: 0 0 0.85rem;
+}
+.lede {
+  font-size: 1.05rem;
+}
+.sub-head {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 1.4rem 0 0.6rem;
+}
+
+/* ---------- document primitives ----------
+   The vocabulary a page may draw with and `Doc` knows nothing about:
+   a subhead inside a section, a list, the rationale aside, and a wide
+   table in its own scroller. They live here rather than in a page's
+   own sheet because more than one document uses them — the moment
+   only one page needs a thing, it belongs to that page. */
+
+/* a subhead inside a section body — one step under the section's h2 */
+.sheet section h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.doc-list {
+  margin: 0 0 0.9rem;
+  padding-left: 1.1rem;
+}
+.doc-list li {
+  margin-bottom: 0.35rem;
+  line-height: 1.4;
+}
+
+/* The rationale voice: the serif aside that says WHY a rule exists.
+   Sentence case, and the one place on the page the system stops
+   giving orders — so it is set in the human voice (DS-01 §05) and
+   marked off rather than styled down. */
+.doc-why {
+  font-family: var(--font-human);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: var(--tx-dim);
+  border-left: 3px solid var(--rule-soft);
+  padding-left: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+/* Wide content scrolls INSIDE ITS OWN BOX. The page body must never
+   scroll sideways: a reference table that pushes the sheet wider
+   takes the masthead and every section rule with it, and on a phone
+   that is the whole document sliding under the reader's thumb. */
+.doc-scroller {
+  overflow-x: auto;
+  margin: 0 0 1rem;
+}
+.doc-grid {
+  /* give the scroller something to scroll: below this the columns
+     collapse into each other and the left column stops being a
+     column */
+  min-width: 32rem;
+}
+/* the left column is the term being defined — data voice, and it
+   never wraps mid-token */
+.doc-grid td .mono {
+  white-space: nowrap;
+}
+
+/* ---------- slabs ---------- */
+.slab {
+  border: 3px solid var(--rule);
+  padding: 1.2rem 1.3rem;
+  margin-bottom: 1.2rem;
+}
+.slab-title {
+  font-size: 0.72rem;
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  margin: -1.2rem -1.3rem 1rem;
+  position: relative;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 2rem;
+}
+.cols h4 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.66rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.2rem;
+}
+ul.tight {
+  margin: 0 0 0.6rem;
+  padding-left: 1.1rem;
+}
+ul.tight li {
+  margin-bottom: 0.28rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+.slab-foot {
+  font-size: 0.85rem;
+  margin: 0.4rem 0 0;
+}
+
+/* ---------- tables ---------- */
+.sheet table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: 0.87rem;
+}
+.sheet th {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 1.5px solid var(--rule);
+  padding: 0.4rem 0.5rem;
+  vertical-align: bottom;
+}
+.sheet td {
+  border-bottom: 0.5px solid var(--rule);
+  padding: 0.5rem 0.5rem;
+  vertical-align: top;
+  line-height: 1.35;
+}
+.sheet tr.hero td {
+  background: var(--tint);
+  font-weight: bold;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.amt {
+  white-space: nowrap;
+}
+
+/* ---------- notes ---------- */
+.note {
+  font-size: 0.8rem;
+  background: var(--panel);
+  border-left: 4px solid var(--rule);
+  padding: 0.7rem 0.9rem;
+  margin: 0 0 1rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.note b {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.64rem;
+}
+
+/* ---------- search ----------
+   The box lives at the head of the contents rail, because searching
+   is navigation and that is where navigation lives. Results take the
+   sheet at full measure rather than floating over it — the document
+   is what is being searched, so the document becomes the answer. */
+.doc-search {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+.doc-search-input {
+  min-width: 0;
+  flex: 1;
+  font-family: var(--font-data);
+  font-size: 0.7rem;
+  color: var(--tx);
+  background: var(--surface);
+  border: 1.5px solid var(--rule);
+  border-radius: 0;
+  padding: 0.3rem 0.4rem;
+  /* Safari draws a rounded pill for type=search unless told not to */
+  -webkit-appearance: none;
+  appearance: none;
+}
+.doc-search-input::placeholder {
+  color: var(--tx-dim);
+  opacity: 1;
+}
+.doc-search-input:focus-visible {
+  outline: 3px solid var(--data-accent);
+  outline-offset: 1px;
+}
+.doc-search-clear {
+  flex: none;
+  font-size: 0.5rem;
+  color: var(--tx-dim);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.doc-search-clear:hover {
+  color: var(--tx);
+}
+
+/* a result: where it lives, what it is, what is in it */
+.hit {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: 1rem;
+  border-top: 1.5px solid var(--rule);
+  padding: 0.7rem 0 0.6rem;
+  text-decoration: none;
+  color: var(--tx);
+}
+.hit:hover .hit-label {
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+.hit-page {
+  font-size: 0.54rem;
+  color: var(--mark);
+}
+.hit-label {
+  display: inline;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+}
+.hit-blurb {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--tx-dim);
+  margin-top: 0.2rem;
+}
+.hit-none {
+  font-size: 0.9rem;
+  color: var(--tx-dim);
+}
+
+/* ---------- footer ---------- */
+.sheet footer {
+  margin-top: 2.5rem;
+  border-top: 3px solid var(--rule);
+  padding-top: 0.8rem;
+  font-size: 0.72rem;
+}
+
+/* ---------- print ----------
+   The live site is NOT the print surface. If this project ever ships
+   a printable, generate it (typst or equivalent) rather than forcing
+   the site's CSS through a printer. These rules exist only to keep an
+   emergency browser-print legible. */
+@page {
+  margin: 14mm;
+}
+@media print {
+  body {
+    background: #fff;
+    font-size: 10.5pt;
+  }
+  .site-nav {
+    display: none;
+  }
+  .doc-toc {
+    display: none;
+  }
+  .doc-layout {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+  .doc-clause-row {
+    display: block;
+  }
+  .doc-clause-mark {
+    display: none;
+  }
+  .sheet section > :not(.sec-head):not(.doc-clause-row) {
+    margin-left: 0;
+    max-width: none;
+  }
+  .sheet {
+    max-width: none;
+    padding: 0;
+  }
+  section,
+  .slab,
+  table {
+    page-break-inside: avoid;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+  .masthead h1 {
+    font-size: 30pt;
+  }
+  a {
+    text-decoration: none;
+    color: #000;
+  }
+}
+
+/* ---------- mid screens: the rail keeps only its search box ----------
+   Breakpoints are authored in rem, never px: a reader who has raised
+   their default font size has
+   less usable space and must reach the narrow layout sooner. A wide
+   window flipping to the stacked layout at a 32px default font is
+   correct, not a bug. 60rem is 960px at the default font size — that
+   is arithmetic, not the unit doing the work. */
+@media (max-width: 60rem) {
+  .doc-layout {
+    display: block;
+    padding: 0;
+  }
+  .sheet {
+    padding: 1.5rem 1.5rem 3rem;
+  }
+
+  /* The contents rail drops its contents. The section list became a
+     horizontal scroller here, which put half the document's sections
+     behind a sideways swipe with no affordance and looked like a
+     mistake — and on a phone scrolling to a section is cheap anyway.
+
+     What stays is the search box, which is the one thing the rail did
+     that scrolling cannot replace: it is how you reach §09 of twelve
+     without knowing where §09 lives. The strip keeps its sticky park
+     under the nav and becomes one full-width field on the ink field. */
+  .doc-toc {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 20;
+    background: var(--stencil-bg);
+  }
+  .doc-toc-inner {
+    position: static;
+    display: block;
+    max-height: none;
+    overflow: visible;
+    padding: 0.5rem 1.25rem;
+  }
+  .doc-toc-head,
+  .doc-toc-link {
+    display: none;
+  }
+  .doc-search {
+    margin-bottom: 0;
+  }
+  .doc-search-input {
+    /* a third of the screen, not the whole strip: a rule running the
+       full width read as a divider rather than a field, and the box
+       does not need the room — the results it opens get the full
+       measure of the sheet */
+    max-width: 33vw;
+    background: transparent;
+    color: var(--stencil-tx);
+    border: none;
+    border-bottom: 1.5px solid var(--stencil-tx);
+    padding: 0 0 0.2rem;
+  }
+  .doc-search-input::placeholder {
+    color: var(--stencil-tx);
+    opacity: 0.6;
+  }
+  .doc-search-clear {
+    color: var(--stencil-tx);
+  }
+  .hit {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
+
+
+/* ---------- the narrow layout's menu ----------
+   The routes and a three-state theme control do not fit a phone's
+   bar. They wrap behind a disclosure: the bar keeps its one row and
+   its --nav-h, and the routes live in a panel hung off the bottom
+   of it.
+
+   The panel is positioned absolutely, which is the point — the bar's
+   height never changes, so the sticky contents rail below it keeps
+   working off a token that cannot go stale, and opening the menu
+   shifts no layout. It is a child of the sticky nav, so it travels
+   with it and paints above the search strip without a z-index of its
+   own.
+
+   Nothing slides and nothing fades: the panel is either there or it
+   is not. The whole panel is out of the DOM's reach when closed, so
+   nothing is focusable behind a button that says it is shut.
+
+   Same 60rem as the rail above, deliberately: ONE narrow tier, not
+   two. Two tiers leaves a band where the rail has already collapsed
+   but the bar still tries to carry every route plus the theme
+   control, and the brand prints straight through the first link. */
+@media (max-width: 60rem) {
+  .site-nav {
+    padding: 0 1.25rem;
+  }
+  .nav-toggle {
+    display: flex;
+  }
+  .site-nav .nav-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--stencil-bg);
+    border-top: 1.5px solid var(--stencil-tx);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .site-nav.menu-open .nav-menu {
+    display: flex;
+  }
+  .site-nav .nav-links {
+    flex-direction: column;
+    gap: 0;
+  }
+  .site-nav .nav-menu a {
+    font-size: 0.68rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--stencil-tx);
+    /* the active route is marked down its edge rather than under it:
+       an underline in a stacked list reads as the row separator */
+    border-left: 4px solid transparent;
+    padding-left: calc(1.25rem - 4px);
+  }
+  .site-nav .nav-menu a.active {
+    border-bottom-color: var(--stencil-tx);
+    border-left-color: var(--stencil-mark);
+  }
+  .site-nav .nav-menu a:hover {
+    border-bottom-color: var(--stencil-tx);
+    border-left-color: var(--stencil-tx);
+  }
+  /* the theme control is the panel's last row, not a thing beside the
+     routes: the rule above it comes from the last route */
+  .theme-control {
+    border-left: none;
+    padding: 0.8rem 1.25rem;
+    gap: 1.4rem;
+  }
+  .theme-btn {
+    font-size: 0.62rem;
+    padding: 0.25rem 0;
+  }
+}
+
+/* ---------- small screens ---------- */
+@media (max-width: 40rem) {
+  .doc-clause-row {
+    display: block;
+  }
+  .doc-clause-mark {
+    display: none;
+  }
+  .sheet section > :not(.sec-head):not(.doc-clause-row) {
+    margin-left: 0;
+  }
+  .sec-intent {
+    display: none;
+  }
+  .sheet {
+    padding: 2rem 1.25rem 3rem;
+  }
+  .masthead h1 {
+    font-size: 2rem;
+  }
+  .cols {
+    grid-template-columns: 1fr;
+  }
+  .sheet table {
+    font-size: 0.78rem;
+  }
+}
