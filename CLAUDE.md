@@ -186,9 +186,11 @@ text beside it, the `@font-face` in `fonts.css`, the `--font-*` token
 in `theme.css` — plus a `<link rel=preload>` in `index.html` only if
 it is above the fold, and `public/404.html` if that page uses it.
 
-`content/recipes/salted-caramel.md` (Nº 47) is the **bench
-specimen** — the one recipe every rule is load-bearing on, and the
-fixture the validator's tests mutate. Keep it parsing.
+`scripts/fixtures/bench.md` is the **bench specimen** — the one
+document every parser rule is load-bearing on, and the fixture the
+validator's tests mutate. It lives with the tests, not in the
+corpus: the corpus is the cook's and its recipes come and go; the
+fixture must never drift under the suite. Keep it parsing.
 
 ## Architecture rules
 

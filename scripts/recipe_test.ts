@@ -13,7 +13,12 @@
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import { parseRecipe } from "./recipe.ts";
 
-const BENCH = "content/recipes/salted-caramel.md";
+// The bench specimen lives with the tests, not in the corpus: the
+// corpus belongs to the cook and its recipes come and go, while the
+// fixture is the one document every parser rule is load-bearing on
+// and must never drift under the suite. It is the old salted caramel,
+// frozen the day the corpus went real (2026-09-21).
+const BENCH = "scripts/fixtures/bench.md";
 const good = await Deno.readTextFile(BENCH);
 
 /** Assert a mutation of the bench specimen is rejected, and that the
