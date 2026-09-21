@@ -152,6 +152,12 @@ Five rules that are easy to break without noticing:
   they are not one set of four (DS-01 §04). `--accent` is the
   actionable role and aliases `--shelf-act`.
 
+- **The side nav's rows are derived, never listed.** They come from
+  which blocks are non-empty, so the nav cannot offer an anchor that
+  resolves to nothing — the corpus contains both shapes (a Rev 1
+  recipe has no History). The prep card is never a row: it is
+  furniture for paper.
+
 - **Nothing is ever inferred.** An absent dietary flag means "not
   verified", never "not suitable"; an absent photo means the block is
   gone, never a placeholder. Guessing on the reader's behalf is how a
@@ -202,7 +208,14 @@ fixture the validator's tests mutate. Keep it parsing.
   the scroll-to-top and forgetting the anchor jump) is the classic
   failure, and `ViewportTests` holds the whole table.
 - `src/Recipe.elm` / `src/Page/Recipe.elm` — a recipe, fetched and
-  rendered. **The page does not wear `Doc`**: `Doc` frames prose
+  rendered. **The bench layout** (DS-01 §06 as amended 2026-09-20):
+  Equipment precedes Ingredients *in the document*, not merely on a
+  wide screen — an order that exists only in CSS is two orders to
+  reason about. Three tiers: ≥76rem puts the side nav in the
+  viewport's left margin outside the content and splits the recipe
+  into a sticky what-you-NEED rail beside what-you-DO; 60–76rem keeps
+  the split without the nav; below 60rem everything stacks in
+  document order, which is also what paper gets. **The page does not wear `Doc`**: `Doc` frames prose
   documents with numbered sections and citable `§N.M` clause marks,
   and a recipe is a different object — its ten blocks are a fixed
   form, not a specification. Giving them clause marks would be the

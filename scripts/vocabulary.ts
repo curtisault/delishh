@@ -217,10 +217,16 @@ export const FRACTIONS: Record<string, number> = {
  * Ingredients and Steps because there is no recipe without them; Note
  * because it is the one human voice on the page and the reason this
  * archive is yours rather than a database (DS-01 §01).
+ *
+ * **Equipment precedes Ingredients** (DS-01 §06, amended 2026-09-20).
+ * Mise en place reads gear-first: you cannot weigh into a bowl you
+ * have not got out. Changing this order is a change to every recipe
+ * in the corpus, which is why the build refuses one that disagrees
+ * rather than reordering it silently.
  */
 export const BLOCKS = [
-  { heading: "Ingredients", key: "ingredients", required: true },
   { heading: "Equipment", key: "equipment", required: false },
+  { heading: "Ingredients", key: "ingredients", required: true },
   { heading: "Steps", key: "steps", required: true },
   { heading: "Watchpoints", key: "watchpoints", required: false },
   { heading: "Rescues", key: "rescues", required: false },

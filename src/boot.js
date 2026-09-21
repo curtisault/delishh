@@ -126,7 +126,18 @@ let queued = false
 
 function readSection() {
   queued = false
-  const sections = document.querySelectorAll('.sheet section[id]')
+  // The document pages' sections, and the recipe page's blocks — the
+  // recipe rail marks the block you are reading the same way the
+  // contents rail marks a section.
+  //
+  // Zero-height sections are skipped rather than special-cased by
+  // name: the recipe's prep card is display:none until asked for, and
+  // a hidden element's rect puts its top at 0 — permanently "past the
+  // reading line", which would pin the rail to a block nobody can
+  // see.
+  const sections = [
+    ...document.querySelectorAll('.sheet section[id], .recipe section[id]'),
+  ].filter((section) => section.getBoundingClientRect().height > 0)
   if (!sections.length) {
     lastSeen = null
     return

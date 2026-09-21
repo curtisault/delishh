@@ -15,6 +15,11 @@ cuisine: []
 print: card
 ---
 
+## Equipment
+
+- A 1 litre jar with a lid that seals, washed in hot water
+- Small saucepan, non-reactive — an aluminium pan turns the brine metallic
+
 ## Ingredients
 
 ### The vegetables
@@ -32,11 +37,6 @@ print: card
 - ¾ tsp black peppercorns
 - ½ tsp yellow mustard seed
 - ¼ tsp dill seed
-
-## Equipment
-
-- A 1 litre jar with a lid that seals, washed in hot water
-- Small saucepan, non-reactive — an aluminium pan turns the brine metallic
 
 ## Steps
 

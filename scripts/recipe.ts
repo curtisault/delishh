@@ -576,7 +576,12 @@ export function parseRecipe(
     if (order.indexOf(b.key) < order.indexOf(prev)) {
       fail(
         "body",
-        `\`## ${b.heading}\` is out of order — it belongs after ` +
+        // BEFORE, not after: this fires precisely when `b` sorts
+        // earlier than the block above it, so `b` is the one that
+        // needs to move up. The message said "after" from Phase 1
+        // until the 2026-09-20 block-order swap became the first
+        // thing that ever triggered it.
+        `\`## ${b.heading}\` is out of order — it belongs before ` +
           `${BLOCKS.find((x) => x.key === prev)!.heading}. The block order is ` +
           `fixed: ${BLOCKS.map((x) => x.heading).join(" → ")}.`,
         b.line,

@@ -302,12 +302,27 @@ Adding a value is a deliberate act, not a typo surviving review.
 
 ### The body blocks
 
+> **Amendment 2026-09-20 — Equipment precedes Ingredients.**
+> Blocks 3 and 4 are swapped from the order issued in Revision 2.
+> Mise en place reads gear-first: you cannot weigh into a bowl you
+> have not got out, and the pan's diameter changes the recipe before
+> a single quantity does. At two to four lines, Equipment costs the
+> quantities nothing — the rule beneath this, that ingredients sit
+> above the fold, survives intact and is simply measured from one
+> short block lower.
+>
+> **This is an order, not a layout.** Blocks linearise in exactly
+> this sequence in the document, on the printed sheet, and on a
+> narrow screen. Where a wide screen sets Equipment and Ingredients
+> in a column beside the steps, that is presentation, and it presents
+> them in this order too.
+
 | # | Block | Carries |
 |---|-------|---------|
 | 1 | Header plate | Rendered from frontmatter: name, number, revision, tested date, yield, times, method mark |
 | 2 | Photo | One photograph. One. Absent if none — never a grey box |
-| 3 | Ingredients | Grouped by sub-preparation, mass-first, scalable |
-| 4 | Equipment | Named with the dimensions and materials that change the result |
+| 3 | Equipment | Named with the dimensions and materials that change the result |
+| 4 | Ingredients | Grouped by sub-preparation, mass-first, scalable |
 | 5 | Steps | Numbered, each with its own temperature/time/tell inline |
 | 6 | Watchpoints | The critical limits — the temperatures and states that decide success |
 | 7 | Rescues | What goes wrong, what causes it, whether it can be saved |
@@ -334,14 +349,14 @@ SALTED CARAMEL                                      [SUGAR WORK]
 YIELD 340 g · 8 SERVINGS   ACTIVE 15 MIN   TOTAL 45 MIN
 SWEET · SALTY · DESSERT · FOCUSED
 
+EQUIPMENT
+  Heavy 20 cm saucepan, pale interior · probe thermometer · spatula
+
 INGREDIENTS
   200 g  caster sugar
    90 g  unsalted butter, cubed, cold
   120 g  double cream, held at 40 °C
     6 g  flaky salt
-
-EQUIPMENT
-  Heavy 20 cm saucepan, pale interior · probe thermometer · spatula
 
 STEPS
   01  Warm the cream and hold it there. Cold cream into hot sugar

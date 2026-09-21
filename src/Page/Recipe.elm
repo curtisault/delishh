@@ -42,6 +42,12 @@ type alias Config msg =
     , onPrepCard : msg
     , origin : String
     , today : String
+
+    -- Which block the reader is inside, for the side nav's mark.
+    -- Arrives from boot.js through `sectionSeen`, the same port the
+    -- documents' contents rail uses — a recipe's blocks are marked
+    -- the way a document's sections are.
+    , active : Maybe String
     }
 
 
@@ -93,19 +99,96 @@ view config =
         , class (Print.className config.form)
         , classList [ ( "with-prep", config.prepCard ) ]
         ]
-        [ div [ class "recipe" ]
-            (plate config
-                :: photo r
-                ++ ingredients config
-                ++ equipment r
-                ++ steps config
-                ++ watchpoints r
-                ++ rescues r
-                ++ keeps r
-                ++ note r
-                ++ history r
-                ++ [ prep config, footer config ]
+        [ sideNav config
+        , div [ class "recipe" ]
+            [ plate config
+            , div [ class "recipe-cols" ]
+                [ -- What you NEED. Sticky on a wide screen, so the
+                  -- quantities stay beside the step that uses them —
+                  -- most of the reason to widen at all.
+                  div [ class "recipe-side" ]
+                    [ div [ class "recipe-side-inner" ]
+                        (equipment r ++ ingredients config)
+                    ]
+
+                -- What you DO.
+                , div [ class "recipe-main" ]
+                    (photo r
+                        ++ steps config
+                        ++ watchpoints r
+                        ++ rescues r
+                        ++ keeps r
+                        ++ note r
+                        ++ history r
+                        ++ [ prep config, footer config ]
+                    )
+                ]
+            ]
+        ]
+
+
+{-| The side nav — an actual side nav.
+
+**Chrome, not a widget in the rail.** It holds the viewport's left
+margin outside the centred content, the same geometry as the
+documents' contents rail — which is where it ended up after the first
+bench alternative put it above the equipment and it read as part of
+the ingredients rather than as navigation.
+
+It is *not* `Doc` chrome: no numbered sections, no clause marks, no
+search. A recipe is not a prose document (§06), and its blocks are a
+fixed form rather than a specification you cite.
+
+Rows are derived from the blocks this recipe actually has, so the nav
+can never offer an anchor that resolves to nothing. The prep card is
+never listed — it is furniture for paper, not reading matter.
+
+-}
+sideNav : Config msg -> Html msg
+sideNav config =
+    let
+        row ( anchor, label ) =
+            a
+                [ class "recipe-nav-link u"
+                , classList [ ( "is-active", config.active == Just anchor ) ]
+                , href ("#" ++ anchor)
+                ]
+                [ text label ]
+    in
+    Html.nav
+        [ class "recipe-nav", attribute "aria-label" "On this recipe" ]
+        [ div [ class "recipe-nav-inner" ]
+            (span [ class "recipe-nav-head mono" ]
+                [ text ("Nº " ++ String.fromInt config.recipe.number) ]
+                :: List.map row (blocksPresent config.recipe)
             )
+        ]
+
+
+{-| The blocks this recipe has, in document order, as
+`( anchor, label )`. Absent blocks are absent here for the same
+reason they are absent from the page: a heading over nothing is not a
+thing to navigate to.
+-}
+blocksPresent : Recipe -> List ( String, String )
+blocksPresent r =
+    let
+        keep ( anchor, label, hasIt ) =
+            if hasIt then
+                Just ( anchor, label )
+
+            else
+                Nothing
+    in
+    List.filterMap keep
+        [ ( "equipment", "Equipment", not (List.isEmpty r.equipment) )
+        , ( "ingredients", "Ingredients", not (List.isEmpty r.ingredients) )
+        , ( "steps", "Steps", not (List.isEmpty r.steps) )
+        , ( "watchpoints", "Watchpoints", not (List.isEmpty r.watchpoints) )
+        , ( "rescues", "Rescues", not (List.isEmpty r.rescues) )
+        , ( "keeps", "Keeps", not (List.isEmpty r.keeps) )
+        , ( "note", "Note", not (List.isEmpty r.note) )
+        , ( "history", "History", not (List.isEmpty r.history) )
         ]
 
 

@@ -170,7 +170,7 @@ Deno.test("screen controls do not print", () => {
   // and paper has nothing to press.
   const hidden = blockAfter(PRINT, ".site-nav,");
   assert(/display:\s*none/.test(hidden), "screen controls are not hidden in print");
-  for (const control of [".scaler", ".printer", ".recipe-back"]) {
+  for (const control of [".scaler", ".printer", ".recipe-back", ".recipe-nav"]) {
     assert(
       PRINT.includes(control),
       `${control} is not in the print-hidden list`,
@@ -194,6 +194,19 @@ Deno.test("all three forms are styled, and prep rides alongside", () => {
     /\.with-prep\s+\.prep-card[\s\S]*?break-before:\s*page/.test(PRINT),
     "the prep card does not start its own page",
   );
+});
+
+Deno.test("the bench layout does not reach paper", () => {
+  // The two-column screen layout is collapsed EXPLICITLY rather than
+  // left to fall under the screen tier's min-width. A4 portrait is
+  // ~49.6rem and so already below both tiers, but "the paper happened
+  // to be narrow enough" is not a rule — landscape and legal must not
+  // print a rail either.
+  const cols = blockAfter(PRINT, ".recipe-cols");
+  assert(/display:\s*block/.test(cols), ".recipe-cols still lays out as a grid on paper");
+
+  const inner = blockAfter(PRINT, ".recipe-side-inner");
+  assert(/position:\s*static/.test(inner), "the rail is still sticky on paper");
 });
 
 Deno.test("the traceability line prints on every page", () => {

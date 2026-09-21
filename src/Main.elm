@@ -851,6 +851,11 @@ view model =
                             , onPrepCard = TogglePrepCard
                             , origin = model.origin
                             , today = model.today
+
+                            -- The side nav's mark. Already tracked
+                            -- for the documents' contents rail, and
+                            -- already cleared on navigation.
+                            , active = model.active
                             }
         ]
     }

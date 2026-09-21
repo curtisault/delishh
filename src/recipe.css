@@ -187,6 +187,11 @@
 
 .recipe-block {
   margin-bottom: 1.8rem;
+  /* A fragment jump must not land the heading under the sticky site
+     nav. `Main.jumpTo` measures the chrome for clicks it handles;
+     this covers the browser's own scroll — a pasted #anchor, a
+     reload on one, the back button. */
+  scroll-margin-top: calc(var(--nav-h) + 1rem);
 }
 .recipe-h {
   font-size: 0.7rem;
@@ -396,4 +401,124 @@
 .recipe-back:focus-visible {
   outline: 3px solid var(--tx);
   outline-offset: 2px;
+}
+
+/* ---------- the two-column tier ----------
+   On a wide screen the page splits on the recipe's own seam: what
+   you NEED (the rail — jump nav, equipment, ingredients) beside what
+   you DO (steps onward). The rail is sticky, so the quantities stay
+   in view beside the step that uses them — which is most of the
+   reason to widen at all. 60rem is the house's one wide/narrow
+   boundary, in rem so a raised default font reaches the stacked
+   layout sooner (DS-01 §12). */
+@media (min-width: 60rem) {
+  .recipe {
+    /* 21rem rail + 2.8rem gap + a 44rem reading measure. Wider than
+       the old 44rem column, but still a composed page rather than
+       text poured to the viewport. */
+    max-width: 68rem;
+  }
+  .recipe-cols {
+    display: grid;
+    grid-template-columns: 21rem minmax(0, 1fr);
+    gap: 0 2.8rem;
+    /* Deliberately NO `align-items: start`: the rail's sticky child
+       needs the stretched grid cell to travel in, or sticky is a
+       no-op. The same lesson .doc-toc learned (sheet.css). */
+  }
+  .recipe-side-inner {
+    position: sticky;
+    top: calc(var(--nav-h) + 1rem);
+    /* A rail taller than the viewport scrolls inside its own box
+       rather than running off the bottom — a long ingredient list
+       must still reach the flaky salt. */
+    max-height: calc(100vh - var(--nav-h) - 2rem);
+    overflow-y: auto;
+    padding-bottom: 0.5rem;
+  }
+  /* The steps keep a reading measure; the leftover width is margin,
+     not longer lines. */
+  .recipe-main {
+    max-width: 44rem;
+  }
+  /* Quantities need less runway inside the rail than they did across
+     the full page. */
+  .recipe-side .ing {
+    grid-template-columns: 5.5rem 1fr;
+  }
+}
+
+/* ---------- the side nav ----------
+   AN ACTUAL SIDE NAV: outside the centred content, holding the
+   viewport's left margin — the contents-rail geometry from the
+   document pages. It began inside the rail above the equipment and
+   read as part of the ingredients rather than as navigation; benched
+   against this, this won (DS-01 §13).
+
+   Its own width tier, wider than the two-column one: 11rem of nav
+   plus a 3rem gutter plus the 68rem content needs room the
+   two-column layout does not. Between 60 and 76rem the page runs
+   two-column with no nav, which is a complete layout rather than a
+   degraded one. Below 60rem everything stacks and the nav is gone —
+   on a phone there is no "side", and a list of anchors pushing the
+   equipment below the fold would cost exactly what it claims to
+   save. */
+.recipe-nav {
+  display: none;
+}
+@media (min-width: 76rem) {
+  .recipe-layout {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 68rem);
+    justify-content: center;
+    gap: 0 3rem;
+  }
+  .recipe-nav {
+    display: block;
+    /* Stretch, so the sticky child has a cell to travel in. The
+       lesson .doc-toc learned, and .recipe-side after it. */
+    align-self: stretch;
+  }
+  .recipe-nav-inner {
+    position: sticky;
+    top: calc(var(--nav-h) + 1.6rem);
+    max-height: calc(100vh - var(--nav-h) - 2rem);
+    overflow-y: auto;
+  }
+  /* The recipe's own plate, at nav scale: the nav says which recipe
+     it belongs to without repeating the title. */
+  .recipe-nav-head {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--acid);
+    border-bottom: 3px solid var(--rule);
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
+  }
+  .recipe-nav-link {
+    display: block;
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
+    color: var(--tx);
+    text-decoration: none;
+    padding: 0.28rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .recipe-nav-link:hover,
+  .recipe-nav-link:focus-visible {
+    box-shadow: inset 0 -3px 0 var(--here);
+  }
+  .recipe-nav-link:focus-visible {
+    outline: 3px solid var(--tx);
+    outline-offset: 2px;
+  }
+  /* The reading-line mark, same vocabulary as the contents rail —
+     and like the rail, it must never affect layout: a row gaining
+     the mark must not move the list under the reader. */
+  .recipe-nav-link.is-active {
+    box-shadow: inset 0 -3px 0 var(--here);
+    color: var(--tx);
+  }
 }

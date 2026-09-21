@@ -220,6 +220,33 @@
     max-width: none;
   }
 
+  /* The bench layout is a SCREEN layout. Paper gets the document
+     order — one column, blocks in sequence — because a sticky rail
+     cannot stick to a sheet and a two-column recipe on A4 gives the
+     steps half a page.
+
+     Stated rather than inherited: A4 portrait is ~49.6rem and
+     therefore already under both screen tiers, but "the paper
+     happened to be narrow enough" is not a rule. Landscape and legal
+     must not print a rail either. */
+  .recipe-cols {
+    display: block !important;
+  }
+  .recipe-side-inner {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .recipe-main {
+    max-width: none !important;
+  }
+
+  /* The side nav is a way to move around a page. Paper has no
+     anchors to follow. */
+  .recipe-nav {
+    display: none !important;
+  }
+
   /* ---------- the plate ---------- */
 
   .recipe-plate {

@@ -15,19 +15,19 @@ cuisine: []
 print: sheet
 ---
 
-## Ingredients
-
-- 200 g caster sugar
-- 90 g unsalted butter, cubed, cold
-- 120 g double cream, held at 40 °C
-- 6 g flaky salt
-
 ## Equipment
 
 - Heavy 20 cm saucepan, pale interior — a dark pan hides the colour, which is the only tell that matters here
 - Probe thermometer, reading to 200 °C
 - Heatproof spatula
 - Jar, 400 ml, warmed
+
+## Ingredients
+
+- 200 g caster sugar
+- 90 g unsalted butter, cubed, cold
+- 120 g double cream, held at 40 °C
+- 6 g flaky salt
 
 ## Steps
 

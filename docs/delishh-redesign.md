@@ -442,6 +442,146 @@ recorded with a figure rather than as a shrug.
 available here — Firefox is, and has no headless Lighthouse. The
 numbers above are measured payload, not field metrics.
 
+### Phase 9 — the bench layout ✅ done 2026-09-20
+
+Four asks, one structure. Equipment-first, a wider page, ingredients
+beside steps, and a side nav are not four features — they are the
+recipe page splitting on its own natural seam: **what you NEED beside
+what you DO.** A sticky left rail carries the equipment and the
+ingredients; the right column carries the steps and everything after
+them; and the side nav stands apart — real chrome in the viewport's
+left margin, outside the centred content, the same geometry as the
+document pages' contents rail. The quantities stay in view beside the
+step that uses them, which is most of the reason to widen at all.
+
+*(Revised 2026-09-20, against the first mockup: the nav began inside
+the rail, above the equipment, and read as part of the ingredients
+rather than as navigation. Bench alternatives, then rule from the
+bench — DS-01 §13, doing its job.)*
+
+**Provenance:** the CSS and the observer for this are already in the
+working tree, uncommitted — 82 lines in `recipe.css` (the 68rem
+two-column tier, the sticky rail, the jump-nav styles with the
+active-row mark) and 13 in `boot.js` (section tracking extended to
+`.recipe section[id]`, skipping zero-height sections so the hidden
+prep card cannot pin the rail). None of it is live: no Elm emits
+`.recipe-cols`, `.recipe-side`, `.recipe-main` or `.recipe-nav`. This
+phase reviews that staging, builds the markup behind it, and makes the
+block-order change it implies.
+
+Ruled at this plan:
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Block order | **Equipment moves above Ingredients** in the canonical order — document, print and mobile alike, not only in the rail. Mise-en-place reads gear-first, and at 2–4 lines Equipment does not push the quantities off any fold | Reordering only the wide layout (visual order diverging from document order is two orders to reason about); leaving ingredients first |
+| Wide layout | At ≥60rem — the house's one boundary — the page widens to 68rem and splits: 21rem sticky rail + 2.8rem gap + a 44rem reading measure. Below it, everything stacks in document order exactly as today | A wider single column (longer lines, no adjacency win); side-by-side without the sticky rail (loses the quantities-beside-steps payoff) |
+| The side nav | **An actual side nav**: an 11rem sticky column in the viewport's left margin, outside the 68rem content, headed by the recipe's number plate — one row per block the recipe actually has, fragment links, the reading-line mark via the existing `sectionSeen` port. Its own width tier at **≥76rem** (nav + gap + the two-column content need the room); between 60 and 76rem the page runs two-column with no nav. **Not `Doc` chrome** — no numbered sections, no clause marks, no search; the Phase 4 ruling that a recipe is not a prose document stands | Inside the rail above the equipment (the first mockup — it read as part of the ingredients, not as navigation); wearing `Doc`; a floating table of contents |
+
+**Is side-by-side too crammed? No, by arithmetic.** 21 + 2.8 + 44 =
+67.8rem fits the 68rem page with the steps at the same measure they
+read at today. At exactly the 60rem boundary the steps column bottoms
+out near 36rem — tighter but comfortably above cramped — and one pixel
+below the boundary the whole thing stacks. The rail's ingredient rows
+drop their quantity column from 7.5rem to 5.5rem (staged), which is
+the cook-mode width and already proven.
+
+**Done. What shipped, and the two things it turned up:**
+
+- [x] DS-01 §06 amended first, as a dated block — Equipment 3rd,
+      Ingredients 4th, with the order/presentation distinction stated
+      and the bench specimen reordered to match.
+- [x] `BLOCKS` swapped; both recipes reordered; `RecipePageTests`
+      pins Equipment-before-Ingredients in the **DOM**.
+- [x] `Page.Recipe` restructured: `.recipe-nav` as its own region,
+      then plate, then `.recipe-cols` → `.recipe-side` (Equipment →
+      Ingredients) + `.recipe-main` (everything else).
+- [x] Side nav rows derived from non-empty blocks; `Config.active`
+      wired from the existing `sectionSeen` tracking.
+- [x] CSS rehomed to the ≥76rem outer-margin tier; `scroll-margin-top`
+      added so a pasted `#anchor` clears the sticky site nav.
+- [x] Print collapses the bench layout explicitly; `print_test.ts`
+      holds it.
+- [x] `tests/RecipePageTests.elm` — 15 tests.
+
+**The enforcement worked, and exposed its own bug.** Swapping
+`BLOCKS` made the build reject both recipes, exactly as intended —
+but the message read *"`## Equipment` is out of order — it belongs
+**after** Ingredients"*. It belongs before. The check fires precisely
+when a block sorts earlier than the one above it, so the block named
+is always the one that must move **up**; the wording had been
+backwards since Phase 1 and the swap was the first thing that ever
+triggered it. Fixed.
+
+**A gap the layout opened.** `Main.jumpTo` measures the sticky chrome
+for clicks the shell handles, but the side nav's fragment links can
+also be pasted, reloaded on, or reached with the back button — paths
+where the browser scrolls, not Elm. `.recipe-block` now carries
+`scroll-margin-top`, so a heading never lands under the nav bar
+whichever route got it there.
+
+**Verified in a real browser** at 1400px (nav in the left margin,
+equipment above ingredients in the rail, steps beside them, History
+correctly absent from a Rev 1 recipe) and at 760px (stacked, no nav,
+document order). The 60–76rem mid tier is bracketed by those two and
+the query is unambiguous, but was not itself screenshotted — the
+headless capture kept racing the fetch. **Still wants a human:** that
+the rail and nav actually stick while scrolling, and a print preview
+confirming the columns collapse.
+
+The work, in order:
+
+- [ ] **The DS-01 §06 amendment first**, per §00's own law: a dated
+      amendment block recording the new order (Equipment 4th → 3rd,
+      before Ingredients) and why; the blocks table updated to match.
+      A sentence distinguishing *order* from *presentation*: the
+      two-column tier is layout, and blocks still linearize in
+      document order on narrow screens and on paper.
+- [ ] `scripts/vocabulary.ts` — swap Equipment above Ingredients in
+      `BLOCKS`. The build then rejects both recipes until their
+      `## Equipment` sections move up — the enforcement doing its job
+      loudly. Reorder both markdown files; add a test pinning the new
+      canonical order.
+- [ ] `src/Page/Recipe.elm` — the markup the staged CSS is waiting
+      for: `.recipe-nav` first (the side nav, its own region in
+      `.recipe-layout`), then the recipe — plate full-width, then
+      `.recipe-cols` wrapping `.recipe-side` (inner sticky:
+      Equipment → Ingredients) and `.recipe-main` (photo → Steps →
+      Watchpoints → Rescues → Keeps → Note → History). At ≥76rem
+      `.recipe-layout` becomes a two-track grid (11rem nav +
+      minmax(0, 68rem) content, centred as a pair); the nav is
+      `display: none` below that, so DOM order still linearises
+      correctly on narrow screens and paper.
+- [ ] The side nav's rows: derived from which blocks are non-empty,
+      so it can never offer a dead anchor. The prep card is never
+      listed — it is print furniture, not reading matter.
+      `Page.Recipe.Config` gains `active : Maybe String`; the shell
+      already tracks it (`model.active`, fed by the extended
+      observer) and already clears it on navigation. The staged
+      `.recipe-nav` CSS in `recipe.css` is rehomed from the in-rail
+      form to the outer-margin tier — the mockup carries the exact
+      rules.
+- [ ] `print.css` — two explicit rules: `.recipe-cols` prints as
+      block, `.recipe-nav` does not print. A4 portrait (~49.6rem)
+      happens to sit under the 60rem query, but "the paper was
+      narrow enough" is not a rule; landscape and legal must not
+      print a rail.
+- [ ] `print_test.ts` — `.recipe-nav` joins the screen-furniture
+      hidden list. Rendered-view tests: nav rows match present
+      blocks; the active row wears the mark; Equipment precedes
+      Ingredients in the DOM; fragment hrefs resolve to real ids.
+- [ ] Verify in a real browser: the rail sticks and scrolls within
+      itself past the viewport; jump links land under the sticky
+      chrome correctly (`Main.jumpTo` already measures it); the
+      active mark follows the scroll; the 60rem collapse; the prep
+      card toggle; and a print preview of both recipes, unchanged
+      from Phase 5.
+
+**Untouched, deliberately:** cook mode keeps ingredients-then-steps
+with no equipment block — "to have out" is the prep card's job, and a
+list of pans is not what arm's length is for. The shelf, the
+documents and the four print forms are unaffected; the sheet template
+simply inherits the new block order.
+
 ## Open items
 
 - ~~**Prerendered recipe HTML.**~~ **Closed 2026-09-19, at Phase 5.**
