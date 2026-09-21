@@ -60,10 +60,8 @@ small file rather than the whole corpus.
 -}
 type alias Summary =
     { slug : String
-    , number : Int
     , title : String
     , tested : String
-    , revision : Int
     , active : Int
     , total : Int
     , slot : List String
@@ -361,7 +359,6 @@ matchesQuery query recipe =
                         :: recipe.method
                         :: recipe.effort
                         :: recipe.course
-                        :: String.fromInt recipe.number
                         :: recipe.slot
                         ++ recipe.flavor
                         ++ recipe.dietary
@@ -474,10 +471,8 @@ summaryDecoder =
     in
     D.succeed Summary
         |> field "slug" D.string
-        |> field "number" D.int
         |> field "title" D.string
         |> field "tested" D.string
-        |> field "revision" D.int
         |> field "time" (D.field "active" D.int)
         |> field "time" (D.field "total" D.int)
         |> field "slot" (D.list D.string)

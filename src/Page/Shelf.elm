@@ -94,10 +94,10 @@ masthead config =
                 [ text (String.fromInt (List.length config.index.recipes)) ]
             , text
                 (if List.length config.index.recipes == 1 then
-                    " recipe, newest test first."
+                    " recipe, newest batch first."
 
                  else
-                    " recipes, newest test first."
+                    " recipes, newest batch first."
                 )
             ]
         , div [ class "shelf-search" ]
@@ -281,7 +281,8 @@ row ( recipe, verdict ) =
     in
     li [ class "row", classList [ ( "is-excluded", excluded ) ] ]
         [ a [ class "row-link", href ("/recipe/" ++ recipe.slug) ]
-            [ span [ class "row-no mono" ] [ text ("Nº " ++ String.fromInt recipe.number) ]
+            [ span [ class "row-no mono" ]
+                [ text (String.toUpper (String.replace "-" " " recipe.method)) ]
             , span [ class "row-title" ] [ text recipe.title ]
             , span [ class "row-chips" ]
                 (List.map
@@ -359,7 +360,7 @@ zeroState config =
                     [ p [ class "zero-lead" ] [ text "Closest by time:" ]
                     , a [ class "zero-near", href ("/recipe/" ++ near.slug) ]
                         [ span [ class "row-no mono" ]
-                            [ text ("Nº " ++ String.fromInt near.number) ]
+                            [ text (String.toUpper (String.replace "-" " " near.method)) ]
                         , span [ class "row-title" ] [ text near.title ]
                         , span [ class "row-times mono" ]
                             [ text (minutes near.total ++ " total") ]

@@ -1,8 +1,6 @@
 ---
-number: 47
 title: Salted Caramel
 tested: 2026-03-11
-revision: 3
 yield: { amount: 340, unit: g, servings: 8 }
 time: { active: 15m, total: 45m }
 slot: [dessert]
@@ -84,12 +82,7 @@ Mum's pan was aluminium and she went by smell, not temperature — she'd
 say it's ready when it smells like it's about to be too late. I never
 understood that until I burned three batches trying to be careful.
 
-Revision three is that sentence, in numbers. The first two were too
+The third go is that sentence, in numbers. The first two were too
 pale, and pale caramel is just sweet — all of the sugar and none of
 the point.
 
-## History
-
-- **Rev 3** · 2026-03-11 — Took the window up to 175–180 °C and added the smoke tell. Revisions 1 and 2 were too pale.
-- **Rev 2** · 2025-11-02 — Warmed the cream to 40 °C and held it. Stopped the seizing entirely.
-- **Rev 1** · 2025-09-18 — First version, off the back of a phone call with Mum.

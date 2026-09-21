@@ -232,7 +232,6 @@ export const BLOCKS = [
   { heading: "Rescues", key: "rescues", required: false },
   { heading: "Keeps", key: "keeps", required: false },
   { heading: "Note", key: "note", required: true },
-  { heading: "History", key: "history", required: false },
 ] as const;
 
 /** Blocks the reader follows with a pan on the heat. The procedure

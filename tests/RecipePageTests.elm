@@ -12,9 +12,8 @@ and on paper too, and a CSS-only reordering would mean two orders to
 reason about.
 
 **The side nav offers only blocks that exist.** A row whose anchor
-resolves to nothing is a navigation control that lies, and the recipes
-in this corpus differ in exactly this way: one has a History block and
-one does not.
+resolves to nothing is a navigation control that lies — a recipe with
+no rescues must not offer a Rescues row.
 
 **The reading mark is carried, not assumed.** It arrives through the
 same port the documents' contents rail uses, and a nav that cannot
@@ -50,10 +49,8 @@ testing the removal rather than the fixture.
 full : Recipe.Recipe
 full =
     { slug = "salted-caramel"
-    , number = 47
     , title = "Salted Caramel"
     , tested = "2026-03-11"
-    , revision = 3
     , yield = { amount = 340, unit = "g", servings = Just 8 }
     , time = { active = 15, total = 45 }
     , slot = [ "dessert" ]
@@ -72,7 +69,6 @@ full =
     , rescues = [ { symptom = "Grainy", recoverable = True, text = "Add water." } ]
     , keeps = [ "Fridge at 4 °C." ]
     , note = [ "Mum went by smell." ]
-    , history = [ { revision = 3, date = "2026-03-11", text = "Took it hotter." } ]
     }
 
 
@@ -130,7 +126,6 @@ blocksOf r =
         , maybeIf (not (List.isEmpty r.rescues)) "rescues"
         , maybeIf (not (List.isEmpty r.keeps)) "keeps"
         , maybeIf (not (List.isEmpty r.note)) "note"
-        , maybeIf (not (List.isEmpty r.history)) "history"
         ]
 
 
@@ -201,18 +196,15 @@ suite =
                         |> Query.count (Expect.equal (List.length (navAnchors full)))
             , test "never offers an anchor that resolves to nothing" <|
                 \_ ->
-                    -- A recipe at revision 1 has no History block, and
-                    -- the nav must not point at one. The corpus
-                    -- contains both shapes.
                     let
-                        revisionOne =
-                            { full | history = [], rescues = [] }
+                        noRescues =
+                            { full | rescues = [], watchpoints = [] }
                     in
-                    rendered revisionOne Nothing
+                    rendered noRescues Nothing
                         |> Query.find [ Selector.class "recipe-nav" ]
                         |> Expect.all
-                            [ Query.hasNot [ Selector.attribute (Attr.href "#history") ]
-                            , Query.hasNot [ Selector.attribute (Attr.href "#rescues") ]
+                            [ Query.hasNot [ Selector.attribute (Attr.href "#rescues") ]
+                            , Query.hasNot [ Selector.attribute (Attr.href "#watchpoints") ]
                             , Query.has [ Selector.attribute (Attr.href "#equipment") ]
                             ]
             , test "every row points at a block the page actually renders" <|
@@ -227,11 +219,13 @@ suite =
                             )
                         |> List.length
                         |> Expect.equal (List.length (blocksOf full))
-            , test "it names the recipe it belongs to" <|
+            , test "it wears the page's method as its head" <|
                 \_ ->
+                    -- The acid's word, at the top of the nav — the
+                    -- same mark the plate leads with.
                     plain
                         |> Query.find [ Selector.class "recipe-nav" ]
-                        |> Query.has [ Selector.text "Nº 47" ]
+                        |> Query.has [ Selector.text "SUGAR WORK" ]
             , test "the prep card is never a destination" <|
                 \_ ->
                     -- Furniture for paper, not reading matter.

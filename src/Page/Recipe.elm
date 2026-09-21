@@ -4,11 +4,12 @@ module Page.Recipe exposing (Config, view, viewFailed, viewLoading)
 
 **This page does not wear `Doc`.** `Doc` frames prose documents: a
 masthead, a contents rail, numbered sections, citable `§N.M` clause
-marks. A recipe is a different object. Its ten blocks are a fixed
+marks. A recipe is a different object. Its nine blocks are a fixed
 form, not a numbered specification, and giving them clause marks would
 be the "controlled document" register that DS-01 Revision 2
-deliberately dropped — a recipe number is a collector's plate, not a
-compliance artifact (§01).
+deliberately dropped (§01). There is no serial at all since the
+2026-09-21 amendment: identity is the name and the address, and the
+plate leads with the method — the fact that colours the page.
 
 **The quiet layer.** One acid dominates, chosen from the recipe's
 method (`Recipe.dominantAcid`), and it appears as *marks* only —
@@ -119,7 +120,6 @@ view config =
                         ++ rescues r
                         ++ keeps r
                         ++ note r
-                        ++ history r
                         ++ [ prep config, footer config ]
                     )
                 ]
@@ -159,7 +159,7 @@ sideNav config =
         [ class "recipe-nav", attribute "aria-label" "On this recipe" ]
         [ div [ class "recipe-nav-inner" ]
             (span [ class "recipe-nav-head mono" ]
-                [ text ("Nº " ++ String.fromInt config.recipe.number) ]
+                [ text (methodWord config.recipe.method) ]
                 :: List.map row (blocksPresent config.recipe)
             )
         ]
@@ -188,7 +188,6 @@ blocksPresent r =
         , ( "rescues", "Rescues", not (List.isEmpty r.rescues) )
         , ( "keeps", "Keeps", not (List.isEmpty r.keeps) )
         , ( "note", "Note", not (List.isEmpty r.note) )
-        , ( "history", "History", not (List.isEmpty r.history) )
         ]
 
 
@@ -222,9 +221,11 @@ plate config =
     in
     div [ class "recipe-plate" ]
         [ div [ class "recipe-serial mono" ]
-            [ span [ class "recipe-no" ] [ text ("Nº " ++ String.fromInt r.number) ]
-            , span [] [ text ("REV " ++ String.fromInt r.revision) ]
-            , span [] [ text ("TESTED " ++ r.tested) ]
+            [ -- The method leads the plate: the word for the acid the
+              -- whole page runs on. Information is never colour-only
+              -- (§04), and this is that rule kept where it is loudest.
+              span [ class "recipe-mark" ] [ text (methodWord r.method) ]
+            , span [] [ text ("LAST BATCH " ++ r.tested) ]
             ]
         , h1 [ class "recipe-title" ] [ text r.title ]
         , div [ class "recipe-facts mono" ]
@@ -233,8 +234,7 @@ plate config =
             , fact "TOTAL" (duration r.time.total)
             ]
         , div [ class "recipe-chips" ]
-            (span [ class "chip chip-method u" ] [ text (chipWord r.method) ]
-                :: List.map (chip "chip-flavor") r.flavor
+            (List.map (chip "chip-flavor") r.flavor
                 ++ List.map (chip "chip-slot") r.slot
                 ++ [ chip "chip-effort" r.effort ]
                 ++ List.map (chip "chip-diet") r.dietary
@@ -265,6 +265,14 @@ chip kind word =
 chipWord : String -> String
 chipWord =
     String.replace "-" " "
+
+
+{-| The method as the plate and the nav wear it: its word, uppercased
+in the data voice — `sugar-work` reads SUGAR WORK.
+-}
+methodWord : String -> String
+methodWord =
+    chipWord >> String.toUpper
 
 
 {-| `90` → `1 H 30 MIN`. Total always includes every hold, because the
@@ -623,29 +631,6 @@ note r =
 
 
 
--- 10 · HISTORY
-
-
-history : Recipe -> List (Html msg)
-history r =
-    block "history" "History" <|
-        if List.isEmpty r.history then
-            []
-
-        else
-            [ ul [ class "rev-list" ] (List.map revision r.history) ]
-
-
-revision : Recipe.Revision -> Html msg
-revision rev =
-    li [ class "rev" ]
-        [ span [ class "rev-n mono" ]
-            [ text ("REV " ++ String.fromInt rev.revision) ]
-        , span [ class "rev-date mono" ] [ text rev.date ]
-        , span [ class "rev-text" ] [ text rev.text ]
-        ]
-
-
 {-| The way into cook mode, carrying the scale it was set at.
 
 The factor rides in the address rather than in the shell, so entering
@@ -822,9 +807,15 @@ prepRow item =
 {-| Traceability — DS-01 §09.
 
 **A sheet found in a drawer in three years should be able to tell you
-what it is and how out of date it is.** The number, the revision it
-was pulled at, the scale it was printed at, the date, and the address
-it came from. Screen-hidden: this is furniture for paper.
+what it is and how out of date it is.** The recipe's name — on every
+page, so page three of a booklet still says what it belongs to — its
+last-batch date, the scale it was printed at, the date it was pulled,
+and the address it came from. Staleness is the sheet's
+LAST BATCH date against the site's — the lot-code idiom is straight
+out of DS-01 §03's reference table; the revision counter this used to carry was a
+hand-maintained claim nothing forced to move, and the change log is
+git's job (DS-01 §06, amended 2026-09-21). Screen-hidden: this is
+furniture for paper.
 
 The scale is here and not merely in the header because a scaled sheet
 that does not say so is dangerous (§08), and a printout has no live
@@ -839,7 +830,7 @@ footer config =
     in
     Html.footer [ class "print-footer mono" ]
         [ span []
-            [ text ("Nº " ++ String.fromInt r.number ++ " · REV " ++ String.fromInt r.revision) ]
+            [ text (String.toUpper r.title ++ " · LAST BATCH " ++ r.tested) ]
         , span [] [ text ("SCALE " ++ Scale.label config.factor) ]
         , span [] [ text ("PULLED " ++ config.today) ]
         , span [ class "print-url" ]

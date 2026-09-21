@@ -79,6 +79,11 @@ async function main() {
   const files: string[] = [];
   try {
     for await (const entry of Deno.readDir(RECIPES_IN)) {
+      // AGENTS.md is the authoring contract that lives beside the
+      // recipes, not a recipe — without this skip it would be parsed
+      // as one and fail the slug check. Held to `vocabulary.ts` by
+      // `agents_test.ts`, so it cannot drift into lying either way.
+      if (entry.name === "AGENTS.md" || entry.name === "README.md") continue;
       if (entry.isFile && entry.name.endsWith(".md")) files.push(entry.name);
     }
   } catch (e) {
@@ -115,24 +120,8 @@ async function main() {
   }
 
   // --- checks that need the whole corpus -----------------------------------
-
-  const byNumber = new Map<number, string[]>();
-  for (const r of recipes) {
-    byNumber.set(r.number, [...(byNumber.get(r.number) ?? []), r.slug]);
-  }
-  for (const [n, slugs] of byNumber) {
-    if (slugs.length > 1) {
-      report(`${RECIPES_IN}/`, [{
-        where: "number",
-        message:
-          `Nº ${n} is claimed by ${slugs.join(", ")}. A recipe's number goes ` +
-          `on its printed footer, which is how a sheet found in a drawer in ` +
-          `three years says what it is (DS-01 §09). Numbers are unique and ` +
-          `never reused.`,
-      }]);
-      failed++;
-    }
-  }
+  // (Identity is the slug, which the filesystem already keeps unique;
+  // the photo check below is the one that still needs the set.)
 
   // A photo named in frontmatter but absent on disk renders as a
   // broken image — exactly the placeholder DS-01 §06 forbids.
@@ -185,13 +174,11 @@ async function main() {
       print: PRINT_TEMPLATES,
     },
     recipes: [...recipes]
-      .sort((a, b) => (a.tested < b.tested ? 1 : a.tested > b.tested ? -1 : a.number - b.number))
+      .sort((a, b) => (a.tested < b.tested ? 1 : a.tested > b.tested ? -1 : a.slug.localeCompare(b.slug)))
       .map((r) => ({
         slug: r.slug,
-        number: r.number,
         title: r.title,
         tested: r.tested,
-        revision: r.revision,
         yield: r.yield,
         time: r.time,
         slot: r.slot,

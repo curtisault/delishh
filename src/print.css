@@ -261,7 +261,7 @@
   .recipe-serial {
     font-size: 8pt;
   }
-  .recipe-no {
+  .recipe-mark {
     font-weight: 700;
   }
   .recipe-facts {
@@ -304,7 +304,6 @@
   .ing,
   .step,
   .rescue,
-  .rev,
   .prep-item {
     break-inside: avoid;
     page-break-inside: avoid;

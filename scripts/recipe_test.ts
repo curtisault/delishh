@@ -41,7 +41,6 @@ Deno.test("the bench specimen parses", () => {
   const { recipe, problems } = parseRecipe("salted-caramel", good);
   assertEquals(problems, []);
   assert(recipe);
-  assertEquals(recipe.number, 47);
   assertEquals(recipe.time, { active: 15, total: 45 });
   assertEquals(recipe.steps.length, 6);
   assertEquals(recipe.photo, null, "no photo field means an absent block, not a placeholder");
@@ -187,8 +186,8 @@ Deno.test("the note is exempt from every word rule", () => {
   // checker must not read it. Pile on more and it still must not.
   const loud = swap(
     good,
-    "Revision three is that sentence, in numbers.",
-    "Revision three is that sentence, in numbers. It is simply the best caramel ever! Easy, honestly 🎉",
+    "The third go is that sentence, in numbers.",
+    "The third go is that sentence, in numbers. It is simply the best caramel ever! Easy, honestly 🎉",
   );
   const { problems } = parseRecipe("test", loud);
   assertEquals(problems, [], "the note must never be linted");
@@ -213,19 +212,23 @@ Deno.test("an unknown block heading is rejected", () => {
 });
 
 Deno.test("the note block is required", () => {
-  rejects(good.replace(/## Note[\s\S]*?(?=## History)/, ""), "required and absent");
+  // To the end of the file: Note is the last block now that History
+  // is retired (DS-01 §06, amended 2026-09-21).
+  rejects(good.replace(/## Note[\s\S]*$/, ""), "required and absent");
 });
 
-Deno.test("a revision past the first needs a history", () => {
-  rejects(good.replace(/## History[\s\S]*$/, ""), "no `## History` block");
-});
 
-Deno.test("history and frontmatter must agree on the revision", () => {
-  rejects(swap(good, "revision: 3", "revision: 4"), "out of date");
-});
 
-Deno.test("a revision may not be dated after the last test", () => {
-  rejects(swap(good, "tested: 2026-03-11", "tested: 2026-01-01"), "after");
+
+Deno.test("History is no longer a block — the change log is git's job", () => {
+  // DS-01 §06, amended 2026-09-21. The old `## History` grammar is
+  // rejected as an unknown block rather than parsed, so a recipe
+  // carried over from before the amendment fails loudly with the
+  // current block list instead of silently dropping its entries.
+  rejects(
+    good.replace("## Note", "## History\n\n- **2026-01-01** — Changed things.\n\n## Note"),
+    "is not a block",
+  );
 });
 
 Deno.test("a malformed rescue is rejected", () => {

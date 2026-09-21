@@ -10,7 +10,7 @@
  * The contract, in one line: **frontmatter is the schema, the body is
  * the document.** Frontmatter carries everything a filter or a search
  * needs (and is therefore a closed vocabulary — see `vocabulary.ts`);
- * the body carries the ten blocks in their fixed order and nothing
+ * the body carries the blocks in their fixed order and nothing
  * else.
  *
  * Nothing here is inferred. A dietary flag that is not written down is
@@ -95,14 +95,10 @@ export type Rescue = {
   text: string;
 };
 
-export type Revision = { revision: number; date: string; text: string };
-
 export type Recipe = {
   slug: string;
-  number: number;
   title: string;
   tested: string;
-  revision: number;
   yield: { amount: number; unit: string; servings?: number };
   /** Minutes. Formatting is the renderer's job, in one place. */
   time: { active: number; total: number };
@@ -122,7 +118,6 @@ export type Recipe = {
   rescues: Rescue[];
   keeps: string[];
   note: string[];
-  history: Revision[];
 };
 
 // ---------------------------------------------------------------------------
@@ -274,10 +269,8 @@ function timerFor(cue: string | null): number | null {
 // ---------------------------------------------------------------------------
 
 const ALLOWED_KEYS = [
-  "number",
   "title",
   "tested",
-  "revision",
   "yield",
   "time",
   "slot",
@@ -424,16 +417,6 @@ export function parseRecipe(
     return v.filter((x): x is string => typeof x === "string" && allowed.includes(x));
   };
 
-  const number = fm.number;
-  if (!Number.isInteger(number) || (number as number) < 1) {
-    fail(
-      "frontmatter.number",
-      "must be a positive whole number. It is the recipe's plate — it goes " +
-        "on the printed footer and it is never reused (DS-01 §09).",
-      at("number"),
-    );
-  }
-
   const title = typeof fm.title === "string" ? fm.title.trim() : "";
   if (!title) fail("frontmatter.title", "missing.", at("title"));
 
@@ -457,10 +440,6 @@ export function parseRecipe(
     );
   }
 
-  const revision = fm.revision;
-  if (!Number.isInteger(revision) || (revision as number) < 1) {
-    fail("frontmatter.revision", "must be a positive whole number, starting at 1.", at("revision"));
-  }
 
   // yield
   const y = (fm.yield ?? {}) as Record<string, unknown>;
@@ -732,53 +711,6 @@ export function parseRecipe(
     );
   }
 
-  const history: Revision[] = [];
-  for (const item of collectItems(linesOf("history"), lineOf("history"), false)) {
-    const whole = [item.text, ...item.continuations].join(" ");
-    const m = whole.match(
-      /^\*\*Rev\s+(\d+)\*\*\s*[·•]?\s*(\d{4}-\d{2}-\d{2})\s*[—–-]?\s*(.*)$/u,
-    );
-    if (!m) {
-      fail(
-        "history",
-        "a history line reads `- **Rev 3** · 2026-03-11 — what changed`.",
-        item.line,
-      );
-      continue;
-    }
-    history.push({ revision: Number(m[1]), date: m[2], text: m[3].trim() });
-  }
-
-  // A revision number with no history is a claim with no receipt.
-  if (Number.isInteger(revision) && (revision as number) > 1 && !seen.has("history")) {
-    fail(
-      "body",
-      `revision ${revision} with no \`## History\` block. Past the first ` +
-        `revision, "what changed and when" is the question you will actually ` +
-        `have (DS-01 §06).`,
-      bodyStartLine,
-    );
-  }
-  if (history.length) {
-    const newest = history.reduce((a, b) => (b.revision > a.revision ? b : a));
-    if (newest.revision !== revision) {
-      fail(
-        "history",
-        `the newest entry is Rev ${newest.revision} but frontmatter says ` +
-          `revision ${revision}. One of the two is out of date.`,
-        lineOf("history"),
-      );
-    }
-    if (tested && newest.date > tested) {
-      fail(
-        "history",
-        `Rev ${newest.revision} is dated ${newest.date}, after \`tested: ${tested}\` ` +
-          `— a revision cannot land after the last time it was cooked.`,
-        lineOf("history"),
-      );
-    }
-  }
-
   // --- the word rules ------------------------------------------------------
 
   const procedure = new Set<string>(PROCEDURE_BLOCKS);
@@ -802,10 +734,8 @@ export function parseRecipe(
   return {
     recipe: {
       slug,
-      number: number as number,
       title,
       tested,
-      revision: revision as number,
       yield: {
         amount: y.amount as number,
         unit: y.unit as string,
@@ -828,7 +758,6 @@ export function parseRecipe(
       rescues,
       keeps,
       note,
-      history,
     },
     problems,
   };

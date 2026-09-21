@@ -55,9 +55,10 @@
   color: var(--tx-dim);
   margin-bottom: 0.5rem;
 }
-/* The collector's plate, not a compliance artifact (§01) — so the
-   number is the one serial that gets the acid. */
-.recipe-no {
+/* The method mark: the word for the acid the page runs on, kept
+   beside the last-batch date. Information is never colour-only
+   (§04). */
+.recipe-mark {
   color: var(--acid);
   font-weight: 700;
 }
@@ -335,31 +336,6 @@
   margin-bottom: 0;
 }
 
-/* ---------- 10 · history ---------- */
-
-.rev-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.rev {
-  display: grid;
-  grid-template-columns: 4rem 6rem 1fr;
-  gap: 0.6rem;
-  padding: 0.35rem 0;
-  border-bottom: 1px solid var(--hairline);
-  font-size: 0.88rem;
-}
-.rev-n {
-  font-weight: 700;
-  font-size: 0.66rem;
-  color: var(--tx-dim);
-}
-.rev-date {
-  font-size: 0.66rem;
-  color: var(--tx-dim);
-}
-
 .recipe-back {
   font-size: 0.62rem;
   color: var(--tx);
@@ -373,10 +349,6 @@
 @media (max-width: 34rem) {
   .ing {
     grid-template-columns: 5.5rem 1fr;
-  }
-  .rev {
-    grid-template-columns: 1fr;
-    gap: 0.1rem;
   }
   .recipe-facts {
     gap: 1rem;

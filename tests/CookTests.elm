@@ -157,10 +157,8 @@ step n cue timer =
 fixture : Recipe.Recipe
 fixture =
     { slug = "salted-caramel"
-    , number = 47
     , title = "Salted Caramel"
     , tested = "2026-03-11"
-    , revision = 3
     , yield = { amount = 340, unit = "g", servings = Just 8 }
     , time = { active = 15, total = 45 }
     , slot = [ "dessert" ]
@@ -191,7 +189,6 @@ fixture =
     , rescues = []
     , keeps = []
     , note = []
-    , history = []
     }
 
 

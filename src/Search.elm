@@ -139,7 +139,7 @@ curated =
         [ "amendment", "silently", "Enforcement" ]
         [ "changelog", "roadmap" ]
     , ds "Premise" "Loud shelf, quiet page, ink sheet — the split everything follows from" "sec-premise"
-        [ "sticker", "notebook", "collector" ]
+        [ "sticker", "notebook", "serial" ]
         [ "mascot", "brand" ]
     , ds "Pillars" "The six claims, and what each one forbids" "sec-pillars"
         [ "cosplay", "silk-screened", "gloss" ]
@@ -153,7 +153,7 @@ curated =
     , ds "Type" "The four voices, and how a quantity is set on the page" "sec-type"
         [ "glyph", "tabular", "authoritative" ]
         [ "kerning", "ligature" ]
-    , ds "The document" "One markdown file, its frontmatter schema, and the ten blocks" "sec-document"
+    , ds "The document" "One markdown file, its frontmatter schema, and the nine blocks" "sec-document"
         [ "halftone", "frontmatter", "placeholder" ]
         [ "nutrition", "database" ]
     , ds "Browse" "Four ways in, and filters that tag instead of hiding" "sec-browse"

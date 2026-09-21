@@ -4,7 +4,7 @@ module Print exposing (Form(..), all, className, fromSlug, label, note)
 
 **The sheet is designed to be destroyed.** Reprinting is the intended
 lifecycle, not a failure, which is exactly why it must be cheap in
-ink, small in pages, and traceable back to its current revision.
+ink, small in pages, and traceable back to the archive's current copy.
 
 A form is chosen by the recipe's own `print:` frontmatter and can be
 overridden by the reader before printing. It is carried to the

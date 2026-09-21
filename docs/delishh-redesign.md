@@ -25,6 +25,19 @@ Ruled 2026-09-19, at Phase 2:
 | Prose transport | **Generated Elm** (`src/Generated/`), not fetched JSON — unlike recipes. A document that ships with the app compiles in: no `elm/http`, no loading state, and `Page.DesignStandard.view` stays pure so `SearchTests` can keep holding every search term to the rendered page | Fetched JSON, which would end that machine-check and add a loading state to a page whose only job is to be read |
 | Section numbering | `Doc` numbers sections from **00**, matching the markdown's own `## 00.` headings and every in-prose `§NN` | Renumbering the standard 01–14 (touches ~30 cross-references); having the build emit explicit numbers (breaks Doc's derived-numbering invariant) |
 
+Ruled 2026-09-20, at the authoring contract:
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Recipe authoring requirements | `content/recipes/AGENTS.md` — hand-written prose (workflow, grammar, the why), with every fact in it recomputed from `vocabulary.ts` by `agents_test.ts` on each test run. Adding a facet value now means editing the vocabulary *and* the contract, and forgetting either fails the build | Generating the whole file from the vocabulary (loses the curated prose that makes a contract worth reading); pure hand maintenance (drifts — the About colophon already demonstrated how) |
+
+Ruled 2026-09-21, at the revision retirement:
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| The recipe number | `number:` retired (DS-01 §06 amendment, 2026-09-21). Identity is the **slug** — filename, URL, and now the printed footer's name line, so every page of a booklet says what it belongs to. The plate's serial slot goes to **the method**, the fact that already colours the page: `PICKLE · LAST BATCH 2026-08-02` is §04's "never colour-only" kept where it is loudest. The shelf's left rail carries the method word too | Keeping an insertion-order serial (tells a reader nothing about the food); a hand-counted "batch Nº" (the revision-counter disease again); provenance labels (not in the schema, cannot be required) |
+| Revisions | The `revision:` counter and the History block are retired (DS-01 §06 amendment, 2026-09-21). **The change log is git's job** — every edit is already recorded there with a date and a reason, and readers do not need it. The counter's deeper fault: nothing forced it to move, so `REV 3` on a printed sheet was a hand-maintained claim about content, not a fact. Staleness on paper is now the sheet's **TESTED** against the site's; the story of how a recipe got here belongs in the note | Keeping the counter (metadata that can silently lie); a dated History block feeding a derived "last changed" (proposed, then superseded — reader-facing change tracking is the thing being removed); a git-derived changed date in the footer (couples the content build to git, and a shallow CI checkout would date every file to the head commit — a subtle lie replacing an honest one) |
+
 ## What exists today
 
 - Elm + Vite + Deno shell with working chrome: `Doc.elm` (document

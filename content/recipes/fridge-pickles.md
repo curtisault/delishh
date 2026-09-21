@@ -1,8 +1,6 @@
 ---
-number: 12
 title: Fridge Pickles
 tested: 2026-08-02
-revision: 1
 yield: { amount: 700, unit: g, servings: 6 }
 time: { active: 20m, total: 2d }
 slot: [lunch, dinner]

@@ -14,7 +14,7 @@
     "dev": "deno task content && vite",
     "build": "deno task content && vite build",
     "preview": "vite preview",
-    "test:content": "deno test --allow-read=content,docs,src,public,index.html scripts/",
+    "test:content": "deno test --allow-read=content,docs,src,public,scripts,index.html scripts/",
     "test": "deno task content && deno task test:content && elm-test-rs --deno",
     "deploy": "deno task build && wrangler pages deploy dist --project-name=delishh"
   }

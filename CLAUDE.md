@@ -9,13 +9,14 @@ the authority on how this looks and why.
 
 | Doc | Owns |
 |-----|------|
+| `content/recipes/AGENTS.md` | The authoring contract for recipes — schema, vocabularies, block grammar, banned words. **Machine-held**: `agents_test.ts` fails the build if its lists drift from `vocabulary.ts` |
 | `docs/about.md` | The colophon — what this is, what it is built from, what is never kept about a reader. Rendered at `/about` |
 | `docs/design-standard.md` | DS-01 — look, feel, voice, type, colour, the recipe document, browse, cook mode, print, the word rules, hard constraints. **The prose of record.** |
 | `docs/delishh-redesign.md` | The DS-01 Revision 2 implementation plan and its dated decision log. Owns *sequence and scope*; DS-01 owns everything else |
 | `src/Prose.elm` | Markdown blocks → the house chrome. **Every styling decision for generated prose lives here**, in hand-written Elm; the generator emits data and knows no class name |
 | `src/Page/DesignStandard.elm` | Four lines of wiring: `Generated.DesignStandard` through `Prose` through `Doc`. There is no second copy of the standard anywhere |
 | `src/Scale.elm` | The measurement ladder (DS-01 §05) as a pure module. **Where a recipe archive would otherwise lie to you** — see below |
-| `src/Page/Recipe.elm` | The ten blocks of DS-01 §06. Deliberately does **not** wear `Doc` |
+| `src/Page/Recipe.elm` | The nine blocks of DS-01 §06. Deliberately does **not** wear `Doc` |
 | `src/print.css` | **All of DS-01 §09.** The four printed forms, the ink discipline, the break law, the traceability footer |
 | `src/Shelf.elm` | The four browse paths and the filter logic (DS-01 §07), pure. `judge` returns a verdict **with its reasons** |
 | `src/Cook.elm` | The step timer and the wake state (DS-01 §08, §10). The timer counts to an **absolute end**, never down a counter |
@@ -79,13 +80,17 @@ whose only job is to be read.
   and their kinds, the fixed block order, and the word rules. A new
   flavour is one line here and nowhere else; that friction is the
   point, because it is what stops a filter chip being backed by a
-  typo.
+  typo. A recipe's identity is its **slug** — filename, URL, and the
+  name on the printed footer; there is no serial number and no
+  revision counter (both retired 2026-09-21: hand-maintained metadata
+  nothing forces to move is metadata that can lie, and git is the
+  change log).
 - `scripts/recipe.ts` — `parseRecipe`, a pure function. **This module
   decides what a recipe is**, and everything downstream is a view of
   what it returns. Frontmatter is the schema (facets, times, yield);
-  the body is the ten blocks of DS-01 §06 in fixed order.
+  the body is the nine blocks of DS-01 §06 in fixed order.
 - `scripts/build-content.ts` — walks the corpus, runs the checks that
-  need every file at once (unique numbers, photos exist on disk),
+  need every file at once (photos exist on disk),
   writes the JSON. **Collects every problem before exiting**; writes
   nothing on failure. A validator that stops at the first fault
   trains you to distrust its "all clear".
@@ -108,6 +113,13 @@ whose only job is to be read.
   intent and body kind ride in a `<!-- doc ... -->` comment beneath
   its heading, which markdown renders as nothing.
 - `scripts/docs_test.ts` — the generator's guards, over DS-01 itself.
+- `scripts/agents_test.ts` — holds `content/recipes/AGENTS.md` to the
+  code, both directions: every vocabulary list, the block order, the
+  skeleton's order, the unit kinds, and that every banned word it
+  names actually trips a rule — a warning about nothing teaches
+  authors the contract exaggerates. It also asserts the build skips
+  AGENTS.md, which would otherwise be parsed as a recipe and fail the
+  slug check.
 - `scripts/contrast_test.ts` — reads the real hexes out of
   `theme.css` and recomputes every foreground/background pair in both
   themes. **It also holds each ratio written in a comment to the hex
@@ -217,7 +229,7 @@ fixture the validator's tests mutate. Keep it parsing.
   the split without the nav; below 60rem everything stacks in
   document order, which is also what paper gets. **The page does not wear `Doc`**: `Doc` frames prose
   documents with numbered sections and citable `§N.M` clause marks,
-  and a recipe is a different object — its ten blocks are a fixed
+  and a recipe is a different object — its nine blocks are a fixed
   form, not a specification. Giving them clause marks would be the
   "controlled document" register Revision 2 dropped. An empty block
   is absent, never a heading over blank space.

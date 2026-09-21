@@ -77,11 +77,11 @@ consequence of it:
   designed to be destroyed and reprinted (§09).
 
 There is no in-fiction company and no institutional voice. delishh
-speaks as itself: warm, direct, precise. Structural touches — every
-recipe carries a number, a tested-on date, and a revision history —
-survive because they're *useful* (they make search, traceability, and
-the printed footer work), not because a fiction requires them. A
-recipe number is a collector's plate, not a compliance artifact.
+speaks as itself: warm, direct, precise. The one structural touch —
+every recipe carries a last-batch date — survives because it is
+*useful*: it is the archive's working sort order, and it is how a
+printed sheet says how old it is. A recipe's identity is its name
+and its address, not a serial.
 
 The one human register the design protects: **your note.** Every
 recipe ends with a personal note in a serif, in sentence case, in the
@@ -262,7 +262,7 @@ enforced in the build:
 
 ---
 
-## 06. The recipe document — one markdown file, ten blocks
+## 06. The recipe document — one markdown file, nine blocks
 <!-- doc anchor=sec-document toc="The document" intent="One markdown file, and the ten blocks in it" body=clauses -->
 
 Every recipe is **one markdown file** in `content/recipes/`. The
@@ -278,10 +278,8 @@ validation fails CI:
 
 ```yaml
 ---
-number: 47                 # the collector's plate; unique, never reused
 title: Salted Caramel
-tested: 2026-03-11         # last date this revision was cooked as written
-revision: 3
+tested: 2026-03-11         # last date it was cooked as written
 yield: { amount: 340, unit: g, servings: 8 }
 time: { active: 15m, total: 45m }   # total includes every hold — no lying
 slot: [dessert]            # breakfast | lunch | dinner | snack | dessert
@@ -317,9 +315,35 @@ Adding a value is a deliberate act, not a typo surviving review.
 > in a column beside the steps, that is presentation, and it presents
 > them in this order too.
 
+> **Amendment 2026-09-21 — the number is retired.**
+> `number:` leaves the schema. Its honest job was traceability, and
+> the slug does that better everywhere the number appeared: it is the
+> filename, the address, and already on every printed footer inside
+> the URL. What remained was a collector's-plate fiction — an
+> insertion-order serial that tells a reader nothing about the food.
+> Its slot on the plate now carries **the method**, the one fact that
+> already colours the whole page (§04): the mark and its word
+> together, which "information is never colour-only" always wanted.
+> The printed footer carries the recipe's name instead, so every page
+> of a booklet says what it belongs to.
+
+> **Amendment 2026-09-21 — no revisions, no History block.**
+> The `revision` counter and the History block (formerly block 10)
+> are retired. The change log is git's job: the archive is a
+> repository, every edit is already recorded there with a date and a
+> reason, and a reader does not need it. The counter had a deeper
+> fault than redundancy — nothing forced it to move, so `REV 3` on a
+> printed sheet was a hand-maintained claim about content, not a
+> fact, which is exactly the lying metadata this standard refuses
+> everywhere else. Staleness on paper is now read from the
+> **LAST BATCH** date — the lot-code idiom from §03's own reference
+> table: the sheet's date against the site's, no arithmetic. The story of
+> how a recipe got here belongs in the note, which was always the
+> better home for it.
+
 | # | Block | Carries |
 |---|-------|---------|
-| 1 | Header plate | Rendered from frontmatter: name, number, revision, tested date, yield, times, method mark |
+| 1 | Header plate | Rendered from frontmatter: name, method mark, last-batch date, yield, times |
 | 2 | Photo | One photograph. One. Absent if none — never a grey box |
 | 3 | Equipment | Named with the dimensions and materials that change the result |
 | 4 | Ingredients | Grouped by sub-preparation, mass-first, scalable |
@@ -328,7 +352,6 @@ Adding a value is a deliberate act, not a typo surviving review.
 | 7 | Rescues | What goes wrong, what causes it, whether it can be saved |
 | 8 | Keeps | Storage, freezing, reheating |
 | 9 | The note | Yours. Serif, sentence case, first person, unedited |
-| 10 | History | What changed and when |
 
 **Ingredients sit above the fold.** A returning cook needs
 quantities; a first-time cook needs a shopping list; neither needs a
@@ -344,7 +367,7 @@ One real recipe, built first and kept forever, on which every rule
 above is load-bearing:
 
 ```
-Nº 47 · REV 3 · TESTED 2026-03-11
+SUGAR WORK · LAST BATCH 2026-03-11
 SALTED CARAMEL                                      [SUGAR WORK]
 YIELD 340 g · 8 SERVINGS   ACTIVE 15 MIN   TOTAL 45 MIN
 SWEET · SALTY · DESSERT · FOCUSED
@@ -386,7 +409,7 @@ KEEPS
 NOTE
   Mum's pan was aluminium and she went by smell, not temperature —
   she'd say it's ready when it smells like it's about to be too
-  late. Revision three is that sentence, in numbers. The first two
+  late. The third go is that sentence, in numbers. The first two
   were too pale.
 ```
 
@@ -428,10 +451,10 @@ the color; the rows supply the information:
 ```
 SEARCH ▸ caram_
 
-│ Nº 47 · SALTED CARAMEL          SWEET·SALTY   15 MIN   KEEPS 14 D
-│ Nº 112 · CARAMELIZED ONIONS     SAVORY        55 MIN   KEEPS 5 D
-│ Nº 88 · CARAMEL ICE CREAM BASE  SWEET         25 MIN   FREEZES
-│ Nº 203 · Caramel miso ferment   HIDDEN BY [TOTAL ≤ 60 MIN]
+│ SUGAR WORK · SALTED CARAMEL     SWEET·SALTY   15 MIN   KEEPS 14 D
+│ SAUTÉ · CARAMELIZED ONIONS      SAVORY        55 MIN   KEEPS 5 D
+│ CHILL · CARAMEL ICE CREAM BASE  SWEET         25 MIN   FREEZES
+│ FERMENT · Caramel miso ferment  HIDDEN BY [TOTAL ≤ 60 MIN]
 
 [TOTAL ≤ 60 MIN ✕] [SWEET ✕] [+ EFFORT] [+ DIETARY]
 ```
@@ -518,12 +541,12 @@ the booklet, that's a signal about the recipe.
 
 ### The footer — every sheet knows what it is
 
-Every printed page carries: the recipe number, the revision, the
-scale factor it was printed at, the date it was pulled, and the short
-URL. **A sheet found in a drawer in three years should be able to
+Every printed page carries: the recipe's name, its last-batch date,
+the scale factor it was printed at, the date it was pulled, and the
+short URL. **A sheet found in a drawer in three years should be able to
 tell you what it is and how out of date it is.** Reprinting is the
 intended lifecycle — which is exactly why the sheet must be cheap in
-ink, small in pages, and traceable to its current revision.
+ink, small in pages, and traceable to the archive's current copy.
 
 ---
 
@@ -626,7 +649,7 @@ copy is written in a hurry and nobody reviews a tooltip.
 1. **The recipe schema and the build script.** Frontmatter
    vocabularies, validation, markdown → JSON. Everything else in the
    product is a view of this.
-2. **One real recipe, end to end** — Nº 47 above. A hard one, with
+2. **One real recipe, end to end** — the salted caramel above. A hard one, with
    genuine watchpoints and rescues. It is the bench specimen forever.
 3. **The `sheet` print template** — before the browse page, not
    after. If the sheet is right, the screen has very little left to

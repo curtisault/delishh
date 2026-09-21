@@ -22,10 +22,8 @@ import Test exposing (Test, describe, test)
 recipe : String -> Shelf.Summary
 recipe slug =
     { slug = slug
-    , number = 1
     , title = slug
     , tested = "2026-01-01"
-    , revision = 1
     , active = 10
     , total = 20
     , slot = [ "dinner" ]
@@ -41,10 +39,8 @@ recipe slug =
 caramel : Shelf.Summary
 caramel =
     { slug = "salted-caramel"
-    , number = 47
     , title = "Salted Caramel"
     , tested = "2026-03-11"
-    , revision = 3
     , active = 15
     , total = 45
     , slot = [ "dessert" ]
@@ -60,10 +56,8 @@ caramel =
 pickles : Shelf.Summary
 pickles =
     { slug = "fridge-pickles"
-    , number = 12
     , title = "Fridge Pickles"
     , tested = "2026-08-02"
-    , revision = 1
     , active = 20
     , total = 2880
     , slot = [ "lunch", "dinner" ]

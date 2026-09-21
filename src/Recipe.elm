@@ -4,7 +4,6 @@ module Recipe exposing
     , IngredientGroup
     , Recipe
     , Rescue
-    , Revision
     , Step
     , Yield
     , decoder
@@ -36,10 +35,8 @@ import Json.Decode as D exposing (Decoder)
 
 type alias Recipe =
     { slug : String
-    , number : Int
     , title : String
     , tested : String
-    , revision : Int
     , yield : Yield
     , time : { active : Int, total : Int }
     , slot : List String
@@ -58,7 +55,6 @@ type alias Recipe =
     , rescues : List Rescue
     , keeps : List String
     , note : List String
-    , history : List Revision
     }
 
 
@@ -97,10 +93,6 @@ type alias Step =
 
 type alias Rescue =
     { symptom : String, recoverable : Bool, text : String }
-
-
-type alias Revision =
-    { revision : Int, date : String, text : String }
 
 
 
@@ -179,10 +171,8 @@ decoder =
     in
     D.succeed Recipe
         |> field "slug" D.string
-        |> field "number" D.int
         |> field "title" D.string
         |> field "tested" D.string
-        |> field "revision" D.int
         |> field "yield" yieldDecoder
         |> field "time" timeDecoder
         |> field "slot" (D.list D.string)
@@ -201,7 +191,6 @@ decoder =
         |> field "rescues" (D.list rescueDecoder)
         |> field "keeps" (D.list D.string)
         |> field "note" (D.list D.string)
-        |> field "history" (D.list revisionDecoder)
 
 
 yieldDecoder : Decoder Yield
@@ -263,10 +252,3 @@ rescueDecoder =
         (D.field "recoverable" D.bool)
         (D.field "text" D.string)
 
-
-revisionDecoder : Decoder Revision
-revisionDecoder =
-    D.map3 Revision
-        (D.field "revision" D.int)
-        (D.field "date" D.string)
-        (D.field "text" D.string)
