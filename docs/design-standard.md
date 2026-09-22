@@ -314,6 +314,7 @@ title: Salted Caramel
 tested: 2026-03-11         # last date it was cooked as written
 yield: { amount: 340, unit: g, servings: 8 }
 time: { active: 15m, total: 45m }   # total includes every hold — no lying
+keeps: fridge 14d          # optional; how long it keeps and where — counter | fridge | freezer, h | d | mo
 slot: [dessert]            # breakfast | lunch | dinner | snack | dessert
 course: sauce              # main | side | sauce | drink | bake | component
 flavor: [sweet 3, salty]   # word, or word 1–3 — sweet | savory | spicy | tangy | umami | bitter | salty
@@ -343,6 +344,21 @@ Adding a value is a deliberate act, not a typo surviving review.
 > On the chips the level renders as filled cells beside the word and
 > the word's own stencil mark — shape carrying what colour never
 > carries alone (§04). Facet chips still do not print (§09).
+
+> **Amendment 2026-09-21 — a keeping life states its place.**
+> `keeps:` is how long the finished thing is good for, and it does
+> not travel without the *where*: `fridge 14d`, `freezer 3mo`,
+> `counter 4d`. The archive is mostly make-ahead food whose Keeps
+> block states a freezer life and no fridge one, and a bare duration
+> at the end of a shelf row reads as a claim about the dish in a
+> fridge — the one misreading here that can put somebody in hospital,
+> which is a different order of wrong from a page that looks untidy.
+> Absent means **not stated**, never "does not keep": the same
+> contract as an unverified dietary flag, and a dish that genuinely
+> does not keep says so in its Keeps block, in words. The number is
+> authored beside that block and never read out of it — picking which
+> of a paragraph's durations is the one you bet on is a judgement,
+> exactly as a gauge is (§12).
 
 ### The body blocks
 
@@ -519,11 +535,11 @@ Results render as a dense, scannable list — the flavor chips supply
 the color; the rows supply the information:
 
 ```
-SEARCH ▸ caram_
+QUERY ▸ caram_
 
-│ SUGAR WORK · SALTED CARAMEL     SWEET·SALTY   15 MIN   KEEPS 14 D
-│ SAUTÉ · CARAMELIZED ONIONS      SAVORY        55 MIN   KEEPS 5 D
-│ CHILL · CARAMEL ICE CREAM BASE  SWEET         25 MIN   FREEZES
+│ SUGAR WORK · SALTED CARAMEL     SWEET·SALTY   15 MIN   KEEPS 14 D · FRIDGE
+│ SAUTÉ · CARAMELIZED ONIONS      SAVORY        55 MIN   KEEPS 5 D · FRIDGE
+│ CHILL · CARAMEL ICE CREAM BASE  SWEET         25 MIN   KEEPS 3 MO · FREEZER
 │ FERMENT · Caramel miso ferment  HIDDEN BY [TOTAL ≤ 60 MIN]
 
 [TOTAL ≤ 60 MIN ✕] [SWEET ✕] [+ EFFORT] [+ DIETARY]
@@ -535,6 +551,15 @@ SEARCH ▸ caram_
 - **Active time and total time are different facets and both are
   shown.** A twelve-hour cure is not a twenty-minute recipe;
   collapsing the two is the most common lie in recipe software.
+- **The query wears its own label and marks where it landed.** The
+  field is `QUERY ▸`, not a box with a magnifier in it, and the
+  letters it matched are marked in the rows that stayed — the same
+  courtesy the lockout tag pays the rows that went. A row is on the
+  page for a reason, and the reason should be visible in it.
+- **How long it keeps is the last thing in the row**, with the place
+  it keeps in (§06). Absent when the recipe has never said: nothing
+  stands in for an unstated life, because a hedge in that slot is the
+  archive filling a silence it has no right to fill.
 - **Default sort is last tested.** The archive's own working order
   beats the dictionary's.
 - **Zero results is designed copy with an action:**

@@ -24,6 +24,8 @@ import {
   FLAVOR_LEVELS,
   FLAVORS,
   GAUGE_MAX,
+  KEEPS_UNITS,
+  KEEPS_WHERE,
   METHODS,
   PRINT_TEMPLATES,
   SLOTS,
@@ -112,6 +114,30 @@ Deno.test("the gauge cap AGENTS.md states is the cap the build enforces", () => 
 function numberWord(n: number): string {
   return ["zero", "one", "two", "three", "four", "five", "six"][n] ?? String(n);
 }
+
+Deno.test("the keeping-life vocabularies match vocabulary.ts", () => {
+  // Both halves are closed, and the place is the half that matters:
+  // a bare duration on a shelf row reads as a fridge life, and most
+  // of this corpus only ever states a freezer one.
+  assertEquals(sorted(listedOn("keeps.where")), sorted(KEEPS_WHERE));
+  assertEquals(sorted(listedOn("keeps.unit")), sorted(KEEPS_UNITS));
+});
+
+Deno.test("the contract teaches why the place is mandatory", () => {
+  // A rule stated without its reason is a rule authors route around.
+  // This one exists because the misreading it prevents is the only
+  // one in the archive that can make somebody ill.
+  const section = doc.slice(doc.indexOf("### The keeping life"));
+  assert(section.length > 20, "AGENTS.md has no keeping-life section");
+  assert(
+    section.includes("The place is not optional"),
+    "the contract should state that the place is not optional",
+  );
+  assert(
+    /absent means \*not stated\*/i.test(section),
+    "the contract should teach absent as *not stated*, never *does not keep*",
+  );
+});
 
 Deno.test("the block order is stated, and matches BLOCKS", () => {
   // The arrow line is prose a reader follows and a build enforces;

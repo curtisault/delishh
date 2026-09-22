@@ -18,6 +18,24 @@ const fixElmEmptyHmrAccept = {
 
 export default defineConfig({
   plugins: [elmPlugin(), fixElmEmptyHmrAccept],
+  server: {
+    // The dev server has one address, and `strictPort` is what makes
+    // that sentence true. Vite's default is to walk up to the next
+    // free port, which means a stray server left running silently
+    // moves the site to 5179 — and a bookmark, a second tab or a
+    // screenshot then shows yesterday's build with no indication
+    // anything is wrong. Failing to start is the honest outcome:
+    // the port is busy, and something you have forgotten about is
+    // holding it.
+    port: 5178,
+    strictPort: true,
+  },
+  preview: {
+    // Same rule for the production preview, one port along, so the
+    // two can run side by side without either wandering.
+    port: 5179,
+    strictPort: true,
+  },
   build: {
     // Pre-16.4 iOS WebKit can't parse minified range media queries
     // (`(width<=960px)`); pin an older CSS floor so queries ship in the

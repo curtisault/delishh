@@ -3,6 +3,7 @@ title: Chicken Enchilada Casserole
 tested: 2026-09-21
 yield: { amount: 8, unit: pieces, servings: 8 }
 time: { active: 50m, total: 1h30m }
+keeps: freezer 3mo
 slot: [dinner]
 course: main
 flavor: [savory 3, spicy 2]

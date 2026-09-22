@@ -3,6 +3,7 @@ title: Blueberry Cake Donuts
 tested: 2026-09-21
 yield: { amount: 12, unit: pieces, servings: 12 }
 time: { active: 45m, total: 3h }
+keeps: counter 1d
 slot: [breakfast, dessert]
 course: bake
 flavor: [sweet 3, tangy 1]

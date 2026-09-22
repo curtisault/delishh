@@ -3,6 +3,7 @@ title: Salted Caramel
 tested: 2026-03-11
 yield: { amount: 340, unit: g, servings: 8 }
 time: { active: 15m, total: 45m }
+keeps: fridge 14d
 slot: [dessert]
 course: sauce
 flavor: [sweet 3, salty]

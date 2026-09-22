@@ -3,6 +3,7 @@ title: Chipotle Beef & Black Bean Chili
 tested: 2026-09-21
 yield: { amount: 2, unit: l, servings: 8 }
 time: { active: 1h, total: 3h }
+keeps: freezer 4mo
 slot: [dinner]
 course: main
 flavor: [savory 3, spicy 2, umami 2]

@@ -242,10 +242,32 @@ plate config =
             ]
         , h1 [ class "recipe-title" ] [ text r.title ]
         , div [ class "recipe-facts mono" ]
-            [ fact "YIELD" (yieldText config)
-            , fact "ACTIVE" (duration r.time.active)
-            , fact "TOTAL" (duration r.time.total)
-            ]
+            ([ fact "YIELD" (yieldText config)
+             , fact "ACTIVE" (duration r.time.active)
+             , fact "TOTAL" (duration r.time.total)
+             ]
+                -- How long it keeps, when the recipe says. Absent is
+                -- "not stated", never "does not keep", and nothing
+                -- stands in for it — the same contract as a dietary
+                -- flag nobody has verified (§12). The Keeps block
+                -- below is the how; this is the how long.
+                ++ (case r.keepsFor of
+                        Nothing ->
+                            []
+
+                        Just life ->
+                            [ fact "KEEPS"
+                                (String.toUpper
+                                    (String.fromInt life.amount
+                                        ++ " "
+                                        ++ life.unit
+                                        ++ " · "
+                                        ++ life.where_
+                                    )
+                                )
+                            ]
+                   )
+            )
         , div [ class "recipe-chips" ]
             (List.map (Flavor.chip "chip-flavor") r.flavor
                 ++ List.map (chip "chip-slot") r.slot

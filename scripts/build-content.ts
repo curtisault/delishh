@@ -190,6 +190,9 @@ async function main() {
         cuisine: r.cuisine,
         print: r.print,
         photo: r.photo,
+        // The shelf's last column. Null is "not stated" all the way
+        // through — the row draws nothing rather than a hedge.
+        keepsFor: r.keepsFor,
       })),
   };
 

@@ -33,6 +33,7 @@ recipe slug =
     , effort = "relaxed"
     , dietary = [ "vegetarian" ]
     , cuisine = []
+    , keepsFor = Nothing
     }
 
 
@@ -50,6 +51,7 @@ caramel =
     , effort = "focused"
     , dietary = [ "vegetarian", "gluten-free" ]
     , cuisine = []
+    , keepsFor = Just { where_ = "fridge", amount = 14, unit = "d" }
     }
 
 
@@ -67,6 +69,7 @@ pickles =
     , effort = "relaxed"
     , dietary = [ "vegan", "gluten-free" ]
     , cuisine = []
+    , keepsFor = Nothing
     }
 
 
@@ -225,6 +228,52 @@ suite =
                     Shelf.paths
                         |> List.filter (\p -> List.isEmpty (Shelf.facetsOf p (recipe "x")))
                         |> Expect.equal []
+            ]
+        , describe "marking where the query landed"
+            [ test "a match is cut out of the text, in the text's own case" <|
+                \_ ->
+                    Shelf.marks "caram" "Salted Caramel"
+                        |> Expect.equal
+                            [ ( "Salted ", False ), ( "Caram", True ), ( "el", False ) ]
+            , test "an empty query marks nothing, and does not shred the text" <|
+                \_ ->
+                    Shelf.marks "" "Salted Caramel"
+                        |> Expect.equal [ ( "Salted Caramel", False ) ]
+            , test "a one-letter query marks nothing, as it also filters nothing" <|
+                \_ ->
+                    -- The mark reads the same `needles` the judgement
+                    -- does. If it did not, a single letter would fill
+                    -- half the archive while narrowing none of it.
+                    Shelf.marks "a" "Salted Caramel"
+                        |> Expect.equal [ ( "Salted Caramel", False ) ]
+            , test "every word of the query is marked, wherever it fell" <|
+                \_ ->
+                    Shelf.marks "salt car" "Salted Caramel"
+                        |> Expect.equal
+                            [ ( "Salt", True )
+                            , ( "ed ", False )
+                            , ( "Car", True )
+                            , ( "amel", False )
+                            ]
+            , test "overlapping words make one run, not two marks touching" <|
+                \_ ->
+                    Shelf.marks "cara aram" "Caramel"
+                        |> Expect.equal [ ( "Caram", True ), ( "el", False ) ]
+            , test "a match that covers the whole text is one run" <|
+                \_ ->
+                    Shelf.marks "bake" "BAKE"
+                        |> Expect.equal [ ( "BAKE", True ) ]
+            , test "empty text is no runs at all" <|
+                \_ ->
+                    Shelf.marks "caram" ""
+                        |> Expect.equal []
+            , test "a query that is nowhere in the text leaves it whole" <|
+                \_ ->
+                    -- The query matched some facet the row does not
+                    -- print. There is nothing here to point at, and
+                    -- pointing anyway would be the lie.
+                    Shelf.marks "vegan" "Salted Caramel"
+                        |> Expect.equal [ ( "Salted Caramel", False ) ]
             ]
         ]
 

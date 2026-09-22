@@ -3,6 +3,7 @@ title: Southern White Gravy
 tested: 2026-09-21
 yield: { amount: 480, unit: ml, servings: 4 }
 time: { active: 15m, total: 25m }
+keeps: fridge 3d
 slot: [breakfast]
 course: sauce
 flavor: [savory 3, spicy 1]

@@ -104,6 +104,11 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   { fg: "data-accent", bg: "here-fill", min: 4.5 },
   { fg: "tx", bg: "panel", min: 4.5 },
   { fg: "tx", bg: "tint", min: 4.5 },
+  // The query line's focus ring, drawn on the field it belongs to.
+  // A focus indicator is a non-text mark, so it answers to AA's 3:1 —
+  // and this is the pair that catches anyone swapping the role for a
+  // flat `--accent`, which measures 1.08:1 on the lit field.
+  { fg: "data-accent", bg: "tint", min: 3, note: "focus ring on the query line" },
   { fg: "stencil-tx", bg: "stencil-bg", min: 4.5 },
   { fg: "stencil-mark", bg: "stencil-bg", min: 4.5 },
   { fg: "block-tx", bg: "block-bg", min: 4.5 },

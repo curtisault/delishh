@@ -3,6 +3,7 @@ title: Brown Sugar Banana Bread
 tested: 2026-09-21
 yield: { amount: 10, unit: pieces, servings: 10 }
 time: { active: 15m, total: 2h15m }
+keeps: counter 4d
 slot: [breakfast, snack]
 course: bake
 flavor: [sweet 3]

@@ -37,6 +37,8 @@ tested: 2026-03-11        # ISO date it was last cooked as written;
                           # never in the future
 yield: { amount: 340, unit: g, servings: 8 }   # servings optional
 time: { active: 15m, total: 45m }
+keeps: fridge 14d         # optional; how long the finished thing
+                          # keeps, and where — see below
 slot: [dessert]
 course: sauce
 flavor: [sweet 3, salty]
@@ -64,8 +66,53 @@ Rules that trip people:
   means "not verified", never "not suitable". Nothing is inferred
   from the ingredients.
 - **`yield.unit`** is one of: `g` · `kg` · `ml` · `l` · `pieces`
+- **`keeps` is optional, and absent means *not stated*** — never
+  "does not keep". See below.
 - **A misspelled key** gets a "did you mean" from the build; a
   misspelled *value* gets the vocabulary list.
+
+### The keeping life — optional
+
+`keeps: fridge 14d` is **how long the finished thing is good for,
+and where**. It is the last thing on a shelf row and a fact on the
+plate, so it is the number a reader browses on when they are deciding
+what to make on a Sunday for a week.
+
+The grammar is one string — the place, one space, the number and its
+unit. A string rather than a `{ }` map for the same reason `flavor`
+is one: a colon turns the entry into a YAML map and the error then
+names a key you never wrote.
+
+- `keeps.where` — exactly one of: `counter` · `fridge` · `freezer`
+- `keeps.unit` — exactly one of: `h` · `d` · `mo`
+
+- **The place is not optional, and this is the rule that matters.**
+  Most of this archive is make-ahead food whose Keeps block states a
+  *freezer* life and no fridge one. `keeps: 3mo` on a shelf row, with
+  no place on it, reads as a claim about the dish in a fridge — the
+  one misreading here that can make somebody ill. So the build will
+  not take a bare duration.
+- **Absent means *not stated*, never "does not keep".** The same
+  contract as a dietary flag: if you have not established a life,
+  leave the field out. A shelf life nobody measured is precisely the
+  number that hurts somebody, and the build will not invent one for
+  you (DS-01 §12). A dish that genuinely does not keep says so in the
+  block, in its own words — "make it, eat it" is a sentence, not a
+  number.
+- **Pick the life the recipe actually leans on**, the one you would
+  bet on for the dish as a whole. Per-component lives ("the sauce
+  alone holds 3 days") belong in the block, not here.
+- **No minutes.** Nothing keeps for minutes, and a field that took
+  them would collect a `45m` meant for `time`.
+- **A `keeps:` requires a Keeps block.** Enforced. The number is what
+  a reader browses on; the block is what they do with it — jar warm,
+  cap cold, under a film of oil — and half of that pair is a promise
+  nobody can keep. The reverse does not hold: a Keeps block with no
+  `keeps:` is a recipe that has not established a life, which is
+  allowed and honest.
+- **It is not derived from the block.** "Fridge at 4 °C, keeps 14
+  days" is prose, and picking which of a paragraph's numbers is the
+  one you bet on is a judgement, the same as a gauge.
 
 ### The gauge strip — optional, at most 5
 
@@ -220,7 +267,10 @@ its own warning treatment.
 
 ### Keeps
 
-A bullet list: storage, freezing, reheating, and for how long.
+A bullet list: storage, freezing, reheating, and for how long. The
+prose lives here; the one number a reader browses on goes in
+frontmatter as `keeps:` (above), and stating one without this block
+fails the build.
 
 ### Note
 
@@ -256,6 +306,8 @@ title: Name
 tested: YYYY-MM-DD
 yield: { amount: 0, unit: g, servings: 0 }
 time: { active: 0m, total: 0m }
+# keeps: fridge 5d       # optional — uncomment once you have
+                          # established a life; absent is *not stated*
 slot: []
 course: main
 flavor: []

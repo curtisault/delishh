@@ -1,6 +1,7 @@
 module Recipe exposing
     ( Amount
     , Gauge
+    , Keeps
     , Ingredient
     , IngredientGroup
     , Recipe
@@ -51,6 +52,7 @@ type alias Recipe =
     , print : String
     , photo : Maybe String
     , gauges : List Gauge
+    , keepsFor : Maybe Keeps
     , ingredients : List IngredientGroup
     , equipment : List String
     , steps : List Step
@@ -75,6 +77,22 @@ judgement, and the build does not make judgements (§12).
 -}
 type alias Gauge =
     { label : String, value : String, note : Maybe String }
+
+
+{-| How long the finished thing keeps, and where.
+
+**The place travels with the number, always** (DS-01 §06, amended
+2026-09-21). Most of this archive is make-ahead food whose Keeps
+block states a freezer life and no fridge one, and a bare duration
+reads as a claim about the dish in a fridge — the one misreading here
+that can make somebody ill.
+
+`Nothing` is *not stated*, never *does not keep*. The same contract
+as an unverified dietary flag.
+
+-}
+type alias Keeps =
+    { where_ : String, amount : Int, unit : String }
 
 
 type alias Amount =
@@ -200,6 +218,7 @@ decoder =
         |> field "print" D.string
         |> field "photo" (D.nullable D.string)
         |> field "gauges" (D.list gaugeDecoder)
+        |> field "keepsFor" (D.nullable keepsDecoder)
         |> field "ingredients" (D.list groupDecoder)
         |> field "equipment" (D.list D.string)
         |> field "steps" (D.list stepDecoder)
@@ -207,6 +226,14 @@ decoder =
         |> field "rescues" (D.list rescueDecoder)
         |> field "keeps" (D.list D.string)
         |> field "note" (D.list D.string)
+
+
+keepsDecoder : Decoder Keeps
+keepsDecoder =
+    D.map3 Keeps
+        (D.field "where" D.string)
+        (D.field "amount" D.int)
+        (D.field "unit" D.string)
 
 
 gaugeDecoder : Decoder Gauge

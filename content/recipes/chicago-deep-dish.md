@@ -3,6 +3,7 @@ title: Chicago Deep Dish, Buttercrust
 tested: 2026-09-21
 yield: { amount: 8, unit: pieces, servings: 4 }
 time: { active: 45m, total: 3h30m }
+keeps: freezer 2mo
 slot: [dinner]
 course: main
 flavor: [savory 3, umami 2]

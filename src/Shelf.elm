@@ -2,6 +2,7 @@ module Shelf exposing
     ( Filters
     , Index
     , Path(..)
+    , Keeps
     , Summary
     , Verdict(..)
     , active
@@ -10,6 +11,7 @@ module Shelf exposing
     , facetValues
     , facetsOf
     , judge
+    , marks
     , nearestByTime
     , noFilters
     , path
@@ -77,7 +79,17 @@ type alias Summary =
     , effort : String
     , dietary : List String
     , cuisine : List String
+    , keepsFor : Maybe Keeps
     }
+
+
+{-| How long it keeps, and where — the row's last column. Carried
+whole because the place is not optional: most of this archive states
+a freezer life, and a bare duration at the end of a row reads as a
+claim about the dish in a fridge.
+-}
+type alias Keeps =
+    { where_ : String, amount : Int, unit : String }
 
 
 type alias Index =
@@ -371,14 +383,84 @@ matchesQuery query recipe =
                         ++ recipe.cuisine
                     )
                 )
-
-        needles =
-            query
-                |> String.toLower
-                |> String.words
-                |> List.filter (\w -> String.length w > 1)
     in
-    List.all (\needle -> String.contains needle haystack) needles
+    List.all (\needle -> String.contains needle haystack) (needles query)
+
+
+{-| The words a query actually searches on. A single letter is
+dropped, because one character matches most of the archive and the
+list would shrink to nothing on the way to a second letter.
+-}
+needles : String -> List String
+needles query =
+    query
+        |> String.toLower
+        |> String.words
+        |> List.filter (\w -> String.length w > 1)
+
+
+{-| One piece of displayed text, cut into runs, each flagged with
+whether the query put it there. `[ ( "Caram", True ), ( "el, salted",
+False ) ]`.
+
+**It reads the same `needles` the judgement does**, which is the
+whole point of it living here rather than in the view: a mark derived
+from a second notion of "matches" would underline letters the filter
+did not act on, and the reader would be looking at a lie about their
+own query.
+
+Two refusals:
+
+  - An empty query marks nothing. It returns the text as one
+    unflagged run, never a list of characters.
+  - If lowercasing changes the text's *length* — a thing a handful of
+    scripts do — nothing is marked at all. The offsets come from the
+    folded copy and are read off the original, so a shift would put
+    the fill on the wrong letters. Marking nothing is wrong in a way
+    a reader can see through; marking the wrong letters is not.
+
+-}
+marks : String -> String -> List ( String, Bool )
+marks query text =
+    let
+        folded =
+            String.toLower text
+
+        hits =
+            needles query
+                |> List.concatMap
+                    (\n ->
+                        String.indexes n folded
+                            |> List.map (\i -> ( i, i + String.length n ))
+                    )
+
+        covered i =
+            List.any (\( from, to ) -> i >= from && i < to) hits
+
+        run ( char, on ) acc =
+            case acc of
+                ( soFar, flag ) :: rest ->
+                    if flag == on then
+                        ( soFar ++ String.fromChar char, flag ) :: rest
+
+                    else
+                        ( String.fromChar char, on ) :: acc
+
+                [] ->
+                    [ ( String.fromChar char, on ) ]
+    in
+    if List.isEmpty hits || String.length folded /= String.length text then
+        if String.isEmpty text then
+            []
+
+        else
+            [ ( text, False ) ]
+
+    else
+        String.toList text
+            |> List.indexedMap (\i char -> ( char, covered i ))
+            |> List.foldl run []
+            |> List.reverse
 
 
 
@@ -442,6 +524,14 @@ nearestByTime filters recipes =
 -- DECODING
 
 
+keepsDecoder : Decoder Keeps
+keepsDecoder =
+    D.map3 Keeps
+        (D.field "where" D.string)
+        (D.field "amount" D.int)
+        (D.field "unit" D.string)
+
+
 decoder : Decoder Index
 decoder =
     D.map2 Index
@@ -488,3 +578,4 @@ summaryDecoder =
         |> field "effort" D.string
         |> field "dietary" (D.list D.string)
         |> field "cuisine" (D.list D.string)
+        |> field "keepsFor" (D.nullable keepsDecoder)

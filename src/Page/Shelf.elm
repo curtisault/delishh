@@ -21,8 +21,8 @@ prose document and has no sections to number.
 
 -}
 
-import Html exposing (Html, a, div, h1, h2, input, li, p, section, span, text, ul)
-import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, type_, value)
+import Html exposing (Html, a, div, h1, h2, input, li, mark, p, section, span, text, ul)
+import Html.Attributes exposing (attribute, class, classList, for, href, id, placeholder, type_, value)
 import Flavor
 import Html.Events exposing (onClick, onInput)
 import Shelf exposing (Filters, Path, Summary, Verdict(..))
@@ -101,13 +101,33 @@ masthead config =
                     " recipes, newest batch first."
                 )
             ]
-        , div [ class "shelf-search" ]
-            [ input
+        , searchLine config
+        ]
+
+
+{-| The query line — a labelled instrument, not a box with a
+magnifier in it.
+
+The label is a real `<label>`, so its word *is* the field's
+accessible name and clicking it lands the caret. The `▸` is the
+marker between the two and nothing else, which is why it is hidden
+from assistive tech: read aloud it would be a shape with no meaning
+between a label and its field.
+
+-}
+searchLine : Config msg -> Html msg
+searchLine config =
+    div [ class "shelf-search" ]
+        [ Html.label [ class "query-line", for "shelf-query" ]
+            [ span [ class "query-k mono" ] [ text "Query" ]
+            , span [ class "query-mark mono", attribute "aria-hidden" "true" ]
+                [ text "▸" ]
+            , input
                 [ type_ "search"
+                , id "shelf-query"
                 , class "shelf-query mono"
                 , placeholder "Search the archive"
                 , value config.filters.query
-                , attribute "aria-label" "Search recipes"
                 , onInput config.onQuery
                 ]
                 []
@@ -265,7 +285,7 @@ results config shown rows =
                            )
                     )
                 ]
-            , ul [ class "row-list" ] (List.map row rows)
+            , ul [ class "row-list" ] (List.map (row config.filters.query) rows)
             ]
         )
 
@@ -277,18 +297,28 @@ An excluded row is **tagged, not removed**: struck through, carrying
 the filter that excluded it, and still a link. It is the difference
 between "this is not what you asked for" and "this does not exist".
 
+**The query is marked where it landed.** A row is in the list because
+some word of the query is somewhere in it, and the fill says which
+letters — the same information the lockout tag gives an excluded row,
+for the rows that stayed. It marks the two texts the row actually
+draws; a match that came from a facet the row does not print marks
+nothing, because there is nothing there to point at.
+
 -}
-row : ( Summary, Verdict ) -> Html msg
-row ( recipe, verdict ) =
+row : String -> ( Summary, Verdict ) -> Html msg
+row query ( recipe, verdict ) =
     let
         excluded =
             verdict /= Shown
+
+        marked =
+            List.map hit << Shelf.marks query
     in
     li [ class "row", classList [ ( "is-excluded", excluded ) ] ]
         [ a [ class "row-link", href ("/recipe/" ++ recipe.slug) ]
             [ span [ class "row-no mono" ]
-                [ text (String.toUpper (String.replace "-" " " recipe.method)) ]
-            , span [ class "row-title" ] [ text recipe.title ]
+                (marked (String.toUpper (String.replace "-" " " recipe.method)))
+            , span [ class "row-title" ] (marked recipe.title)
             , span [ class "row-chips" ]
                 (List.map (Flavor.chip "chip-flavor") recipe.flavor)
             , span [ class "row-times mono" ]
@@ -299,6 +329,12 @@ row ( recipe, verdict ) =
                 -- twenty-minute recipe, and collapsing the two is the
                 -- most common lie in recipe software (DS-01 §07).
                 , span [ class "row-total" ] [ text (minutes recipe.total ++ " total") ]
+
+                -- …and how long it lasts once it is made, which is a
+                -- third fact and not a fourth version of the first
+                -- two. It rides with the times because that is where
+                -- the eye already is at the end of a row.
+                , keepsTag recipe
                 ]
             ]
         , case verdict of
@@ -318,6 +354,53 @@ row ( recipe, verdict ) =
             Shown ->
                 text ""
         ]
+
+
+{-| How long it keeps — the last thing in the row, and absent when
+the recipe does not say.
+
+**Nothing stands in for an unstated life.** No dash, no "unknown", no
+hedge: an absent tag means nobody has established how long this
+lasts, and a placeholder in that slot is the archive filling a
+silence it has no right to fill (DS-01 §12).
+
+-}
+keepsTag : Summary -> Html msg
+keepsTag recipe =
+    case recipe.keepsFor of
+        Nothing ->
+            text ""
+
+        Just life ->
+            span [ class "row-keeps" ]
+                [ span [ class "row-sep" ] [ text " · " ]
+                , span [ class "row-keeps-k u" ] [ text "Keeps" ]
+                , text (" " ++ keepsText life)
+                ]
+
+
+{-| `3 mo · freezer`. **The place is never dropped to save a
+centimetre**: most of this archive states a freezer life and no
+fridge one, and a duration on its own at the end of a row reads as a
+claim about the dish in a fridge (DS-01 §06).
+-}
+keepsText : Shelf.Keeps -> String
+keepsText life =
+    String.fromInt life.amount ++ " " ++ life.unit ++ " · " ++ life.where_
+
+
+{-| One run of a marked text. `<mark>` is the house's applied block
+and already wears its fill in `theme.css` — the shelf does not get a
+highlight of its own, because two marks are two things a reader has
+to learn.
+-}
+hit : ( String, Bool ) -> Html msg
+hit ( run, matched ) =
+    if matched then
+        mark [] [ text run ]
+
+    else
+        text run
 
 
 minutes : Int -> String

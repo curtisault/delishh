@@ -44,14 +44,57 @@
   margin: 0 0 0.9rem;
   color: var(--tx-dim);
 }
-.shelf-query {
-  width: 100%;
-  font-size: 0.8rem;
-  padding: 0.5rem 0.6rem;
+/* ---------- the query line ----------
+   An instrument with a label on it, not a box with a magnifier in
+   it. One field the whole way across: the label, its marker and the
+   text you type share a baseline, because three things on one line
+   are one line.
+
+   THE LABEL IS ACID AS A WORD, NOT AS A FILL. A volt block here
+   would be a sticker — the shelf layer's move, right for a path tile
+   you press and wrong for a word that only names the field beside
+   it. So it takes `--data-accent`, the role for acid in the data
+   voice, which is volt after dark and falls back to ink on the lit
+   ground: volt on a light surface is a word nobody can read, and §04
+   would rather drop the colour than the legibility.
+
+   The caret is the one place the acid stays acid in both themes —
+   `--accent` marks where your hand is, and that is an actionable,
+   not a decoration. */
+
+.query-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
   background: var(--tint);
   border: 1.5px solid var(--rule);
+  padding: 0 0.75rem;
+  cursor: text;
+}
+.query-k {
+  flex: none;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--data-accent);
+}
+/* The marker between the label and the field, and nothing else.
+   Hidden from assistive tech in the markup for the same reason. */
+.query-mark {
+  flex: none;
+  font-size: 0.62rem;
+  color: var(--data-accent);
+}
+.shelf-query {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.92rem;
+  padding: 0.7rem 0;
+  background: transparent;
+  border: 0;
   border-radius: 0;
   color: var(--tx);
+  caret-color: var(--accent);
 }
 .shelf-query::placeholder {
   color: var(--tx-dim);
@@ -271,6 +314,19 @@
 .row-total {
   color: var(--tx-dim);
 }
+/* How long it keeps — the last thing in the row, and absent when the
+   recipe never said. Nothing stands in for an unstated life: no dash,
+   no "unknown". The archive reports what has been established (§12).
+
+   It is a quantity, so it is ink. Acid never lands on a number (§04),
+   and "how long until this is no longer food" is the last number in
+   the product that should be wearing a colour. */
+.row-keeps {
+  color: var(--tx-dim);
+}
+.row-keeps-k {
+  font-size: 0.56rem;
+}
 
 /* ---------- lockouts ----------
    An excluded recipe STAYS ON THE PAGE, tagged with the filter that
@@ -349,6 +405,13 @@
   .row-lockout {
     margin-left: 4.4rem;
   }
+  /* Two short lines beat one that runs off the edge. */
+  .row-keeps {
+    display: block;
+  }
+  .row-keeps .row-sep {
+    display: none;
+  }
 }
 
 /* ---------- print ----------
@@ -366,6 +429,13 @@
   }
   .row-link {
     color: #000 !important;
+  }
+  /* The query line is not on the paper, so a mark would be a fill
+     with nothing left to explain it. A printed row is just a row. */
+  .row mark {
+    background: none !important;
+    color: inherit !important;
+    padding: 0 !important;
   }
 }
 
@@ -432,8 +502,49 @@
 .path-chips .chip:focus-visible,
 .row-link:focus-visible,
 .active-clear:focus-visible,
-.zero-clear:focus-visible,
-.shelf-query:focus-visible {
+.zero-clear:focus-visible {
   outline: 3px solid var(--tx);
   outline-offset: 2px;
+}
+
+/* The query line focuses as ONE THING, and the ring lands ON its own
+   rule rather than floating outside it.
+
+   Three boxes were drawing here at once and the field looked caged:
+   this outline offset outward, the browser's own focus ring on the
+   `<input>` (which reappeared the moment the field stopped declaring
+   an outline of its own — a UA default is not an absence), and
+   WebKit's search-field furniture reserving a slot at the right end
+   for a clear button nobody asked for.
+
+   So: the input surrenders its ring to the line that contains it —
+   the label, the marker and the field are one control and want one
+   indicator — and the ring is inset by its own width, which paints
+   it exactly over the 1.5px rule already there. Focused reads as the
+   field's line coming up bright, not as a box around a box.
+
+   IT TAKES --data-accent, NOT --accent, and the difference is the
+   whole point of that role. `--accent` is volt in both themes, and
+   volt on the lit field measures 1.08:1 — a focus ring nobody can
+   see is not a quieter focus ring, it is none. `--data-accent` is
+   the acid *where the ground can take it*: volt after dark (14.50:1)
+   and ink on the lit ground (12.42:1). It is also the colour the
+   QUERY label already wears, so the label and the line come up
+   together as one instrument.
+
+   Still 3px, still unconditional, still outside every motion query.
+   Blending in is a matter of where the mark lands and what colour it
+   is, never of whether there is one. */
+.query-line:has(.shelf-query:focus-visible) {
+  outline: 3px solid var(--data-accent);
+  outline-offset: -3px;
+}
+.shelf-query:focus,
+.shelf-query:focus-visible {
+  outline: none;
+}
+.shelf-query::-webkit-search-cancel-button,
+.shelf-query::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }

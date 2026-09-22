@@ -361,3 +361,84 @@ Deno.test("the word rules read the gauge strip", () => {
     "in a gauge",
   );
 });
+
+// --- the keeping life -------------------------------------------------------
+//
+// `keeps:` is the scalar the shelf browses on; the Keeps block is the
+// prose that tells you how. The pair is the rule: a number with no
+// block is a promise nobody can act on, and a block with no number is
+// simply a recipe that has not established a life — which is allowed,
+// because inventing one would be the archive guessing about food
+// safety on a reader's behalf (DS-01 §12).
+
+Deno.test("the bench specimen states how long it keeps, and where", () => {
+  const { recipe } = parseRecipe("salted-caramel", good);
+  assert(recipe);
+  assertEquals(recipe.keepsFor, { where: "fridge", amount: 14, unit: "d" });
+});
+
+Deno.test("a keeping life is optional — absent is *not stated*", () => {
+  const { recipe, problems } = parseRecipe(
+    "salted-caramel",
+    swap(good, "keeps: fridge 14d\n", ""),
+  );
+  assertEquals(problems, []);
+  assert(recipe);
+  assertEquals(recipe.keepsFor, null);
+});
+
+Deno.test("a keeping life without a place is rejected", () => {
+  // THE ONE THAT MATTERS. Most of this corpus states a freezer life
+  // and no fridge one, so a bare `3mo` on a shelf row reads as a
+  // claim about the dish in a fridge — the single misreading in a
+  // recipe archive that can make somebody ill.
+  rejects(swap(good, "keeps: fridge 14d", "keeps: 14d"), "the place is not optional");
+});
+
+Deno.test("a place outside the vocabulary is rejected", () => {
+  rejects(swap(good, "keeps: fridge 14d", "keeps: pantry 14d"), "places: counter, fridge, freezer");
+});
+
+Deno.test("minutes are not a keeping life", () => {
+  // Nothing keeps for minutes, and a field that admits them invites
+  // a `45m` that was meant for `time`.
+  rejects(swap(good, "keeps: fridge 14d", "keeps: fridge 45m"), "units: h, d, mo");
+});
+
+Deno.test("a zero keeping life is rejected", () => {
+  // "It keeps for no time" is prose, and the block is where prose
+  // goes. A zero on the shelf would render as a life of none.
+  rejects(swap(good, "keeps: fridge 14d", "keeps: fridge 0d"), "frontmatter.keeps");
+});
+
+Deno.test("months are kept as months, not turned into days", () => {
+  // Nothing computes with a keeping life, so the author's own number
+  // and unit survive to the page. `3 mo` normalised through minutes
+  // would come back out as a month somebody had to define.
+  const { recipe, problems } = parseRecipe(
+    "salted-caramel",
+    swap(good, "keeps: fridge 14d", "keeps: freezer 3mo"),
+  );
+  assertEquals(problems, []);
+  assert(recipe);
+  assertEquals(recipe.keepsFor, { where: "freezer", amount: 3, unit: "mo" });
+});
+
+Deno.test("a keeping life with no Keeps block is rejected", () => {
+  const withoutBlock = good.slice(0, good.indexOf("## Keeps")) +
+    good.slice(good.indexOf("## Note"));
+  rejects(withoutBlock, "no keeps block saying how");
+});
+
+Deno.test("a Keeps block with no keeping life is allowed", () => {
+  // The other direction does NOT hold. Plenty of recipes say how to
+  // store a thing without anyone having established for how long,
+  // and a build that demanded a number would get invented ones.
+  const { recipe, problems } = parseRecipe(
+    "salted-caramel",
+    swap(good, "keeps: fridge 14d\n", ""),
+  );
+  assertEquals(problems, []);
+  assert(recipe);
+  assert(recipe.keeps.length > 0);
+});

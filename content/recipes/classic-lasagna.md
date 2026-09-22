@@ -3,6 +3,7 @@ title: Classic Lasagna
 tested: 2026-09-21
 yield: { amount: 10, unit: pieces, servings: 10 }
 time: { active: 1h, total: 2h15m }
+keeps: freezer 3mo
 slot: [dinner]
 course: main
 flavor: [savory 3, umami 2]

@@ -96,7 +96,14 @@ whose only job is to be read.
   prose, and picking which number matters is a judgement, not an
   inference. That is what separates them from `revision:`, which was
   retired for being metadata nothing ever checked — a wrong gauge
-  fails the cook the same way a wrong step does.
+  fails the cook the same way a wrong step does. Frontmatter also
+  carries the optional **keeping life** — `keeps: freezer 3mo`, a
+  place and a duration, never one without the other. The place is
+  mandatory because most of this corpus states a freezer life and no
+  fridge one, and a bare `3mo` at the end of a shelf row reads as a
+  claim about the dish in a fridge; absent means *not stated*, never
+  *does not keep*. It is authored beside the Keeps block, never read
+  out of it, and the build rejects a life with no block to act on.
 - `scripts/build-content.ts` — walks the corpus, runs the checks that
   need every file at once (photos exist on disk),
   writes the JSON. **Collects every problem before exiting**; writes
@@ -295,6 +302,13 @@ fixture must never drift under the suite. Keep it parsing.
   - **`pathLabel` and `pathNoun` are different words on purpose.**
     The tile says "By flavour"; a lockout tag says "Hidden by
     flavour". Using one for both reads "Hidden by By flavour".
+  - **`marks` and `matchesQuery` read the same `needles`.** The
+    highlight in a row is a view of the judgement, not a second
+    opinion about it — a mark derived from its own notion of
+    "matches" would fill letters the filter never acted on, which is
+    the view lying about the reader's own query. It also refuses to
+    mark anything when case-folding changes a string's length: the
+    wrong letters filled is worse than none.
 - `src/Cook.elm` / `src/Page/Cook.elm` — cook mode, at
   `/recipe/<slug>/cook`. Four things that look like details and are
   not:

@@ -3,6 +3,7 @@ title: Breakfast Strata
 tested: 2026-09-21
 yield: { amount: 10, unit: pieces, servings: 10 }
 time: { active: 30m, total: 5h45m }
+keeps: freezer 2mo
 slot: [breakfast]
 course: main
 flavor: [savory 3]

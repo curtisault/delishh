@@ -31,6 +31,8 @@ import {
   FLAVORS,
   FRACTIONS,
   GAUGE_MAX,
+  KEEPS_UNITS,
+  KEEPS_WHERE,
   METHODS,
   PRINT_TEMPLATES,
   PROCEDURE_BLOCKS,
@@ -108,6 +110,18 @@ export type Rescue = {
  * (DS-01 §12). */
 export type Gauge = { label: string; value: string; note: string | null };
 
+/** A keeping life: a number, its unit, and the place it applies to.
+ *
+ * **The place travels with the number, always.** Most of this corpus
+ * states a freezer life and no fridge one, so a duration on its own
+ * would read on the shelf as a claim about the dish in a fridge —
+ * the one misreading in a recipe archive that can make somebody ill.
+ *
+ * The number is kept as written rather than normalised to minutes,
+ * because nothing computes with it and `3 mo` rendered back through
+ * arithmetic is a month somebody had to define. */
+export type Keeps = { where: string; amount: number; unit: string };
+
 export type Recipe = {
   slug: string;
   title: string;
@@ -130,6 +144,20 @@ export type Recipe = {
   /** Empty when the recipe has none, which is the honest answer for a
    * drink blended until it is smooth. Never a placeholder row. */
   gauges: Gauge[];
+  /** How long the finished thing is good for, and where — from the
+   * frontmatter's `keeps:`.
+   *
+   * **Null is "not stated", never "does not keep".** The same
+   * contract as an absent dietary flag: a reader is told what has
+   * been established and nothing more, because a shelf life nobody
+   * measured is exactly the number that hurts someone.
+   *
+   * It is a *scalar beside* the Keeps block, not a reading of it.
+   * The block is the how — jar warm, cap cold, under a film of oil —
+   * and parsing "keeps 14 days" out of that prose would be the
+   * archive guessing which of a paragraph's numbers is the one you
+   * bet on (DS-01 §12). */
+  keepsFor: Keeps | null;
   ingredients: IngredientGroup[];
   equipment: string[];
   steps: Step[];
@@ -302,6 +330,7 @@ const ALLOWED_KEYS = [
   "print",
   "photo",
   "gauges",
+  "keeps",
 ];
 
 type Frontmatter = Record<string, unknown>;
@@ -655,6 +684,48 @@ export function parseRecipe(
     }
   }
 
+  // --- keeps: the keeping life ---------------------------------------------
+  //
+  // Optional, and an absent one means "not stated" — never "does not
+  // keep". The same duration grammar as `time`, because a reader who
+  // has learned `1h30m` once should not have to learn a second one
+  // for the fridge.
+
+  let keepsFor: Keeps | null = null;
+  if (fm.keeps !== undefined) {
+    // `fridge 5d` — the place, one space, the number and its unit.
+    // A plain string rather than a `{ }` map, for the reason the
+    // flavour grammar is one: a colon in frontmatter turns the entry
+    // into a YAML map and the error then names a key nobody wrote.
+    const m = typeof fm.keeps === "string"
+      ? fm.keeps.trim().match(/^(\S+)\s+(\d+)\s*(\S+)$/)
+      : null;
+    const where = m?.[1] ?? "";
+    const unit = m?.[3] ?? "";
+    if (
+      !m ||
+      !(KEEPS_WHERE as readonly string[]).includes(where) ||
+      !(KEEPS_UNITS as readonly string[]).includes(unit) ||
+      Number(m[2]) <= 0
+    ) {
+      const shown = typeof fm.keeps === "string" ? fm.keeps : JSON.stringify(fm.keeps);
+      fail(
+        "frontmatter.keeps",
+        `\`${shown}\` is not \`where n unit\`. Write \`fridge 5d\`, ` +
+          `\`freezer 3mo\`, \`counter 4d\`. Places: ${KEEPS_WHERE.join(", ")}. ` +
+          `Units: ${KEEPS_UNITS.join(", ")}. **The place is not optional** — ` +
+          `most of this corpus states a freezer life and no fridge one, and a ` +
+          `bare duration on a shelf row reads as a claim about the dish in a ` +
+          `fridge. Omit the field entirely if you have not established a ` +
+          `life: absent reads as *not stated*, and a shelf life nobody ` +
+          `measured is the number that hurts someone.`,
+        at("keeps"),
+      );
+    } else {
+      keepsFor = { where, amount: Number(m[2]), unit };
+    }
+  }
+
   // --- body: split into blocks --------------------------------------------
 
   const bodyLines = rawBody.split("\n");
@@ -851,6 +922,19 @@ export function parseRecipe(
   const keeps = collectItems(linesOf("keeps"), lineOf("keeps"), false)
     .map((i) => [i.text, ...i.continuations].join(" "));
 
+  // A life with no block is a number you cannot act on. "Keeps 14 d"
+  // on the shelf is a promise about a jar someone still has to fill,
+  // cool and cap, and the block is where that is written down.
+  if (keepsFor !== null && keeps.length === 0) {
+    fail(
+      "frontmatter.keeps",
+      "states a keeping life, but there is no Keeps block saying how. The " +
+        "number is what a reader browses on; the block is what they do with " +
+        "it, and half of that pair is a promise nobody can keep.",
+      at("keeps"),
+    );
+  }
+
   // The note: free prose, in paragraphs. Nothing below reads it.
   const note = linesOf("note")
     .join("\n")
@@ -922,6 +1006,7 @@ export function parseRecipe(
       print,
       photo,
       gauges,
+      keepsFor,
       ingredients,
       equipment,
       steps,

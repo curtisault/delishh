@@ -3,6 +3,7 @@ title: White Chicken Chili
 tested: 2026-09-21
 yield: { amount: 2, unit: l, servings: 8 }
 time: { active: 40m, total: 1h20m }
+keeps: freezer 4mo
 slot: [dinner]
 course: main
 flavor: [savory 3, spicy 1]

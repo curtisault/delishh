@@ -156,6 +156,31 @@ export const PRINT_TEMPLATES = ["sheet", "card", "booklet"] as const;
  * and on a narrow screen alike. */
 export const GAUGE_MAX = 5;
 
+/**
+ * Where a keeping life is kept — the closed half of `keeps:`.
+ *
+ * **The place is not optional, because a bare duration is a lie
+ * waiting to happen.** Most of this corpus is make-ahead food whose
+ * Keeps block states a *freezer* life; "keeps 3 mo" on a row, with
+ * the fridge life unstated, is a reader poisoning themselves on a
+ * lasagna. Three places, in order of how cold they are, and a recipe
+ * states the one its number belongs to.
+ */
+export const KEEPS_WHERE = ["counter", "fridge", "freezer"] as const;
+
+/**
+ * The units a keeping life may be written in.
+ *
+ * Deliberately NOT the `time:` grammar. A keeping life is months long
+ * and nothing ever computes with it, so it is carried as the author's
+ * own number and unit and rendered back unchanged — `3 mo` stays
+ * `3 mo` rather than becoming the 90 days some arithmetic decided a
+ * month was. Minutes are absent for the same reason: nothing keeps
+ * for minutes, and a field that admits them invites a `45m` that was
+ * meant for `time`.
+ */
+export const KEEPS_UNITS = ["h", "d", "mo"] as const;
+
 // ---------------------------------------------------------------------------
 // Units — the measurement ladder of DS-01 §05
 // ---------------------------------------------------------------------------

@@ -62,6 +62,7 @@ full =
     , cuisine = []
     , print = "sheet"
     , photo = Nothing
+    , keepsFor = Just { where_ = "fridge", amount = 14, unit = "d" }
     , gauges =
         [ { label = "Pan", value = "20 cm", note = Just "pale interior" }
         , { label = "Take it to", value = "175–180 °C", note = Nothing }
