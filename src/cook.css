@@ -108,7 +108,7 @@
 /* ---------- blocks ---------- */
 
 .cook-block {
-  margin-bottom: 1.8rem;
+  margin-bottom: 2.8rem;
 }
 .cook-h {
   font-size: 0.78rem;
@@ -134,7 +134,7 @@
   display: grid;
   grid-template-columns: 6.5rem 1fr;
   gap: 0.1rem 0.7rem;
-  padding: 0.4rem 0;
+  padding: 0.7rem 0;
   border-bottom: 1px solid var(--hairline);
 }
 .cook-qty {
@@ -166,17 +166,23 @@
 }
 
 /* The whole step is the tap target. A small button inside a step is a
-   thing to aim at, and aiming is what wet hands cannot do. */
+   thing to aim at, and aiming is what wet hands cannot do.
+
+   AIR AROUND A STEP IS NOT DECORATION HERE. At two to three feet the
+   thing that loses you your place is two steps reading as one block
+   of text, and the fix is space rather than another rule: the screen
+   already carries a line per step, and a second would be the density
+   every other surface is allowed and this one is not. */
 .cook-stamp {
   width: 100%;
   display: grid;
   grid-template-columns: 2.6rem 1fr auto;
-  gap: 0.2rem 0.8rem;
+  gap: 0.35rem 0.9rem;
   align-items: start;
   background: none;
   border: 0;
   border-radius: 0;
-  padding: 0.9rem 0.2rem;
+  padding: 1.5rem 0.2rem;
   margin: 0;
   text-align: left;
   color: inherit;
@@ -192,9 +198,10 @@
 }
 .cook-text {
   margin: 0;
+  line-height: 1.5;
 }
 .cook-cue {
-  margin: 0.4rem 0 0;
+  margin: 0.8rem 0 0;
   font-size: 0.8rem;
   letter-spacing: 0.05em;
   color: var(--tx);
@@ -233,7 +240,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.6rem;
-  padding: 0 0.2rem 0.9rem 3.4rem;
+  padding: 0 0.2rem 1.4rem 3.5rem;
 }
 .cook-timer-clock {
   font-size: 2rem;
@@ -261,7 +268,7 @@
 .cook-timer.is-up {
   border-left: 4px solid var(--page-heat);
   padding-left: 0.7rem;
-  margin-left: 3.4rem;
+  margin-left: 3.5rem;
 }
 .cook-timer.is-up .cook-timer-clock {
   color: var(--page-heat);
@@ -285,6 +292,169 @@
 }
 .cook-watch li::marker {
   color: var(--acid);
+}
+
+/* ---------- rescues ----------
+   The block whose whole subject is the present tense. Watchpoints are
+   the limits you hold to while it is going right; a rescue is for the
+   moment it has not, which is exactly when nobody is going to leave
+   this screen to find the document.
+
+   A rescue that cannot be saved is MARKED, NOT SOFTENED — and it
+   carries its word as well as its rule, because the bad news has to
+   be readable rather than merely orange (§04). */
+
+.cook-rescues {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cook-rescue {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.cook-rescue-sym {
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--tx);
+}
+.cook-rescue-text {
+  line-height: 1.5;
+}
+.cook-rescue.is-terminal {
+  border-left: 4px solid var(--page-heat);
+  padding-left: 0.8rem;
+}
+.cook-rescue-flag {
+  justify-self: start;
+  font-size: 0.6rem;
+  border: 2px solid var(--page-heat);
+  color: var(--page-heat);
+  padding: 0.25rem 0.5rem;
+}
+
+/* ---------- the rail ----------
+   WHERE YOU ARE IN THE COOK, and the way back to any of it without
+   scrolling past a hot pan.
+
+   It is not the recipe page's nav at cook scale. That one lists seven
+   blocks and can afford 0.56rem rows; this one has to answer "which
+   step was I on" from two feet away, so its rows are cook-sized and
+   the steps are their NUMBERS. Twelve step sentences here would be
+   the document again, and the document is what you came here to stop
+   reading.
+
+   Hidden below 64rem for the reason the recipe page's nav is: on a
+   phone there is no "side", and a list of anchors above the
+   ingredients costs exactly what it claims to save. 13rem of rail
+   plus a 3rem gutter plus the 44rem column is where it fits. */
+
+.cook-nav {
+  display: none;
+}
+@media (min-width: 64rem) {
+  .cook-shell {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 44rem);
+    justify-content: center;
+    gap: 0 3rem;
+  }
+  .cook-nav {
+    display: block;
+    /* Stretch, so the sticky child has a cell to travel in. The
+       lesson .doc-toc learned, and .recipe-nav after it. */
+    align-self: stretch;
+  }
+  .cook-nav-inner {
+    position: sticky;
+    top: calc(var(--nav-h) + 1.6rem);
+    max-height: calc(100vh - var(--nav-h) - 2rem);
+    overflow-y: auto;
+  }
+  .cook-nav-head {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--acid);
+    border-bottom: 3px solid var(--rule);
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
+  }
+  /* 2.75rem rows, like every other tap target on this screen — a rail
+     you cannot hit with a knuckle is a rail for somebody else's
+     hands (§08). */
+  .cook-nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    color: var(--tx-dim);
+    text-decoration: none;
+    padding: 0.3rem 0.65rem;
+    border-left: 3px solid var(--hairline);
+  }
+  .cook-nav-sub {
+    font-size: 0.58rem;
+    padding-left: 1.4rem;
+  }
+  /* The reading-line mark, in the same vocabulary as the documents'
+     rail and the recipe's nav: every row carries the bar and the
+     field is paint, so a row gaining the mark can never move the list
+     under the reader. Full ink with it, so the mark is never colour
+     alone (§04).
+
+     `--here-fill`, not the page's `--acid`: this is chrome marking a
+     position, not the recipe stating its method. */
+  .cook-nav-link.is-active {
+    color: var(--tx);
+    background: var(--here-fill);
+    border-left-color: var(--here);
+  }
+
+  /* The steps, as a strip of numbers. Compact enough to take in at a
+     glance and still 2.75rem to the finger. */
+  .cook-nav-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    padding: 0.5rem 0 0.7rem 0.65rem;
+  }
+  .cook-nav-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--tx-dim);
+    text-decoration: none;
+    border: 2px solid var(--hairline);
+  }
+  /* DONE IS A FILL, NOT A COLOUR. Filled against outlined survives a
+     monochrome screen and a colour-blind reader, and it is the one
+     glance that says how far in you are (§04). The chip also says
+     ", done" to a screen reader — neither carrier is the only one. */
+  .cook-nav-step.is-done {
+    background: var(--stencil-bg);
+    color: var(--stencil-tx);
+    border-color: var(--stencil-bg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cook-nav-step.is-active {
+    border-color: var(--here);
+    color: var(--tx);
+  }
+  .cook-nav-step.is-done.is-active {
+    border-color: var(--here);
+    color: var(--stencil-tx);
+  }
 }
 
 /* ---------- the way in, on the recipe page ---------- */
@@ -324,7 +494,8 @@
    same recipe without its rescues, keeps or note. Send the reader
    to the document. */
 @media print {
-  .cook-layout {
+  .cook-layout,
+  .cook-nav {
     display: none !important;
   }
   .cook-enter {
@@ -346,7 +517,9 @@
    thing to wait for, with your hands full. */
 .cook-stamp:focus-visible,
 .cook-timer-btn:focus-visible,
-.cook-exit:focus-visible {
+.cook-exit:focus-visible,
+.cook-nav-link:focus-visible,
+.cook-nav-step:focus-visible {
   outline: 3px solid var(--tx);
   outline-offset: -3px;
 }

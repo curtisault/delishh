@@ -735,13 +735,25 @@ jumpGap =
 
 
 {-| How much of the viewport top the sticky chrome covers right now:
-the site nav always, plus the contents rail when it is worn as the
-search strip. Measured rather than hard-coded against the breakpoint,
-so this number cannot drift from the CSS that produces it.
+the site nav always, the contents rail when it is worn as the search
+strip, and cook mode's header when that is the page. Measured rather
+than hard-coded against the breakpoint, so this number cannot drift
+from the CSS that produces it.
+
+**Cook mode's header is sticky too**, and it is the tallest chrome in
+the product. Left out, every anchor the cook rail offers would put its
+step underneath the title and the scale badge — which is the one place
+in the archive where landing on the wrong line has a pan attached to
+it. `coveredHeight` answers zero when the element is not on the page,
+so this costs the other routes nothing.
+
 -}
 stickyChromeHeight : Task.Task x Float
 stickyChromeHeight =
-    Task.map2 (+) (coveredHeight "site-nav") stripHeight
+    Task.map3 (\a b c -> a + b + c)
+        (coveredHeight "site-nav")
+        stripHeight
+        (coveredHeight "cook-head")
 
 
 {-| An element's height, or nothing covered if it isn't on the page.
@@ -830,6 +842,7 @@ view model =
                             , onStartTimer = StartTimer
                             , onStopTimer = StopTimer
                             , wake = model.wake
+                            , active = model.active
                             }
 
             Route.Recipe slug ->

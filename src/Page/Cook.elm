@@ -25,8 +25,8 @@ again — and every rule below follows from the hands:
 -}
 
 import Cook exposing (Wake)
-import Html exposing (Html, a, div, h1, h2, li, ol, p, span, text, ul)
-import Html.Attributes exposing (attribute, class, classList, href, type_)
+import Html exposing (Html, a, div, h1, h2, li, ol, p, section, span, text, ul)
+import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
 import Recipe exposing (Recipe)
 import Scale
@@ -44,6 +44,10 @@ type alias Config msg =
     , onStartTimer : Int -> Int -> msg
     , onStopTimer : msg
     , wake : Wake
+
+    -- the block or step under the reader's eye, reported by boot.js
+    -- and marked in the rail. Nothing before the first scroll.
+    , active : Maybe String
     }
 
 
@@ -53,15 +57,193 @@ view config =
         r =
             config.recipe
     in
-    div
-        [ class "cook-layout"
-        , class ("acid-" ++ Recipe.dominantAcid r)
+    div [ class "cook-shell", class ("acid-" ++ Recipe.dominantAcid r) ]
+        [ sideNav config
+        , div [ class "cook-layout" ]
+            [ header config
+            , ingredients config
+            , steps config
+            , watchpoints r
+
+            -- Last, and last on purpose. Watchpoints are limits you
+            -- hold to while it is going right; rescues are what you
+            -- reach for once it has not. They arrive in the order the
+            -- cook needs them.
+            , rescues r
+            ]
         ]
-        [ header config
-        , ingredients config
-        , steps config
-        , watchpoints r
+
+
+
+-- THE RAIL
+
+
+{-| The rail — where you are in the cook, and the way back to any of
+it without scrolling past a hot pan.
+
+**It is not the recipe page's nav at cook scale.** That one lists
+seven blocks; this one has to answer "which step was I on" from two
+feet away, which means the steps themselves are rows. They are their
+numbers rather than their sentences: a nav that repeated twelve
+step texts would be the document again, and a document is the thing
+you came here to stop reading.
+
+The step chips carry **done as a fill, not as a colour** — filled
+against outlined is a shape a monochrome screen and a colour-blind
+reader both keep (§04), and it is the one glance that says how far
+in you are.
+
+Hidden below 64rem, for the reason the recipe page's nav is: on a
+phone there is no "side", and a list of anchors above the ingredients
+costs exactly what it claims to save.
+
+-}
+sideNav : Config msg -> Html msg
+sideNav config =
+    let
+        r =
+            config.recipe
+    in
+    Html.nav [ class "cook-nav", attribute "aria-label" "On this cook" ]
+        [ div [ class "cook-nav-inner" ]
+            (span [ class "cook-nav-head mono" ] [ text (methodWord r.method) ]
+                :: navLink config "cook-ingredients" "Ingredients"
+                :: List.filterMap (groupLink config) (List.indexedMap Tuple.pair r.ingredients)
+                ++ navLink config "cook-steps" "Steps"
+                :: stepStrip config
+                :: navFor config "cook-watchpoints" "Watchpoints" r.watchpoints
+                ++ navFor config "cook-rescues" "Rescues" r.rescues
+            )
         ]
+
+
+{-| A row for a block that may not be there. An absent block is an
+absent row, the same rule the recipe page's nav follows: a rail cannot
+offer an anchor that resolves to nothing.
+-}
+navFor : Config msg -> String -> String -> List a -> List (Html msg)
+navFor config anchor label items =
+    if List.isEmpty items then
+        []
+
+    else
+        [ navLink config anchor label ]
+
+
+navLink : Config msg -> String -> String -> Html msg
+navLink config anchor label =
+    let
+        here =
+            config.active == Just anchor
+    in
+    a
+        (class "cook-nav-link u"
+            :: classList [ ( "is-active", here ) ]
+            :: href ("#" ++ anchor)
+            -- present or absent, never "false" — the contract the
+            -- documents' rail and the recipe's nav both keep
+            :: (if here then
+                    [ attribute "aria-current" "true" ]
+
+                else
+                    []
+               )
+        )
+        [ text label ]
+
+
+{-| An ingredient group, **only when it has a name.** An unnamed group
+is the recipe's one list, and a rail row reading "Ingredients" twice
+is a row that answers nothing. Scrolling through an unnamed group
+leaves the Ingredients row marked, which is the truth.
+-}
+groupLink : Config msg -> ( Int, Recipe.IngredientGroup ) -> Maybe (Html msg)
+groupLink config ( i, group ) =
+    Maybe.map
+        (\name ->
+            let
+                anchor =
+                    groupAnchor i
+
+                here =
+                    config.active == Just anchor
+            in
+            a
+                (class "cook-nav-link cook-nav-sub u"
+                    :: classList [ ( "is-active", here ) ]
+                    :: href ("#" ++ anchor)
+                    :: (if here then
+                            [ attribute "aria-current" "true" ]
+
+                        else
+                            []
+                       )
+                )
+                [ text name ]
+        )
+        group.name
+
+
+stepStrip : Config msg -> Html msg
+stepStrip config =
+    div [ class "cook-nav-steps" ]
+        (List.map (stepChip config) config.recipe.steps)
+
+
+stepChip : Config msg -> Recipe.Step -> Html msg
+stepChip config s =
+    let
+        anchor =
+            stepAnchor s.n
+
+        here =
+            config.active == Just anchor
+
+        stamped =
+            Set.member s.n config.done
+    in
+    a
+        (class "cook-nav-step mono"
+            :: classList [ ( "is-active", here ), ( "is-done", stamped ) ]
+            :: href ("#" ++ anchor)
+            -- The fill says "done" to an eye; this says it to a
+            -- screen reader. Neither is the only carrier (§04).
+            :: attribute "aria-label"
+                ("Step "
+                    ++ String.fromInt s.n
+                    ++ (if stamped then
+                            ", done"
+
+                        else
+                            ""
+                       )
+                )
+            :: (if here then
+                    [ attribute "aria-current" "true" ]
+
+                else
+                    []
+               )
+        )
+        [ text (String.padLeft 2 '0' (String.fromInt s.n)) ]
+
+
+groupAnchor : Int -> String
+groupAnchor i =
+    "cook-group-" ++ String.fromInt i
+
+
+stepAnchor : Int -> String
+stepAnchor n =
+    "cook-step-" ++ String.fromInt n
+
+
+{-| The method as the rail wears it, the same word the recipe page's
+nav head carries — one recipe, one name for what it is.
+-}
+methodWord : String -> String
+methodWord =
+    String.replace "-" " " >> String.toUpper
 
 
 
@@ -77,7 +259,11 @@ header config =
         scaled =
             Scale.toFloat config.factor /= 1
     in
-    div [ class "cook-head" ]
+    -- The id is how `Main.stickyChromeHeight` measures what this
+    -- covers: it is the tallest sticky chrome in the product, and an
+    -- anchor that ignored it would land every step underneath the
+    -- scale badge.
+    div [ id "cook-head", class "cook-head" ]
         [ div [ class "cook-head-row" ]
             [ h1 [ class "cook-title" ] [ text r.title ]
             , a
@@ -131,27 +317,33 @@ the other.
 -}
 ingredients : Config msg -> Html msg
 ingredients config =
-    div [ class "cook-block" ]
+    section [ id "cook-ingredients", class "cook-block" ]
         [ h2 [ class "cook-h u" ] [ text "Ingredients" ]
         , div []
-            (List.map (ingredientGroup config) config.recipe.ingredients)
+            (List.indexedMap (ingredientGroup config) config.recipe.ingredients)
         ]
 
 
-ingredientGroup : Config msg -> Recipe.IngredientGroup -> Html msg
-ingredientGroup config group =
-    div []
-        ((case group.name of
-            Just name ->
-                [ h2 [ class "cook-sub u" ] [ text name ] ]
+{-| A named group is a `<section id>` and therefore something the rail
+can mark and jump to; an unnamed one is a plain list. An id on a group
+with no name would be an anchor with no row, and the reading line
+would land on it and unmark the block above.
+-}
+ingredientGroup : Config msg -> Int -> Recipe.IngredientGroup -> Html msg
+ingredientGroup config i group =
+    let
+        body =
+            [ ul [ class "cook-ings" ]
+                (List.map (ingredientRow config) group.items)
+            ]
+    in
+    case group.name of
+        Just name ->
+            section [ id (groupAnchor i) ]
+                (h2 [ class "cook-sub u" ] [ text name ] :: body)
 
-            Nothing ->
-                []
-         )
-            ++ [ ul [ class "cook-ings" ]
-                    (List.map (ingredientRow config) group.items)
-               ]
-        )
+        Nothing ->
+            div [] body
 
 
 ingredientRow : Config msg -> Recipe.Ingredient -> Html msg
@@ -208,7 +400,7 @@ ingredientRow config item =
 
 steps : Config msg -> Html msg
 steps config =
-    div [ class "cook-block" ]
+    section [ id "cook-steps", class "cook-block" ]
         [ h2 [ class "cook-h u" ] [ text "Steps" ]
         , ol [ class "cook-steps" ] (List.map (step config) config.recipe.steps)
         ]
@@ -237,7 +429,8 @@ step config s =
                     False
     in
     li
-        [ class "cook-step"
+        [ id (stepAnchor s.n)
+        , class "cook-step"
         , classList [ ( "is-done", stamped ), ( "is-running", running ) ]
         ]
         [ Html.button
@@ -356,8 +549,60 @@ watchpoints r =
         text ""
 
     else
-        div [ class "cook-block" ]
+        section [ id "cook-watchpoints", class "cook-block" ]
             [ h2 [ class "cook-h u" ] [ text "Watchpoints" ]
             , ul [ class "cook-watch" ]
                 (List.map (\w -> li [] [ text w ]) r.watchpoints)
             ]
+
+
+
+-- RESCUES
+
+
+{-| What has gone wrong, what caused it, and whether it can be saved
+— on the screen you are standing in front of when it goes wrong.
+
+**This block was missing from cook mode, and it is the one block
+whose whole subject is the present tense.** Watchpoints are the limits
+you hold to while it is going right; a rescue is for the moment it has
+not, which is exactly when leaving cook mode to find the document is
+the last thing anybody is going to do with a pan smoking.
+
+Last on the page for the same reason: you scroll to it when you need
+it, and never otherwise.
+
+A rescue that cannot be saved is **marked, not softened**. Saying "it
+does not come back" plainly is the most generous sentence a recipe can
+carry (DS-01 §06), and it is more generous still before you have spent
+another twenty minutes on it.
+
+-}
+rescues : Recipe -> Html msg
+rescues r =
+    if List.isEmpty r.rescues then
+        text ""
+
+    else
+        section [ id "cook-rescues", class "cook-block" ]
+            [ h2 [ class "cook-h u" ] [ text "Rescues" ]
+            , ul [ class "cook-rescues" ] (List.map rescue r.rescues)
+            ]
+
+
+rescue : Recipe.Rescue -> Html msg
+rescue x =
+    li
+        [ class "cook-rescue"
+        , classList [ ( "is-terminal", not x.recoverable ) ]
+        ]
+        [ span [ class "cook-rescue-sym u" ] [ text x.symptom ]
+        , span [ class "cook-rescue-text" ] [ text x.text ]
+        , if x.recoverable then
+            text ""
+
+          else
+            -- Carries its word as well as its mark: the bad news has
+            -- to be readable, not merely orange (§04).
+            span [ class "cook-rescue-flag u" ] [ text "Cannot be saved" ]
+        ]

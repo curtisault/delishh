@@ -135,8 +135,15 @@ function readSection() {
   // a hidden element's rect puts its top at 0 — permanently "past the
   // reading line", which would pin the rail to a block nobody can
   // see.
+  //
+  // Cook mode adds `li[id]`, because its finest-grained thing to be
+  // inside is a step, and a step is a list item. The rail marks which
+  // step you are on the same way the others mark a section.
   const sections = [
-    ...document.querySelectorAll('.sheet section[id], .recipe section[id]'),
+    ...document.querySelectorAll(
+      '.sheet section[id], .recipe section[id], ' +
+        '.cook-layout section[id], .cook-layout li[id]',
+    ),
   ].filter((section) => section.getBoundingClientRect().height > 0)
   if (!sections.length) {
     lastSeen = null

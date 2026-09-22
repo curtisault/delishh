@@ -194,13 +194,55 @@ fixture =
     }
 
 
+{-| A second specimen, for the rail: named ingredient groups, three
+steps, and rescues — including one that cannot be saved. The bench
+fixture above deliberately has none of those, which is what makes it
+the proof that an absent block is an absent row.
+-}
+richer : Recipe.Recipe
+richer =
+    { fixture
+        | ingredients =
+            [ { name = Just "Chili", items = [] }
+            , { name = Just "Cornbread lid", items = [] }
+            ]
+        , steps =
+            [ step 1 Nothing Nothing
+            , step 2 Nothing Nothing
+            , step 3 Nothing Nothing
+            ]
+        , rescues =
+            [ { symptom = "Grainy", recoverable = True, text = "Add 30 g water." }
+            , { symptom = "Bitter", recoverable = False, text = "Past 190 °C." }
+            ]
+    }
+
+
 rendered :
     { factor : Float, done : List Int, timer : Maybe Cook.Timer, now : Int, wake : Cook.Wake }
     -> Query.Single ()
-rendered opts =
+rendered =
+    render fixture Nothing
+
+
+{-| The richer specimen, with an optional anchor standing in for what
+boot.js would have reported as the reader's position.
+-}
+richly : Maybe String -> List Int -> Query.Single ()
+richly active done =
+    render richer active { factor = 1, done = done, timer = Nothing, now = 0, wake = Cook.Held }
+
+
+render :
+    Recipe.Recipe
+    -> Maybe String
+    -> { factor : Float, done : List Int, timer : Maybe Cook.Timer, now : Int, wake : Cook.Wake }
+    -> Query.Single ()
+render recipe active opts =
     Query.fromHtml
         (Page.Cook.view
-            { recipe = fixture
+            { recipe = recipe
+            , active = active
             , factor =
                 Scale.factors
                     |> List.filter (\f -> Scale.toFloat f == opts.factor)
@@ -296,6 +338,109 @@ viewSuite =
                 plain
                     |> Query.find [ Selector.class "cook-exit" ]
                     |> Query.has [ Selector.attribute (Attr.href "/recipe/salted-caramel") ]
+
+        -- RESCUES, on the screen you are standing in front of when it
+        -- goes wrong. Nobody leaves cook mode to find the document
+        -- with a pan smoking, which is what made their absence here a
+        -- bug rather than a scope decision.
+        , test "rescues are on the cook screen" <|
+            \_ ->
+                richly Nothing []
+                    |> Expect.all
+                        [ Query.has [ Selector.text "Grainy" ]
+                        , Query.has [ Selector.text "Add 30 g water." ]
+                        ]
+        , test "one that cannot be saved says so in words, not only in a rule" <|
+            \_ ->
+                -- The bad news has to be readable rather than merely
+                -- orange (§04) — and more so before you spend another
+                -- twenty minutes on it.
+                richly Nothing []
+                    |> Expect.all
+                        [ Query.has [ Selector.text "Cannot be saved" ]
+                        , Query.has [ Selector.class "is-terminal" ]
+                        ]
+        , test "rescues come last: the order the cook needs them in" <|
+            \_ ->
+                -- Watchpoints are the limits you hold to while it is
+                -- going right; a rescue is for after it has not.
+                richly Nothing []
+                    |> Query.find [ Selector.class "cook-layout" ]
+                    |> Query.children []
+                    |> Query.index -1
+                    |> Query.has [ Selector.id "cook-rescues" ]
+        , test "a recipe with no rescues grows no rescue block" <|
+            \_ -> plain |> Query.hasNot [ Selector.text "Cannot be saved" ]
+        , describe "the rail"
+        [ test "it lists the blocks this cook actually has" <|
+            \_ ->
+                richly Nothing []
+                    |> Query.find [ Selector.class "cook-nav" ]
+                    |> Expect.all
+                        [ Query.has [ Selector.text "Ingredients" ]
+                        , Query.has [ Selector.text "Steps" ]
+                        , Query.has [ Selector.text "Watchpoints" ]
+                        , Query.has [ Selector.text "Rescues" ]
+                        ]
+        , test "an absent block is an absent row" <|
+            \_ ->
+                -- The rail cannot be allowed to offer an anchor that
+                -- resolves to nothing — the same rule the recipe
+                -- page's nav keeps.
+                plain
+                    |> Query.find [ Selector.class "cook-nav" ]
+                    |> Query.hasNot [ Selector.text "Rescues" ]
+        , test "a named ingredient group is a row" <|
+            \_ ->
+                richly Nothing []
+                    |> Query.find [ Selector.class "cook-nav" ]
+                    |> Expect.all
+                        [ Query.has [ Selector.text "Chili" ]
+                        , Query.has [ Selector.text "Cornbread lid" ]
+                        ]
+        , test "an unnamed group is not, because it would name nothing" <|
+            \_ ->
+                plain
+                    |> Query.find [ Selector.class "cook-nav" ]
+                    |> Query.findAll [ Selector.class "cook-nav-sub" ]
+                    |> Query.count (Expect.equal 0)
+        , test "every step gets a chip" <|
+            \_ ->
+                richly Nothing []
+                    |> Query.find [ Selector.class "cook-nav-steps" ]
+                    |> Query.children []
+                    |> Query.count (Expect.equal 3)
+        , test "a done step's chip says done to a screen reader too" <|
+            \_ ->
+                -- The fill is the mark an eye reads; this is the other
+                -- carrier. Information is never colour-only, and a
+                -- filled square is not a sentence (§04).
+                richly Nothing [ 2 ]
+                    |> Query.find [ Selector.classes [ "cook-nav-step", "is-done" ] ]
+                    |> Query.has
+                        [ Selector.attribute (Attr.attribute "aria-label" "Step 2, done") ]
+        , test "an unstamped chip claims nothing" <|
+            \_ ->
+                richly Nothing []
+                    |> Query.findAll [ Selector.class "is-done" ]
+                    |> Query.count (Expect.equal 0)
+        , test "the reader's position is marked, and stated" <|
+            \_ ->
+                richly (Just "cook-steps") []
+                    |> Query.find [ Selector.classes [ "cook-nav-link", "is-active" ] ]
+                    |> Query.has
+                        [ Selector.attribute (Attr.attribute "aria-current" "true") ]
+        , test "a step under the eye marks its own chip" <|
+            \_ ->
+                richly (Just "cook-step-2") []
+                    |> Query.find [ Selector.classes [ "cook-nav-step", "is-active" ] ]
+                    |> Query.has [ Selector.text "02" ]
+        , test "no position, no mark — never a row guessed at" <|
+            \_ ->
+                richly Nothing []
+                    |> Query.findAll [ Selector.class "is-active" ]
+                    |> Query.count (Expect.equal 0)
+            ]
         ]
 
 

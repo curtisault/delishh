@@ -329,6 +329,21 @@ fixture must never drift under the suite. Keep it parsing.
   - **The scale rides in the URL**, not through navigation. It is set
     before you start, so entering cook mode cannot silently change
     the quantities — and a half batch is bookmarkable.
+  - **The rail's rows are derived, like the recipe page's**, and its
+    steps are numbers rather than sentences — a rail that repeated
+    twelve step texts would be the document again. Done fills the
+    chip: *filled against outlined* is a shape, not a colour, and the
+    chip also says ", done" to a screen reader. `boot.js` matches
+    `.cook-layout li[id]` as well as `section[id]`, because the
+    finest thing to be inside here is a step and a step is a list
+    item. **`Main.stickyChromeHeight` measures `#cook-head`** — it is
+    the tallest sticky chrome in the product, and an anchor that
+    ignored it would land every step underneath the scale badge.
+  - **Rescues are on this screen, last.** Watchpoints are the limits
+    you hold to while it is going right; a rescue is for after it has
+    not, and nobody exits cook mode to find the document with a pan
+    smoking. Keeps and the Note stay on the document — one is for
+    after the cooking, the other is for reading.
 - `src/Search.elm` — the site index. Hand-written, machine-checked:
   `terms` must appear in the section they claim, `aliases` must not.
   The query lives in the model, never the URL, and any real

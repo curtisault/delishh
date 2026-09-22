@@ -587,6 +587,23 @@ light is bad, and something is on the heat.
 - **Scaling is set before you start and displayed permanently** in
   the header. A scaled recipe that doesn't say it's scaled is
   dangerous.
+- **Rescues are on this screen, last.** Watchpoints are the limits you
+  hold to while it is going right; a rescue is for the moment it has
+  not, and nobody leaves cook mode to find the document with a pan
+  smoking. Last because you scroll to it when you need it and never
+  otherwise. Keeps and the Note stay on the document: one is for after
+  the cooking and the other is for reading.
+- **Air between steps.** At two to three feet the thing that loses you
+  your place is two steps reading as one block of text, and the fix is
+  space rather than another rule.
+- **A rail, on a screen wide enough to have a side.** Its rows are the
+  blocks, the named ingredient groups, and the steps — the steps as
+  their numbers, because twelve step sentences in a rail is the
+  document again, and the document is what you came here to stop
+  reading. A done step fills its chip: filled against outlined is a
+  shape, and this is the glance that says how far in you are (§04).
+  Below 64rem there is no side, and the rail is gone rather than
+  stacked above the ingredients.
 
 ---
 
