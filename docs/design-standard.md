@@ -316,7 +316,7 @@ yield: { amount: 340, unit: g, servings: 8 }
 time: { active: 15m, total: 45m }   # total includes every hold — no lying
 slot: [dessert]            # breakfast | lunch | dinner | snack | dessert
 course: sauce              # main | side | sauce | drink | bake | component
-flavor: [sweet, salty]     # sweet | savory | spicy | tangy | umami | bitter | salty
+flavor: [sweet 3, salty]   # word, or word 1–3 — sweet | savory | spicy | tangy | umami | bitter | salty
 method: sugar-work         # primary technique, one value from the method list
 effort: focused            # relaxed | focused | project
 dietary: [vegetarian, gluten-free]   # verified flags only — absence means unverified
@@ -332,6 +332,17 @@ gauges:                    # optional; up to five operating numbers (§09)
 The facet lists (`slot`, `flavor`, `method`, `effort`, `dietary`) are
 **closed vocabularies** defined in one place in the build script.
 Adding a value is a deliberate act, not a typo surviving review.
+
+> **Amendment 2026-09-21 — a flavour may state how loudly it
+> speaks.** `spicy 2` is the word and an authored level: `1`
+> background · `2` present · `3` defining. Three levels for the same
+> reason `effort` has three — a finer scale is one nobody applies
+> consistently to their own cooking. A bare word is **unstated**,
+> never zero, and the page draws a meter only for a stated level:
+> nothing is ever inferred, least of all what dinner tastes like.
+> On the chips the level renders as filled cells beside the word and
+> the word's own stencil mark — shape carrying what colour never
+> carries alone (§04). Facet chips still do not print (§09).
 
 ### The body blocks
 

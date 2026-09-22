@@ -27,6 +27,7 @@ import {
   CUISINES,
   DIETARY,
   EFFORTS,
+  FLAVOR_LEVELS,
   FLAVORS,
   FRACTIONS,
   GAUGE_MAX,
@@ -116,7 +117,10 @@ export type Recipe = {
   time: { active: number; total: number };
   slot: string[];
   course: string;
-  flavor: string[];
+  /** `level` is the authored loudness (1–3, vocabulary.ts), or null
+   * when unstated — never zero, because absent is a judgement not
+   * yet made, not a judgement of none. */
+  flavor: { name: string; level: number | null }[];
   method: string;
   effort: string;
   dietary: string[];
@@ -495,7 +499,60 @@ export function parseRecipe(
 
   const slot = manyOf("slot", SLOTS, false);
   const course = oneOf("course", COURSES);
-  const flavor = manyOf("flavor", FLAVORS, false);
+  // A flavour entry is `word` or `word N` — the word from the closed
+  // list, one space, a level from FLAVOR_LEVELS. The YAML trap this
+  // grammar exists to dodge: `spicy: 2` inside a flow list parses as
+  // a one-pair *map*, which is why the error below names the fix.
+  const flavor = ((): { name: string; level: number | null }[] => {
+    const v = fm.flavor;
+    if (!Array.isArray(v) || v.length === 0) {
+      fail(
+        "frontmatter.flavor",
+        `${
+          v === undefined
+            ? "missing"
+            : !Array.isArray(v)
+            ? "must be a list"
+            : "may not be empty"
+        } — every recipe tastes of something.`,
+        at("flavor"),
+      );
+      return [];
+    }
+    const out: { name: string; level: number | null }[] = [];
+    for (const entry of v) {
+      const m = typeof entry === "string" ? entry.match(/^(\S+)(?: (\d))?$/) : null;
+      const name = m?.[1] ?? "";
+      const level = m?.[2] === undefined ? null : Number(m[2]);
+      if (
+        !m ||
+        !(FLAVORS as readonly string[]).includes(name) ||
+        (level !== null && FLAVOR_LEVELS[level] === undefined)
+      ) {
+        const shown = typeof entry === "string" ? entry : JSON.stringify(entry);
+        fail(
+          "frontmatter.flavor",
+          `\`${shown}\` is not \`word\` or \`word 1–3\`. Write \`spicy 2\`, ` +
+            `not \`spicy: 2\` — a colon makes YAML read it as a map. ` +
+            `Words: ${FLAVORS.join(", ")}. Levels: ${
+              Object.entries(FLAVOR_LEVELS).map(([n, w]) => `${n} ${w}`).join(", ")
+            }.`,
+          at("flavor"),
+        );
+        continue;
+      }
+      if (out.some((f) => f.name === name)) {
+        fail(
+          "frontmatter.flavor",
+          `\`${name}\` appears twice — one entry per flavour, with its level on it.`,
+          at("flavor"),
+        );
+        continue;
+      }
+      out.push({ name, level });
+    }
+    return out;
+  })();
   const method = oneOf("method", METHODS);
   const effort = oneOf("effort", EFFORTS);
   const dietary = manyOf("dietary", DIETARY, true);

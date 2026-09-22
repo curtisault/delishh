@@ -163,7 +163,7 @@ fixture =
     , time = { active = 15, total = 45 }
     , slot = [ "dessert" ]
     , course = "sauce"
-    , flavor = [ "sweet" ]
+    , flavor = [ { name = "sweet", level = Just 3 } ]
     , method = "sugar-work"
     , effort = "focused"
     , dietary = []

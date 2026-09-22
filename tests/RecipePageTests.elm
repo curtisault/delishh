@@ -55,7 +55,7 @@ full =
     , time = { active = 15, total = 45 }
     , slot = [ "dessert" ]
     , course = "sauce"
-    , flavor = [ "sweet" ]
+    , flavor = [ { name = "sweet", level = Just 3 } ]
     , method = "sugar-work"
     , effort = "focused"
     , dietary = []
@@ -279,6 +279,39 @@ suite =
                         |> Query.findAll
                             [ Selector.attribute (Attr.attribute "aria-current" "false") ]
                         |> Query.count (Expect.equal 0)
+            ]
+        , describe "the flavour meter — DS-01 §06, amended 2026-09-21"
+            [ test "a stated level draws three cells with the level filled" <|
+                \_ ->
+                    -- sweet is authored at 3 in the fixture
+                    plain
+                        |> Query.find [ Selector.class "chip-meter" ]
+                        |> Expect.all
+                            [ Query.findAll [ Selector.class "chip-seg" ]
+                                >> Query.count (Expect.equal 3)
+                            , Query.findAll [ Selector.class "on" ]
+                                >> Query.count (Expect.equal 3)
+                            ]
+            , test "the level reaches assistive tech as words, not cells" <|
+                \_ ->
+                    -- the cells are aria-hidden marks; "3 of 3" without
+                    -- "defining" is a number with no meaning
+                    plain
+                        |> Query.find [ Selector.class "vh" ]
+                        |> Query.has [ Selector.text "defining" ]
+            , test "an unstated level draws no meter at all" <|
+                \_ ->
+                    -- never zero, never empty cells: absent is a
+                    -- judgement not yet made (the dietary-flag rule)
+                    rendered { full | flavor = [ { name = "sweet", level = Nothing } ] } Nothing
+                        |> Query.hasNot [ Selector.class "chip-meter" ]
+            , test "the chip wears its flavour's mark class" <|
+                \_ ->
+                    -- f-sweet is the hook the stencil hangs on; the
+                    -- word stays in the chip either way
+                    plain
+                        |> Query.find [ Selector.class "f-sweet" ]
+                        |> Query.has [ Selector.text "sweet" ]
             ]
         , describe "the gauge strip — DS-01 §06, amended 2026-09-21"
             [ test "renders one entry per authored gauge" <|

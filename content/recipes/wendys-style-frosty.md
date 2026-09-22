@@ -5,7 +5,7 @@ yield: { amount: 650, unit: ml, servings: 2 }
 time: { active: 5m, total: 5m }
 slot: [dessert]
 course: drink
-flavor: [sweet]
+flavor: [sweet 2]
 method: blend
 effort: relaxed
 dietary: [vegetarian]

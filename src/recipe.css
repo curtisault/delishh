@@ -112,6 +112,12 @@
   gap: 0.4rem;
 }
 .chip {
+  /* inline-flex, so the flavour mark and the meter centre on the
+     word's line; a chip that is only a word renders exactly as the
+     inline chip did */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   font-size: 0.56rem;
   letter-spacing: 0.1em;
   padding: 0.22rem 0.5rem;

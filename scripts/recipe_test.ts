@@ -83,7 +83,44 @@ Deno.test("a rescue that cannot be saved is marked, not softened", () => {
 // --- the closed vocabularies -----------------------------------------------
 
 Deno.test("a flavour outside the vocabulary is rejected", () => {
-  rejects(swap(good, "flavor: [sweet, salty]", "flavor: [sweet, savoury]"), "not in the vocabulary");
+  rejects(swap(good, "flavor: [sweet 3, salty]", "flavor: [sweet 3, savoury]"), "words:");
+});
+
+// --- the flavour meter (DS-01 §06, amended 2026-09-21) ----------------------
+
+Deno.test("a flavour entry may carry its authored level", () => {
+  const { recipe, problems } = parseRecipe("test", good);
+  assertEquals(problems, []);
+  assert(recipe);
+  assertEquals(recipe.flavor, [
+    { name: "sweet", level: 3 },
+    { name: "salty", level: null },
+  ]);
+});
+
+Deno.test("a bare flavour word is unstated, never level zero", () => {
+  // Nothing is ever inferred: the meter draws only what the author
+  // has judged, and `salty` above decodes to null, not 0 — the same
+  // contract as an absent dietary flag.
+  const { recipe } = parseRecipe("test", good);
+  assert(recipe);
+  assertEquals(recipe.flavor[1].level, null);
+});
+
+Deno.test("a level outside 1–3 is rejected", () => {
+  rejects(swap(good, "flavor: [sweet 3, salty]", "flavor: [sweet 4, salty]"), "levels:");
+  rejects(swap(good, "flavor: [sweet 3, salty]", "flavor: [sweet 0, salty]"), "levels:");
+});
+
+Deno.test("the YAML map trap is caught and the fix is named", () => {
+  // `sweet: 3` in a flow list is a one-pair MAP, not the string the
+  // author meant — the single most likely typo this grammar invites,
+  // so the complaint says exactly what to write instead.
+  rejects(swap(good, "flavor: [sweet 3, salty]", "flavor: [sweet: 3, salty]"), "not \`spicy: 2\`");
+});
+
+Deno.test("a duplicated flavour is rejected", () => {
+  rejects(swap(good, "flavor: [sweet 3, salty]", "flavor: [sweet 3, sweet]"), "appears twice");
 });
 
 Deno.test("a misspelled frontmatter key is rejected, with a suggestion", () => {

@@ -52,6 +52,18 @@ export const FLAVORS = [
   "salty",
 ] as const;
 
+/** How loudly a listed flavour speaks, when the author has judged it:
+ * `spicy 2` in the frontmatter. Three levels for the same reason
+ * EFFORTS is three values — a finer scale is one nobody can apply
+ * consistently to their own cooking. A bare word is "unstated",
+ * never level zero: the meter draws only what has actually been
+ * judged, because nothing is ever inferred (DS-01 §06). */
+export const FLAVOR_LEVELS: Record<number, string> = {
+  1: "background",
+  2: "present",
+  3: "defining",
+};
+
 /** By effort, half one: the primary technique. Single-valued — a
  * recipe that sears *and* braises is a braise, and the facet answers
  * "what am I doing for most of this", not "what happens at any point". */

@@ -5,7 +5,7 @@ yield: { amount: 480, unit: ml, servings: 4 }
 time: { active: 15m, total: 25m }
 slot: [breakfast]
 course: sauce
-flavor: [savory, spicy]
+flavor: [savory 3, spicy 1]
 method: simmer
 effort: focused
 dietary: []

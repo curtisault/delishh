@@ -39,7 +39,7 @@ yield: { amount: 340, unit: g, servings: 8 }   # servings optional
 time: { active: 15m, total: 45m }
 slot: [dessert]
 course: sauce
-flavor: [sweet, salty]
+flavor: [sweet 3, salty]
 method: sugar-work
 effort: focused
 dietary: [vegetarian, gluten-free]
@@ -112,6 +112,17 @@ The `method` answers "what am I doing for *most* of this", not "what
 happens at any point" — a recipe that sears and then braises is a
 braise. It also picks the page's accent colour, so choose the one
 that names the recipe's defining physical process.
+
+### Flavour levels
+
+A flavour entry may carry how loudly it speaks: the word, one space,
+a level — `spicy 2`. **Enforced.** The levels are `1` background ·
+`2` present · `3` defining, and there is deliberately no finer scale:
+three is what you can apply consistently to your own cooking, the
+same reasoning as `effort`. A bare word means **unstated**, never
+zero — the page draws a meter only for what you have actually
+judged. Write `spicy 2`, not `spicy: 2`: the colon turns the entry
+into a YAML map and the build will tell you so.
 
 ## The blocks — fixed order, `##` headings
 

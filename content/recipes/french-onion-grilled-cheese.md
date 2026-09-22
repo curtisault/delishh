@@ -5,7 +5,7 @@ yield: { amount: 4, unit: pieces, servings: 4 }
 time: { active: 1h20m, total: 1h20m }
 slot: [lunch, dinner]
 course: main
-flavor: [savory, umami, sweet]
+flavor: [savory 3, umami 2, sweet 2]
 method: sauté
 effort: project
 dietary: []

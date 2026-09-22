@@ -5,7 +5,7 @@ yield: { amount: 12, unit: pieces, servings: 12 }
 time: { active: 45m, total: 3h }
 slot: [breakfast, dessert]
 course: bake
-flavor: [sweet, tangy]
+flavor: [sweet 3, tangy 1]
 method: deep-fry
 effort: project
 dietary: [vegetarian]

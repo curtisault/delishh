@@ -51,6 +51,14 @@ Ruled 2026-09-21, at the print revision (Phase 10):
 | Density | **Page budgets enforced by design, not hoped for:** card = 1 page, sheet = 2 (one duplex leaf), booklet ≤ 4 full pages. The 11pt body floor stays — §09's standing reader is right — so the space comes out of what the floor does not protect: plate padding, block gaps, step padding, and the dead air the screen document carries between sections | Shrinking the body floor (breaks §09's own rule); leaving budgets as aspiration (the donuts booklet already showed what that produces) |
 | Print QA target | **Print previews run against `deno task build` output, never the dev server.** The dev build overlays Elm's debugger badge fixed to the viewport corner, and fixed elements print on **every page** — the stray "89" on the first real print run. Not a bug in the sheet; a rule about how to look at it | A print.css rule hiding the badge (styling a dev tool into the product stylesheet) |
 
+Ruled 2026-09-21, at the flavour meter:
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Flavour intensity | **A flavour entry may carry an authored level** (DS-01 §06 amendment, 2026-09-21): `spicy 2` — `1` background · `2` present · `3` defining, three levels by the EFFORTS reasoning. Bare word = unstated, never zero; the meter draws only judged levels (nothing is ever inferred). Parsed in `recipe.ts`, taught in AGENTS.md, both held together by `agents_test.ts` | A five-point scale (the difficulty-scale disease, named in `vocabulary.ts` since day one); deriving heat from the ingredient list (inference, banned); a separate `palate:` map (two homes for one fact) |
+| The flavour marks | **Seven stencils, one per vocabulary word, as CSS mask data-URIs in `sheet.css`** painting in currentColor — droplet, sprig, chilli, lemon, mushroom, bean, crystal. Decoration-plus-reinforcement: the word never leaves the chip, so the mark can fail without the information failing. The SVGs carry no colour (a mask reads alpha), keeping "raw hex outside theme.css" intact | `elm/svg` inline markup (a new dependency, and styling decisions migrating out of CSS); icon-only chips (information carried by a pictogram alone — §04's rule applied to shape); pictograms as image files (payloads where CSS suffices) |
+| The meter on chips | **Three cells, filled to the level, `aria-hidden`, with the meaning as visually-hidden words** ("defining, 3 of 3") — filled-vs-outlined is shape, not colour, so it needs no contrast pair and would survive a printer it never reaches (chips still do not print). Shared as `Flavor.chip`, one view for the plate and the shelf's rows | Empty cells for unstated (renders a judgement of zero nobody made); acid-filled cells (a level is a quantity's neighbour — the emphasis stays ink); per-surface chip markup (two meters that drift) |
+
 ## What exists today
 
 - Elm + Vite + Deno shell with working chrome: `Doc.elm` (document

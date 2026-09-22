@@ -23,6 +23,7 @@ prose document and has no sections to number.
 
 import Html exposing (Html, a, div, h1, h2, input, li, p, section, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id, placeholder, type_, value)
+import Flavor
 import Html.Events exposing (onClick, onInput)
 import Shelf exposing (Filters, Path, Summary, Verdict(..))
 
@@ -184,7 +185,11 @@ facetChip config p word =
     in
     Html.button
         [ type_ "button"
-        , class ("chip chip-" ++ Shelf.path p ++ " u")
+        , -- `f-<word>` puts the flavour stencil on the filter chip
+          -- too — same mark, same place, so the association is built
+          -- where the words are first met. On any other path the
+          -- class matches no mask and draws nothing.
+          class ("chip chip-" ++ Shelf.path p ++ " u f-" ++ word)
         , classList [ ( "on", on ) ]
         , attribute "aria-pressed"
             (if on then
@@ -285,10 +290,7 @@ row ( recipe, verdict ) =
                 [ text (String.toUpper (String.replace "-" " " recipe.method)) ]
             , span [ class "row-title" ] [ text recipe.title ]
             , span [ class "row-chips" ]
-                (List.map
-                    (\f -> span [ class "chip chip-flavor u" ] [ text f ])
-                    recipe.flavor
-                )
+                (List.map (Flavor.chip "chip-flavor") recipe.flavor)
             , span [ class "row-times mono" ]
                 [ span [ class "row-active" ] [ text (minutes recipe.active) ]
                 , span [ class "row-sep" ] [ text " · " ]

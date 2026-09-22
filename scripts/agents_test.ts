@@ -21,6 +21,7 @@ import {
   CUISINES,
   DIETARY,
   EFFORTS,
+  FLAVOR_LEVELS,
   FLAVORS,
   GAUGE_MAX,
   METHODS,
@@ -67,6 +68,25 @@ Deno.test("every facet list matches the vocabulary, exactly", () => {
       `AGENTS.md's \`${facet}\` list disagrees with vocabulary.ts`,
     );
   }
+});
+
+Deno.test("the flavour levels AGENTS.md teaches are the ones the build accepts", () => {
+  // The contract names each level with its word; a level the prose
+  // does not teach is a grammar authors can only discover by being
+  // rejected, and a word the build does not hold is one that can
+  // silently drift from what the meter means.
+  const section = doc.slice(doc.indexOf("### Flavour levels"));
+  assert(section.length > 20, "AGENTS.md has no flavour-levels section");
+  for (const [n, word] of Object.entries(FLAVOR_LEVELS)) {
+    assert(
+      section.includes(`\`${n}\` ${word}`),
+      `the contract should teach \`${n}\` as "${word}"`,
+    );
+  }
+  assert(
+    section.includes("`spicy 2`, not `spicy: 2`"),
+    "the contract should warn about the YAML map trap the grammar invites",
+  );
 });
 
 Deno.test("the gauge cap AGENTS.md states is the cap the build enforces", () => {

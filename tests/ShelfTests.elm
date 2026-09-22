@@ -28,7 +28,7 @@ recipe slug =
     , total = 20
     , slot = [ "dinner" ]
     , course = "main"
-    , flavor = [ "savory" ]
+    , flavor = [ { name = "savory", level = Nothing } ]
     , method = "bake"
     , effort = "relaxed"
     , dietary = [ "vegetarian" ]
@@ -45,7 +45,7 @@ caramel =
     , total = 45
     , slot = [ "dessert" ]
     , course = "sauce"
-    , flavor = [ "sweet", "salty" ]
+    , flavor = [ { name = "sweet", level = Just 3 }, { name = "salty", level = Nothing } ]
     , method = "sugar-work"
     , effort = "focused"
     , dietary = [ "vegetarian", "gluten-free" ]
@@ -62,7 +62,7 @@ pickles =
     , total = 2880
     , slot = [ "lunch", "dinner" ]
     , course = "side"
-    , flavor = [ "tangy", "salty" ]
+    , flavor = [ { name = "tangy", level = Just 2 }, { name = "salty", level = Just 1 } ]
     , method = "pickle"
     , effort = "relaxed"
     , dietary = [ "vegan", "gluten-free" ]

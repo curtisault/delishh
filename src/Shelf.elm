@@ -24,6 +24,11 @@ module Shelf exposing
 
 {-| The shelf — DS-01 §07.
 
+`Flavor` rides on the summary so the rows can draw the meter, but
+filtering matches on the *word* alone: a filter chip is
+vocabulary-level, and "spicy at least 2" is a filter nobody has
+asked for yet.
+
 **The loud half of the product.** Browsing is where you choose what to
 cook, and the interface treats that as the fun part; this module is
 the machinery underneath it.
@@ -45,6 +50,7 @@ tile looks like; this decides what is true.
 
 -}
 
+import Flavor exposing (Flavor)
 import Json.Decode as D exposing (Decoder)
 import Set exposing (Set)
 
@@ -66,7 +72,7 @@ type alias Summary =
     , total : Int
     , slot : List String
     , course : String
-    , flavor : List String
+    , flavor : List Flavor
     , method : String
     , effort : String
     , dietary : List String
@@ -184,7 +190,7 @@ facetsOf p recipe =
             recipe.slot
 
         ByFlavor ->
-            recipe.flavor
+            List.map .name recipe.flavor
 
         ByEffort ->
             [ recipe.effort ]
@@ -360,7 +366,7 @@ matchesQuery query recipe =
                         :: recipe.effort
                         :: recipe.course
                         :: recipe.slot
-                        ++ recipe.flavor
+                        ++ List.map .name recipe.flavor
                         ++ recipe.dietary
                         ++ recipe.cuisine
                     )
@@ -477,7 +483,7 @@ summaryDecoder =
         |> field "time" (D.field "total" D.int)
         |> field "slot" (D.list D.string)
         |> field "course" D.string
-        |> field "flavor" (D.list D.string)
+        |> field "flavor" (D.list Flavor.decoder)
         |> field "method" D.string
         |> field "effort" D.string
         |> field "dietary" (D.list D.string)

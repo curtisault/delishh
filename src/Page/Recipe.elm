@@ -26,6 +26,7 @@ and print as outlined capsules, which is the same treatment (§09).
 
 import Html exposing (Html, a, div, h1, h2, li, ol, p, section, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id)
+import Flavor
 import Html.Events exposing (onClick)
 import Print
 import Recipe exposing (Recipe)
@@ -246,7 +247,7 @@ plate config =
             , fact "TOTAL" (duration r.time.total)
             ]
         , div [ class "recipe-chips" ]
-            (List.map (chip "chip-flavor") r.flavor
+            (List.map (Flavor.chip "chip-flavor") r.flavor
                 ++ List.map (chip "chip-slot") r.slot
                 ++ [ chip "chip-effort" r.effort ]
                 ++ List.map (chip "chip-diet") r.dietary

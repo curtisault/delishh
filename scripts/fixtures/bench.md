@@ -5,7 +5,7 @@ yield: { amount: 340, unit: g, servings: 8 }
 time: { active: 15m, total: 45m }
 slot: [dessert]
 course: sauce
-flavor: [sweet, salty]
+flavor: [sweet 3, salty]
 method: sugar-work
 effort: focused
 dietary: [vegetarian, gluten-free]

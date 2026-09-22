@@ -5,7 +5,7 @@ yield: { amount: 8, unit: pieces, servings: 8 }
 time: { active: 45m, total: 1h20m }
 slot: [dinner]
 course: main
-flavor: [savory, spicy]
+flavor: [savory 3, spicy 1]
 method: bake
 effort: focused
 dietary: []

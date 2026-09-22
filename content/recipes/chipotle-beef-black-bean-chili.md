@@ -5,7 +5,7 @@ yield: { amount: 2, unit: l, servings: 8 }
 time: { active: 1h, total: 3h }
 slot: [dinner]
 course: main
-flavor: [savory, spicy, umami]
+flavor: [savory 3, spicy 2, umami 2]
 method: stew
 effort: project
 dietary: []

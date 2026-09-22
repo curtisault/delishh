@@ -27,6 +27,7 @@ sheet outlives the bug.
 
 -}
 
+import Flavor exposing (Flavor)
 import Json.Decode as D exposing (Decoder)
 
 
@@ -42,7 +43,7 @@ type alias Recipe =
     , time : { active : Int, total : Int }
     , slot : List String
     , course : String
-    , flavor : List String
+    , flavor : List Flavor
     , method : String
     , effort : String
     , dietary : List String
@@ -191,7 +192,7 @@ decoder =
         |> field "time" timeDecoder
         |> field "slot" (D.list D.string)
         |> field "course" D.string
-        |> field "flavor" (D.list D.string)
+        |> field "flavor" (D.list Flavor.decoder)
         |> field "method" D.string
         |> field "effort" D.string
         |> field "dietary" (D.list D.string)
