@@ -295,7 +295,10 @@
   min-height: 2.75rem;
   margin-top: 0.8rem;
   font-size: 0.66rem;
-  background: var(--accent);
+  /* Orange, not volt: the button names where it goes rather than
+     that it is a button, and where it goes is the heat (§04, amended
+     2026-09-21). */
+  background: var(--accent-heat);
   color: var(--ink);
   text-decoration: none;
   padding: 0.4rem 0.9rem;

@@ -208,6 +208,27 @@ suite =
                 \_ -> Scale.unitLabel "1¼" "cup" |> Expect.equal "cups"
             , test "bunch takes -es" <|
                 \_ -> Scale.unitLabel "2" "bunch" |> Expect.equal "bunches"
+            , -- The printed sheet read `¾ cups` and `⅓ cups` for as
+              -- long as this function tested `== "1"`: true of exactly
+              -- one amount, false of every fraction beneath it. Under
+              -- one is singular — three quarters of *a cup*.
+              test "under one is singular, every glyph" <|
+                \_ ->
+                    List.map (\a -> Scale.unitLabel a "cup")
+                        [ "¾", "⅓", "½", "⅛", "⅞" ]
+                        |> Expect.equal [ "cup", "cup", "cup", "cup", "cup" ]
+            , test "a mixed number over one is plural" <|
+                \_ -> Scale.unitLabel "1½" "cup" |> Expect.equal "cups"
+            , test "a range takes its high end" <|
+                \_ ->
+                    -- `1–2 cup` is not English. The unit agrees with
+                    -- the largest measure the line offers.
+                    ( Scale.unitLabel "1–2" "cup", Scale.unitLabel "½–¾" "cup" )
+                        |> Expect.equal ( "cups", "cup" )
+            , test "a decimal amount reads by its value" <|
+                \_ ->
+                    ( Scale.unitLabel "1.50" "cup", Scale.unitLabel "0.75" "cup" )
+                        |> Expect.equal ( "cups", "cup" )
             , test "symbols never inflect" <|
                 \_ ->
                     List.map (Scale.unitLabel "3") [ "g", "kg", "ml", "l", "tsp", "tbsp" ]

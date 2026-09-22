@@ -170,6 +170,7 @@ fixture =
     , cuisine = []
     , print = "sheet"
     , photo = Nothing
+    , gauges = []
     , ingredients =
         [ { name = Nothing
           , items =

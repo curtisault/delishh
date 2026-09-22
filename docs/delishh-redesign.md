@@ -38,6 +38,19 @@ Ruled 2026-09-21, at the revision retirement:
 | The recipe number | `number:` retired (DS-01 §06 amendment, 2026-09-21). Identity is the **slug** — filename, URL, and now the printed footer's name line, so every page of a booklet says what it belongs to. The plate's serial slot goes to **the method**, the fact that already colours the page: `PICKLE · LAST BATCH 2026-08-02` is §04's "never colour-only" kept where it is loudest. The shelf's left rail carries the method word too | Keeping an insertion-order serial (tells a reader nothing about the food); a hand-counted "batch Nº" (the revision-counter disease again); provenance labels (not in the schema, cannot be required) |
 | Revisions | The `revision:` counter and the History block are retired (DS-01 §06 amendment, 2026-09-21). **The change log is git's job** — every edit is already recorded there with a date and a reason, and readers do not need it. The counter's deeper fault: nothing forced it to move, so `REV 3` on a printed sheet was a hand-maintained claim about content, not a fact. Staleness on paper is now the sheet's **TESTED** against the site's; the story of how a recipe got here belongs in the note | Keeping the counter (metadata that can silently lie); a dated History block feeding a derived "last changed" (proposed, then superseded — reader-facing change tracking is the thing being removed); a git-derived changed date in the footer (couples the content build to git, and a shallow CI checkout would date every file to the head commit — a subtle lie replacing an honest one) |
 
+Ruled 2026-09-21, at the print revision (Phase 10):
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| What print is | **A designed page, not a styled printout.** Phase 5 linearized the screen document and inherited its whitespace; the first real print run (the donuts booklet, 2026-09-21) spent four pages saying two pages of things. The reference is now the source cards themselves — recovered, printed, and cooked from — and the traits worth carrying are named below, one ruling each | Leaving print as the screen's shadow; Typst PDFs (still the escape hatch, still not needed — every fix below is CSS over the same document) |
+| Ingredients on paper | **A row-aligned grid, not CSS multicolumn.** `columns: 2` balances by height, so wrapping names drift the two stacks and the hairline under each item pretends to be a table row that stops at the gutter — the "incoherent" read. The grid pairs `qty · name · qty · name` in shared rows, so every rule really does run where it appears to. Reading order becomes across-then-down, which a shopping list tolerates and an aligned rule repays | Keeping multicolumn and dropping the hairlines (loses the scan lines that make quantities findable at a glance); single column (Phase 5's own ruling against wasting the held half of the page stands) |
+| The step line | **The cue moves to the step's number line in print** — right-aligned, the clock-and-tell where a standing reader looks first, body below. This is the source cards' step anatomy (head + clock, then body, then why) built from markup the steps already have. Screen keeps the cue beneath the body; print repositions, nothing is re-authored | A per-step `head:` field in the schema (new authoring burden duplicating the cue's job); leaving the cue buried under the body on paper |
+| The duplex sheet | **The sheet form breaks before Watchpoints.** The blocks already split on the bench seam — Equipment/Ingredients/Steps are cook-side, Watchpoints/Rescues/Keeps/Note are reference — so the page break makes the sheet a duplex card: procedure on the front, recovery on the back, flippable with a wet hand. The source cards' front/back grammar, found already latent in the block order | A separate back-page template (a second renderer, the drift Phase 5 refused); breaking before Rescues (a watchpoint is read *before* trouble, and belongs with the reference side, not the procedure) |
+| The gauge strip | **New optional frontmatter: `gauges:`** — up to five hand-authored label · value (· note) pairs, the recipe's operating numbers (`OIL 185 °C · holds`, `DONE AT 96 °C · center`). The single most useful trait of the source cards, and the one that cannot be derived: those numbers live in prose, and deriving them would be inference (§06's "nothing is ever inferred"). Hand-authored **printed content** is not hand-maintained metadata — a gauge is read at the bench and a wrong one fails the cook, which is the same force that keeps the steps honest. Rendered on screen *and* paper: the screen and the sheet are two renderings of one file, and content hidden from one of them disagrees with that | Deriving gauges from cues/equipment (inference, banned); print-only rendering (content the screen hides); a closed gauge vocabulary (these are the recipe's own numbers, not a facet) |
+| Facet chips on paper | **Dropped from print, all of them.** Slot, flavor, effort, cuisine — and dietary — are browse furniture: facets exist to *find* a recipe, and a printed sheet is already found. Ink goes to the gauge strip instead, which answers questions the bench actually asks | Keeping dietary chips only (a verified flag matters when cooking for someone — but the ingredients are on the same page, and a half-kept chip row buys ambiguity with ink) |
+| Density | **Page budgets enforced by design, not hoped for:** card = 1 page, sheet = 2 (one duplex leaf), booklet ≤ 4 full pages. The 11pt body floor stays — §09's standing reader is right — so the space comes out of what the floor does not protect: plate padding, block gaps, step padding, and the dead air the screen document carries between sections | Shrinking the body floor (breaks §09's own rule); leaving budgets as aspiration (the donuts booklet already showed what that produces) |
+| Print QA target | **Print previews run against `deno task build` output, never the dev server.** The dev build overlays Elm's debugger badge fixed to the viewport corner, and fixed elements print on **every page** — the stray "89" on the first real print run. Not a bug in the sheet; a rule about how to look at it | A print.css rule hiding the badge (styling a dev tool into the product stylesheet) |
+
 ## What exists today
 
 - Elm + Vite + Deno shell with working chrome: `Doc.elm` (document
@@ -595,6 +608,143 @@ list of pans is not what arm's length is for. The shelf, the
 documents and the four print forms are unaffected; the sheet template
 simply inherits the new block order.
 
+### Phase 10 — the printed sheet, revision 2 ✅ done 2026-09-21
+
+Phase 5 built the ink discipline — greyscale, the break law, the
+traceability footer — and it holds. What it did not build is a page:
+the current print is the screen document linearized, and the first
+real print run against the recovered source cards showed the gap.
+Those cards are the household's proven print grammar (printed, taped
+up, cooked from), and this phase carries their four load-bearing
+traits into the CSS forms: the gauge strip, the clock-topped step,
+the row-aligned ingredient table, and the duplex front/back split.
+The screen layout is untouched; this is `@media print` work plus one
+schema addition, and the rulings above govern it.
+
+Two bugs ride along because the print run surfaced them:
+
+- **`Scale.unitLabel` pluralizes everything that is not exactly
+  `"1"`**, so the sheet reads `¾ cups` and `⅓ cups`. The rule is
+  plural only above one: `¾ cup`, `1 cup`, `1½ cups`, and a range
+  judges by its high end (`1–2 cups`). The honest-note path inflects
+  through the same function and inherits the fix.
+- **`print.css` still styles `#history`** on the card form — a block
+  that no longer exists. Dead selector, out.
+
+The work, in order:
+
+- [x] **The DS-01 §09 amendment first**, per §00's own law: a dated
+      block recording the duplex sheet, the step clock line, the
+      ingredient grid, the gauge strip, the chip drop, and the page
+      budgets as contract. §06 gains the `gauges:` field beside the
+      other frontmatter, marked optional.
+- [x] `Scale.unitLabel` — plural iff the amount exceeds one;
+      `ScaleTests` pins `¾ cup`, `1 cup`, `1½ cups`, `2 cups`, and a
+      scaled note that crosses one in either direction.
+- [x] `scripts/recipe.ts` — parse `gauges:`: up to five entries,
+      label and value required, note optional, word rules apply
+      (a gauge is procedure, not the Note's human voice). One test
+      per rule in `recipe_test.ts`; the bench specimen gains a gauge
+      strip so every rule is load-bearing.
+- [x] `content/recipes/AGENTS.md` — the field documented in the
+      schema section and the skeleton; `agents_test.ts` extended if
+      the contract states anything the code holds (the entry cap,
+      the required halves).
+- [x] `src/Recipe.elm` + `src/Page/Recipe.elm` — decode and render
+      the strip on the plate, under the facts row: label in the data
+      voice, value bold, note dim. Screen and print, one markup.
+- [x] `src/print.css`, the forms rebuilt:
+      - Ingredients: multicolumn out, the four-track grid in
+        (`qty · name · qty · name`), group heads spanning, rules
+        aligned because rows are shared. Card keeps a denser variant
+        of the same grid, not a third layout.
+      - Steps: the cue joins the number line, right-aligned, body
+        below — grid placement of existing markup, no Elm change.
+      - The sheet form: `#watchpoints { break-before: page }` — the
+        duplex split. Booklet keeps its steps-on-their-own-page rule;
+        card remains one page and now genuinely fits it.
+      - Chips hidden in print; plate padding, block gaps and step
+        padding tightened to the budgets; the `#history` selector
+        deleted.
+- [x] `scripts/print_test.ts` — new pins for everything statically
+      readable: no `columns:` in the ingredient rules, the cue's
+      print placement, the sheet's break-before, chips hidden, the
+      dead selector gone, the existing ink checks untouched.
+- [x] `tests/` — rendered-view tests: the gauge strip renders when
+      present and is absent when not (never a heading over blank
+      space), and the plate carries it on both recipe fixtures.
+- [x] Gauges authored for the seventeen real recipes — the numbers
+      are already in their prose; this is transcription, not
+      invention.
+- [x] **Verify from the production build** (`deno task build`, serve
+      `dist/`), per the QA ruling: all three forms in print preview,
+      OS dark mode on (the Phase 5 regression case), page counts
+      against the budgets, and the duplex sheet actually flippable —
+      front ends where the back begins.
+
+**Three bugs it turned up, all of them by looking rather than by
+reading** — which is the same way Phase 5 found the dark-mode
+palette, and the reason this phase's QA rule exists at all:
+
+- **A "COOK THIS" button printed on every sheet.** `.cook-enter` was
+  never added to print's screen-furniture list, so under the print
+  palette it set as a solid black block with knockout text at the
+  foot of the plate. It had been there since Phase 7 and nobody had
+  printed a recipe to see it. Now hidden, and the test that lists
+  the screen controls names it.
+- **Every block carried 31pt of inherited air.** `sheet.css` has a
+  bare `section { margin-top: 2.6rem }` for the prose documents, and
+  a recipe block is a `<section>` too. Print set `margin-bottom` and
+  nothing else, so the element selector governed the top — most of a
+  page's worth of dead space across a recipe, while the phase was
+  supposedly tightening density. `.recipe-block` now states both
+  sides, and a test asserts it states *both*, because setting one is
+  exactly how this hid.
+- **The gauge strip drew a rule 4pt above the plate's own.** Cosmetic,
+  and the kind of thing only a rendering shows: with the chips and
+  controls gone, the strip is the plate's last child, so its bottom
+  border doubled the plate's. Dropped on paper, kept on screen where
+  the controls still follow it.
+
+**What was verified, and how.** Headless Firefox here has no
+print-to-PDF (Phase 5 found the same), so the shipped bundle's CSS
+was served with its `@media print` blocks rewritten to `@media all`
+and rendered against a static fixture carrying the real class
+structure — the real rules, the real markup, one media word changed.
+That confirms the ingredient rows share baselines across the gutter
+when one name wraps, the cue sets beside the step number, a step
+with no cue leaves no blank line, the chips are gone, the strip is
+ruled and unbroken, and `¾ cup` reads singular beside `2 cups`.
+**Still unverified: pagination.** Page counts and where the duplex
+break actually lands are contracts against paginated output, and no
+amount of rendering a scrolling page establishes them. That needs a
+human with a print preview — as it did in Phase 5, and for the same
+reason.
+
+**One screen change, after the fact (2026-09-21).** The plate's
+controls now sit in a band: the scale and the print form on the
+left, **COOK THIS at the right edge**, vertically centred against
+the two settings rows. Stacked beneath them the button read as a
+third setting, and the right half of the plate sat empty — which the
+gauge strip made more obvious by filling that width just above it.
+DOM order is unchanged, so the tab order still runs scale → form →
+go, and below the wrap the button returns to its own full-width
+line. `.recipe-controls` joins the screen furniture that does not
+print, as a box rather than only as its children: an emptied flex
+row still contributes its gap to the page.
+
+**Otherwise untouched, deliberately:** the bench tiers, the side
+nav, the shelf (the user's call: the site reads right, the paper
+does not); cook mode; the prep card, which already has its own page
+and its own job; and the traceability footer, which was correct from
+Phase 5.
+
+**Noted and not carried:** the source cards' cut-here freezer label
+strip. Charming, genuinely useful for the casserole set — and
+knowing a recipe is a freezer recipe would be inference. If it
+comes, it comes as a picker toggle like the prep card: explicit,
+never guessed. Logged under Open items.
+
 ## Open items
 
 - ~~**Prerendered recipe HTML.**~~ **Closed 2026-09-19, at Phase 5.**
@@ -617,10 +767,21 @@ simply inherits the new block order.
   replacement for CSS print.
 - **Photos at print.** Halftone-at-build (preprocessed asset) vs
   CSS-filter-at-print. Decide on the bench in Phase 5.
-- **Example print artifact.** The reference artifact the redesign
-  brief pointed at was inaccessible (private link); the templates are
-  designed from DS-01 §09 first principles. If there are specific
-  traits from that example worth carrying, note them here.
+- ~~**Example print artifact.**~~ **Closed 2026-09-21, at Phase 10.**
+  The reference artifacts were recovered when the corpus was rebuilt
+  from them, and the traits worth carrying are now ruled one by one
+  in the Phase 10 decision block: the gauge strip, the clock-topped
+  step, the row-aligned ingredient table, the duplex front/back
+  grammar, and the density that fits a whole casserole on one leaf.
+  Not carried: the cut-here freezer label strip (below).
+- **The freezer label strip.** The source cards end with a cut-here
+  strip — dish name, frozen-on, use-by, reheat line — taped to the
+  wrapped pan. Wanting one is a property of the *recipe* (the
+  casserole set), and no schema field says so; deriving it from the
+  Keeps prose would be inference. If it comes, it is a picker toggle
+  like the prep card, and the frozen-on/use-by lines stay blank for
+  a pen — a printed date would be the sheet claiming to know when
+  you cooked.
 - **The results-row storage summary.** DS-01 §07's example row ends
   `KEEPS 14 D` / `FREEZES`, but no frontmatter field carries it and
   the Keeps block is prose. Deliberately left out of the Phase 1

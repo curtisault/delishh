@@ -11,6 +11,12 @@ effort: focused
 dietary: []
 cuisine: [american, mexican]
 print: sheet
+gauges:
+  - { label: Pan, value: 23 × 33 CM }
+  - { label: Oven, value: 175 °C / 350 °F }
+  - { label: From frozen, value: 70 + 20 MIN, note: "covered, then not" }
+  - { label: Base, value: ROUX, note: not condensed soup }
+  - { label: Freezer, value: 3 MONTHS, note: unbaked }
 ---
 
 ## Equipment

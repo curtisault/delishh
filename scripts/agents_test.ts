@@ -22,6 +22,7 @@ import {
   DIETARY,
   EFFORTS,
   FLAVORS,
+  GAUGE_MAX,
   METHODS,
   PRINT_TEMPLATES,
   SLOTS,
@@ -67,6 +68,30 @@ Deno.test("every facet list matches the vocabulary, exactly", () => {
     );
   }
 });
+
+Deno.test("the gauge cap AGENTS.md states is the cap the build enforces", () => {
+  // The heading names the number, and so does the sentence beneath
+  // it. A contract that promises five and a build that allows six
+  // teaches authors the contract exaggerates — which is the same
+  // failure the banned-word test below exists to prevent.
+  const heading = lines.find((l) => l.startsWith("### The gauge strip"));
+  assert(heading, "AGENTS.md has no gauge strip section");
+  assertEquals(
+    heading.includes(`at most ${GAUGE_MAX}`),
+    true,
+    `the heading should read "at most ${GAUGE_MAX}": ${heading}`,
+  );
+  assert(
+    doc.toLowerCase().includes(`**${numberWord(GAUGE_MAX)} is the ceiling`),
+    `the prose should name ${GAUGE_MAX} as the ceiling in words`,
+  );
+});
+
+/** Small numbers read as words in prose, which is the house voice and
+ * also why this cannot be a bare interpolation. */
+function numberWord(n: number): string {
+  return ["zero", "one", "two", "three", "four", "five", "six"][n] ?? String(n);
+}
 
 Deno.test("the block order is stated, and matches BLOCKS", () => {
   // The arrow line is prose a reader follows and a build enforces;

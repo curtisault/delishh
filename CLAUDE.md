@@ -89,6 +89,14 @@ whose only job is to be read.
   decides what a recipe is**, and everything downstream is a view of
   what it returns. Frontmatter is the schema (facets, times, yield);
   the body is the nine blocks of DS-01 §06 in fixed order.
+  Frontmatter also carries the optional **gauge strip** — up to five
+  hand-authored operating numbers (the pan, the oven, the temperature
+  it is done at) that head the plate and the printed sheet. They are
+  *authored, never derived*: every one is already somewhere in the
+  prose, and picking which number matters is a judgement, not an
+  inference. That is what separates them from `revision:`, which was
+  retired for being metadata nothing ever checked — a wrong gauge
+  fails the cook the same way a wrong step does.
 - `scripts/build-content.ts` — walks the corpus, runs the checks that
   need every file at once (photos exist on disk),
   writes the JSON. **Collects every problem before exiting**; writes
@@ -249,7 +257,7 @@ fixture must never drift under the suite. Keep it parsing.
   are classes on the recipe wrapper set by a picker that does nothing
   else; there is no print-specific JavaScript anywhere, and
   `print_test.ts` fails the build if `boot.js` grows a `beforeprint`
-  hook. Two rules that are not obvious:
+  hook. Four rules that are not obvious:
   - **Every print token override is `!important`.** A media query
     contributes no specificity, so the print palette competes with
     `theme.css` on selector weight alone and loses —
@@ -257,9 +265,24 @@ fixture must never drift under the suite. Keep it parsing.
     `:root`'s (0,1,0). Without it, a reader in dark mode prints a
     near-black page. Matching the dark selector's shape instead
     would work only while `print.css` stays last in the bundle.
-  - **`.form-sheet` is styled by nothing, deliberately** — the sheet
-    IS the base form. The class is still emitted so the wrapper
-    always names its form.
+  - **`.form-sheet` carries exactly one rule: the duplex break**
+    (`#watchpoints { break-before: page }`, added 2026-09-21).
+    Everything else in the file *is* the sheet; that one rule is
+    what makes it a two-sided leaf — procedure on the front,
+    recovery on the back — and the card and booklet both opt out
+    explicitly.
+  - **Ingredients are a grid on paper, never `columns:`.** A flowed
+    column balances by height, so one wrapped name drifts the two
+    stacks apart and every hairline stops at the gutter. `.ing-list`
+    sets two equal tracks and the rows share a baseline, which is
+    the only reason to draw the rules at all. A test forbids
+    `columns:` coming back.
+  - **A print rule must state every side of a box it cares about.**
+    `sheet.css` carries a bare `section { margin-top: 2.6rem }` for
+    the prose documents, and a recipe block is a `<section>` too. A
+    class beats that element selector only for properties it
+    actually names — setting `margin-bottom` alone silently left
+    ≈31pt above every block on the sheet.
 - `src/Shelf.elm` / `src/Page/Shelf.elm` — the front page. **The
   loudest surface in the product**, and the only one where
   `--shelf-*` tokens and decoration belong. Two things worth knowing:

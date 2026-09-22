@@ -11,6 +11,12 @@ effort: project
 dietary: [vegetarian]
 cuisine: [american]
 print: booklet
+gauges:
+  - { label: Oil, value: 185 °C / 365 °F, note: holding it is the recipe }
+  - { label: Chill, value: 2 H, note: "minimum, or overnight" }
+  - { label: Fry, value: 90 S A SIDE, note: three at a time }
+  - { label: Cutter, value: 7.5 CM, note: 2.5 cm center }
+  - { label: Raw rings, value: 1 MONTH, note: fry from frozen }
 ---
 
 ## Equipment

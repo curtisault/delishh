@@ -1,5 +1,6 @@
 module Recipe exposing
     ( Amount
+    , Gauge
     , Ingredient
     , IngredientGroup
     , Recipe
@@ -48,6 +49,7 @@ type alias Recipe =
     , cuisine : List String
     , print : String
     , photo : Maybe String
+    , gauges : List Gauge
     , ingredients : List IngredientGroup
     , equipment : List String
     , steps : List Step
@@ -60,6 +62,18 @@ type alias Recipe =
 
 type alias Yield =
     { amount : Float, unit : String, servings : Maybe Int }
+
+
+{-| One operating number from the plate (DS-01 §06, amended
+2026-09-21) — the pan, the oven, the temperature it is done at.
+
+Authored in the frontmatter, never derived from the prose: which of a
+recipe's numbers is the one you check with your hands full is a
+judgement, and the build does not make judgements (§12).
+
+-}
+type alias Gauge =
+    { label : String, value : String, note : Maybe String }
 
 
 type alias Amount =
@@ -184,6 +198,7 @@ decoder =
         |> field "cuisine" (D.list D.string)
         |> field "print" D.string
         |> field "photo" (D.nullable D.string)
+        |> field "gauges" (D.list gaugeDecoder)
         |> field "ingredients" (D.list groupDecoder)
         |> field "equipment" (D.list D.string)
         |> field "steps" (D.list stepDecoder)
@@ -191,6 +206,14 @@ decoder =
         |> field "rescues" (D.list rescueDecoder)
         |> field "keeps" (D.list D.string)
         |> field "note" (D.list D.string)
+
+
+gaugeDecoder : Decoder Gauge
+gaugeDecoder =
+    D.map3 Gauge
+        (D.field "label" D.string)
+        (D.field "value" D.string)
+        (D.field "note" (D.nullable D.string))
 
 
 yieldDecoder : Decoder Yield

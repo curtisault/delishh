@@ -11,6 +11,12 @@ effort: focused
 dietary: []
 cuisine: [american]
 print: sheet
+gauges:
+  - { label: Pan, value: 23 × 33 CM, note: or two 20 cm squares }
+  - { label: Soak, value: 4 H, note: overnight is better }
+  - { label: Oven, value: 175 °C / 350 °F }
+  - { label: Done at, value: 74 °C / 165 °F, note: "center, checked" }
+  - { label: Freezer, value: 2 MONTHS, note: shortest in the set }
 ---
 
 ## Equipment

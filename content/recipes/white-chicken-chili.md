@@ -11,6 +11,12 @@ effort: focused
 dietary: []
 cuisine: [american, mexican]
 print: sheet
+gauges:
+  - { label: Format, value: BAGS, note: "4 cups each, laid flat" }
+  - { label: Body, value: PURÉED BEANS, note: no dairy in the pot }
+  - { label: From frozen, value: 20–25 MIN, note: "stovetop, covered" }
+  - { label: From thawed, value: 10 MIN }
+  - { label: Freezer, value: 4 MONTHS, note: flat-stacked }
 ---
 
 ## Equipment

@@ -97,6 +97,11 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   { fg: "tx-dim", bg: "surface", min: 4.5 },
   { fg: "mark", bg: "surface", min: 4.5 },
   { fg: "here", bg: "surface", min: 4.5 },
+  // The marked rail row. Its mark is a field as well as a bar, so
+  // the field is a ground with glyphs on it and gets measured like
+  // one — the whole reason it is a token and not a `color-mix`.
+  { fg: "tx", bg: "here-fill", min: 4.5 },
+  { fg: "data-accent", bg: "here-fill", min: 4.5 },
   { fg: "tx", bg: "panel", min: 4.5 },
   { fg: "tx", bg: "tint", min: 4.5 },
   { fg: "stencil-tx", bg: "stencil-bg", min: 4.5 },
@@ -117,6 +122,12 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   { fg: "shelf-tx", bg: "shelf-cold", min: 4.5 },
   { fg: "shelf-tx", bg: "shelf-heat", min: 4.5 },
   { fg: "shelf-tx", bg: "shelf-live", min: 4.5 },
+
+  // The cook-mode button: --ink on the heat fill, not --shelf-tx.
+  // Same hex in light and a different one in dark, which is exactly
+  // why the role gets its own pair instead of leaning on the shelf
+  // row above it.
+  { fg: "ink", bg: "accent-heat", min: 4.5 },
 
   // Structural rules are lines, not glyphs: AA's non-text bar.
   { fg: "rule", bg: "surface", min: 3 },

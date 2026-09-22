@@ -29,6 +29,7 @@ import {
   EFFORTS,
   FLAVORS,
   FRACTIONS,
+  GAUGE_MAX,
   METHODS,
   PRINT_TEMPLATES,
   PROCEDURE_BLOCKS,
@@ -95,6 +96,17 @@ export type Rescue = {
   text: string;
 };
 
+/** One operating number from the plate (DS-01 §06 amendment,
+ * 2026-09-21): the pan, the oven, the temperature it is done at.
+ *
+ * **Authored, never derived.** Every one of these is already
+ * somewhere in the document — in an equipment line, inside a cue, in
+ * the middle of a Keeps paragraph — and lifting them out
+ * mechanically would mean guessing which of a recipe's numbers is the
+ * one you check with your hands full. Nothing is ever inferred
+ * (DS-01 §12). */
+export type Gauge = { label: string; value: string; note: string | null };
+
 export type Recipe = {
   slug: string;
   title: string;
@@ -111,6 +123,9 @@ export type Recipe = {
   cuisine: string[];
   print: string;
   photo: string | null;
+  /** Empty when the recipe has none, which is the honest answer for a
+   * drink blended until it is smooth. Never a placeholder row. */
+  gauges: Gauge[];
   ingredients: IngredientGroup[];
   equipment: string[];
   steps: Step[];
@@ -282,6 +297,7 @@ const ALLOWED_KEYS = [
   "cuisine",
   "print",
   "photo",
+  "gauges",
 ];
 
 type Frontmatter = Record<string, unknown>;
@@ -497,6 +513,88 @@ export function parseRecipe(
       );
     } else {
       photo = fm.photo.trim();
+    }
+  }
+
+  // --- gauges: the operating numbers (DS-01 §06, amended 2026-09-21) -------
+  //
+  // Optional, and an absent strip is the honest answer for a recipe
+  // whose tell is not a number. What this validates is shape only: a
+  // gauge's *content* is the cook's, the same way a step's is.
+
+  const gauges: Gauge[] = [];
+  if (fm.gauges !== undefined) {
+    if (!Array.isArray(fm.gauges)) {
+      fail(
+        "frontmatter.gauges",
+        "must be a list of `{ label, value }` entries, or absent — the " +
+          "operating numbers you check with your hands full (DS-01 §06).",
+        at("gauges"),
+      );
+    } else if (fm.gauges.length > GAUGE_MAX) {
+      fail(
+        "frontmatter.gauges",
+        `${fm.gauges.length} gauges, and ${GAUGE_MAX} is the ceiling. The cap ` +
+          `is the feature: a strip you cannot take in at a glance is prose ` +
+          `wearing a table's clothes, and prose belongs in the blocks.`,
+        at("gauges"),
+      );
+    } else {
+      fm.gauges.forEach((raw, i) => {
+        const where = `frontmatter.gauges[${i}]`;
+        if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+          fail(
+            where,
+            "is not a `{ label, value }` entry. A bare string cannot say " +
+              "which half of it is the number.",
+            at("gauges"),
+          );
+          return;
+        }
+        const entry = raw as Record<string, unknown>;
+        for (const key of Object.keys(entry)) {
+          if (!["label", "value", "note"].includes(key)) {
+            fail(
+              `${where}.${key}`,
+              "is not part of a gauge. A gauge is `label`, `value`, and an " +
+                "optional `note` — three fields, because a fourth would be a " +
+                "sentence.",
+              at("gauges"),
+            );
+          }
+        }
+        const text = (key: "label" | "value"): string | null => {
+          const v = entry[key];
+          if (typeof v !== "string" || !v.trim()) {
+            fail(
+              `${where}.${key}`,
+              `missing. A gauge without a ${key} is half a fact: ` +
+                `\`{ label: Oven, value: 190 °C }\` reads at a metre, and ` +
+                `either half alone reads as nothing.`,
+              at("gauges"),
+            );
+            return null;
+          }
+          return v.trim();
+        };
+        const label = text("label");
+        const value = text("value");
+        if (entry.note !== undefined && typeof entry.note !== "string") {
+          fail(
+            `${where}.note`,
+            "must be a string, or absent. The note is the aside after the " +
+              "number — `covered`, `center`, `flat bags` — never a list.",
+            at("gauges"),
+          );
+        }
+        if (label !== null && value !== null) {
+          const note =
+            typeof entry.note === "string" && entry.note.trim()
+              ? entry.note.trim()
+              : null;
+          gauges.push({ label, value, note });
+        }
+      });
     }
   }
 
@@ -729,6 +827,21 @@ export function parseRecipe(
     }
   }
 
+  // A gauge is procedure, not the note's human voice: it is read at
+  // the bench, in the same register as a step, so it answers to the
+  // same words. The Note's exemption is the *one* exemption (§11).
+  for (const g of gauges) {
+    const text = [g.label, g.value, g.note].filter(Boolean).join(" · ");
+    for (const rule of WORD_RULES) {
+      rule.pattern.lastIndex = 0;
+      let hit: RegExpExecArray | null;
+      while ((hit = rule.pattern.exec(text)) !== null) {
+        fail("words", `"${hit[0]}" in a gauge — ${rule.because}`, at("gauges"));
+        if (hit[0].length === 0) rule.pattern.lastIndex++;
+      }
+    }
+  }
+
   if (problems.length) return { recipe: null, problems };
 
   return {
@@ -751,6 +864,7 @@ export function parseRecipe(
       cuisine,
       print,
       photo,
+      gauges,
       ingredients,
       equipment,
       steps,

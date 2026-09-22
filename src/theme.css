@@ -108,6 +108,19 @@
                               layer exists to fix, so it takes that
                               cut rather than the fill. */
 
+  /* The marked row's whole field, not just its bar (revised
+     2026-09-21, against the proof sheet's spine). Minted as its own
+     hex rather than a `color-mix` of the acid, because a mixed
+     colour is a ground nothing can measure and this file's contract
+     is that every ground a glyph lands on carries its number.
+
+     Volt at ~30% here and ~10% after dark: the lit cut needs three
+     times as much acid because volt and the lit ground sit at almost
+     the same luminance — the same fact that keeps volt off light
+     text (§04), which is why this pair's numbers are large and its
+     visible difference is chroma rather than lightness. */
+  --here-fill: #d9eaa0; /* --tx on it 14.24:1 · --data-accent on it 14.24:1 */
+
   /* ---- the shelf layer: acid as a FILL, ink on top (DS-01 §04) ----
      Browse surfaces only. Every ratio is ink-on-fill, measured. */
   --shelf-act: #b9ee00; /* volt · --shelf-tx on it 13.42:1 */
@@ -129,6 +142,18 @@
      a fill, with --ink on it. It is the shelf cut, because every
      surface that draws it draws it as a block. */
   --accent: var(--shelf-act);
+
+  /* The one actionable that names its DESTINATION instead of itself:
+     the way into cook mode, where the food goes on the heat (§04,
+     amended 2026-09-21). A named role rather than `--shelf-heat`
+     used directly, because a --shelf-* token on a recipe surface is
+     a bug and this is the single sanctioned exception — the name is
+     what keeps it one exception instead of a loophole.
+
+     Defined once. A custom property substitutes at use time, so this
+     follows --shelf-heat into either theme without being restated
+     there; contrast_test.ts resolves it the same way. */
+  --accent-heat: var(--shelf-heat);
 
   /* ---- type: four voices, strictly cast (DS-01 §05) ----
      A glyph's typeface tells you what KIND of information it is.
@@ -183,6 +208,7 @@
     --mark: var(--accent);
     --data-accent: var(--accent);
     --here: var(--accent);
+    --here-fill: #1d250e; /* --tx on it 12.92:1 · --data-accent on it 13.42:1 */
 
     /* the shelf layer — brighter cuts, ratios are ink-on-fill */
     --shelf-act: #c8ff00; /* --shelf-tx on it 16.48:1 */
@@ -220,6 +246,7 @@
   --mark: var(--accent);
   --data-accent: var(--accent);
   --here: var(--accent);
+  --here-fill: #1d250e; /* --tx on it 12.92:1 · --data-accent on it 13.42:1 */
 
   /* the shelf layer — brighter cuts, ratios are ink-on-fill */
   --shelf-act: #c8ff00; /* --shelf-tx on it 16.48:1 */

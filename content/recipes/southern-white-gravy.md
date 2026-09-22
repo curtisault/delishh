@@ -11,6 +11,12 @@ effort: focused
 dietary: []
 cuisine: [american]
 print: card
+gauges:
+  - { label: Pan, value: 25 CM, note: "cast iron, wide" }
+  - { label: Ratio, value: "4 : 4 : 2 CUPS", note: "fat : flour : milk" }
+  - { label: Roux, value: BLOND, note: never browned }
+  - { label: Simmer, value: 8 MIN, note: the step everyone skips }
+  - { label: Fridge, value: 3 DAYS, note: never the freezer }
 ---
 
 ## Equipment

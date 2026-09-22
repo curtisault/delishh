@@ -48,6 +48,9 @@ print: sheet
 photo: salted-caramel.avif   # optional; the file must exist in
                              # public/photos — omit the field if
                              # there is no photograph
+gauges:                      # optional; at most 5 — see below
+  - { label: Pan, value: 20 cm, note: pale interior }
+  - { label: Take it to, value: 175–180 °C, note: deep amber }
 ---
 ```
 
@@ -63,6 +66,32 @@ Rules that trip people:
 - **`yield.unit`** is one of: `g` · `kg` · `ml` · `l` · `pieces`
 - **A misspelled key** gets a "did you mean" from the build; a
   misspelled *value* gets the vocabulary list.
+
+### The gauge strip — optional, at most 5
+
+The recipe's **operating numbers**: the pan, the oven, the
+temperature it is done at, how long it lives in a freezer. They print
+at the top of every form and sit on the plate on screen, which makes
+them the thing you re-read from a metre away with your hands full.
+
+- Each entry is `{ label, value }` with an optional `note`. All three
+  are free text — they are *your* numbers, not a vocabulary.
+- **Five is the ceiling, and the cap is the point.** A sixth is the
+  one that turns a glance into a search, and a number nobody glances
+  at is better off in the prose it came from.
+- **Author them; never derive them.** Every gauge already exists
+  somewhere in the document. Copy it up deliberately — picking which
+  number matters is a judgement the build must not make for you
+  (DS-01 §12: nothing is ever inferred).
+- **The word rules apply**, exactly as they do to a step. A gauge is
+  procedure, not the note's human voice.
+- **A comma inside a `{ }` entry must be quoted** — YAML reads a bare
+  comma as the next key, so `note: "bitter, and it does not come
+  back"` needs its quotes. The build rejects the unquoted form, but
+  the error names a key you never wrote, so it is worth knowing why.
+- **Omit the field when the recipe has no number worth the plate.** A
+  drink blended until it is smooth is blended until it is smooth, and
+  no temperature will tell you more than that.
 
 ### The closed vocabularies
 
@@ -224,6 +253,7 @@ effort: relaxed
 dietary: []
 cuisine: []
 print: sheet
+gauges: []
 ---
 
 ## Equipment

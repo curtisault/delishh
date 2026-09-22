@@ -11,6 +11,12 @@ effort: project
 dietary: []
 cuisine: [french, american]
 print: sheet
+gauges:
+  - { label: Onions, value: 45 MIN, note: jammy and mahogany }
+  - { label: Bread, value: 1 CM, note: "sourdough, cut thick" }
+  - { label: Griddle, value: MEDIUM-LOW, note: "4–5 min a side, covered" }
+  - { label: One puck, value: ⅓ CUP, note: one sandwich }
+  - { label: Freezer, value: 3 MONTHS, note: onions only }
 ---
 
 ## Equipment

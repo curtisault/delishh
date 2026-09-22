@@ -133,6 +133,17 @@ export const CUISINES = [
  * a recipe's default. */
 export const PRINT_TEMPLATES = ["sheet", "card", "booklet"] as const;
 
+/** How many gauges a recipe may carry (DS-01 §06 amendment,
+ * 2026-09-21).
+ *
+ * The cap is the feature. A gauge strip is what you read from a metre
+ * away with your hands full, and a sixth entry is the one that turns
+ * a glance into a search — at which point the numbers would be better
+ * off back in the prose they came from. Five is also what fits the
+ * plate's width at the data voice's size without wrapping, on paper
+ * and on a narrow screen alike. */
+export const GAUGE_MAX = 5;
+
 // ---------------------------------------------------------------------------
 // Units — the measurement ladder of DS-01 §05
 // ---------------------------------------------------------------------------

@@ -170,7 +170,18 @@ Deno.test("screen controls do not print", () => {
   // and paper has nothing to press.
   const hidden = blockAfter(PRINT, ".site-nav,");
   assert(/display:\s*none/.test(hidden), "screen controls are not hidden in print");
-  for (const control of [".scaler", ".printer", ".recipe-back", ".recipe-nav"]) {
+  // The band itself goes too, not only its children: an emptied flex
+  // row still contributes its gap to the page.
+  for (
+    const control of [
+      ".recipe-controls",
+      ".scaler",
+      ".printer",
+      ".recipe-back",
+      ".recipe-nav",
+      ".cook-enter",
+    ]
+  ) {
     assert(
       PRINT.includes(control),
       `${control} is not in the print-hidden list`,
@@ -179,17 +190,9 @@ Deno.test("screen controls do not print", () => {
 });
 
 Deno.test("all three forms are styled, and prep rides alongside", () => {
-  for (const form of ["form-card", "form-booklet"]) {
+  for (const form of ["form-card", "form-booklet", "form-sheet"]) {
     assert(css.includes(form), `${form} is never styled in print.css`);
   }
-  // `form-sheet` is a class Elm emits that no rule targets, because
-  // the sheet IS the base and adds nothing. That is a decision, not
-  // an oversight, so the file has to say so by name where a reader
-  // greps for it.
-  assert(
-    source.includes("form-sheet"),
-    "form-sheet is styled by nothing and explained nowhere — say which",
-  );
   assert(
     /\.with-prep\s+\.prep-card[\s\S]*?break-before:\s*page/.test(PRINT),
     "the prep card does not start its own page",
@@ -228,6 +231,127 @@ Deno.test("@page margins are physical units", () => {
     margin.split(/\s+/).every((v) => /^[\d.]+(mm|cm|in|pt)$/.test(v)),
     `@page margin is \`${margin}\` — not physical units`,
   );
+});
+
+// --- the page, not the printout (§09, amended 2026-09-21) ------------------
+
+Deno.test("ingredients set as a grid, never as flowed columns", () => {
+  // `columns: 2` balances by HEIGHT, so one wrapped ingredient name
+  // drifts the two stacks apart and the hairline under each row stops
+  // at the gutter. The bug reads as a broken table because it is a
+  // list impersonating one.
+  const list = blockAfter(PRINT, ".ing-list");
+  assert(
+    !/(^|[;{\s])columns:/.test(list),
+    ".ing-list flows its columns again — rows will not share a baseline",
+  );
+  assert(
+    /grid-template-columns:\s*1fr\s+1fr/.test(list),
+    ".ing-list is not a two-track grid on paper",
+  );
+  // The card's denser version must be the SAME grid, not a third
+  // layout — otherwise there are two ingredient renderers to reason
+  // about and only one of them is ever looked at.
+  const cardList = blockAfter(PRINT, ".form-card .ing-list");
+  assert(
+    !/(^|[;{\s])columns:/.test(cardList),
+    "the card form still flows its ingredient columns",
+  );
+  assert(
+    /grid-template-columns:\s*repeat\(3/.test(cardList),
+    "the card's ingredient grid is not three tracks",
+  );
+});
+
+Deno.test("the cue rides the step's number line", () => {
+  // On paper the clock and the tell sit beside the step number, where
+  // a standing reader scans for their place. The wrapper dissolves so
+  // both become grid items of the step itself.
+  const body = blockAfter(PRINT, ".step-body");
+  assert(
+    /display:\s*contents/.test(body),
+    ".step-body still boxes the cue below the text on paper",
+  );
+  assertEquals(declaration(".step-cue", "grid-row"), "1", "the cue is not on row 1");
+  assertEquals(declaration(".step-cue", "grid-column"), "2", "the cue is not beside the number");
+  assertEquals(declaration(".step-n", "grid-row"), "1", "the number is not on row 1");
+  // The text names its column but NOT its row, so it lands under a
+  // cue when there is one and on the number's own line when there is
+  // not — no empty first line either way.
+  assertEquals(declaration(".step-text", "grid-column"), "2");
+  assertEquals(
+    declaration(".step-text", "grid-row"),
+    undefined,
+    "pinning the text's row leaves a blank line on a step with no cue",
+  );
+});
+
+Deno.test("the sheet folds at the bench seam, and only the sheet", () => {
+  // Procedure on the front, recovery on the back. The break is before
+  // WATCHPOINTS: a watchpoint is read before trouble, so it belongs
+  // with the reference half rather than at the end of the procedure.
+  assert(
+    /\.form-sheet\s+#watchpoints[\s\S]*?break-before:\s*page/.test(PRINT),
+    "the sheet does not break before Watchpoints — it is a printout, not a leaf",
+  );
+  // A card is one page by contract, and the booklet already starts
+  // its steps on a fresh page. Both opt out explicitly.
+  for (const form of [".form-card", ".form-booklet"]) {
+    assertEquals(
+      declaration(`${form} #watchpoints`, "break-before"),
+      "auto",
+      `${form} inherits the sheet's duplex break`,
+    );
+  }
+});
+
+Deno.test("facet chips do not print", () => {
+  // Facets exist so you can FIND a recipe (§07). A sheet in your hand
+  // has been found, and the ink goes to the gauge strip instead.
+  const chips = blockAfter(PRINT, ".recipe-chips");
+  assert(
+    /display:\s*none/.test(chips),
+    "the facet chips still cost ink on paper",
+  );
+});
+
+Deno.test("the gauge strip prints, ruled and unbroken", () => {
+  const strip = blockAfter(PRINT, ".recipe-gauges");
+  assert(/border-top:/.test(strip) && /border-bottom:/.test(strip), "the strip is not ruled");
+  assert(
+    /break-inside:\s*avoid/.test(strip),
+    "the gauge strip may split across a page — the one band that must not",
+  );
+  // It may set larger than the body: it is read from a metre away.
+  const value = points(declaration(".recipe-gauge-v", "font-size"));
+  assert(value !== undefined && value >= 11, `gauge values at ${value}pt — under the body floor`);
+});
+
+Deno.test("a recipe block states its own margin, both sides", () => {
+  // `sheet.css` carries a bare `section { margin-top: 2.6rem }` for
+  // the prose documents, and a recipe block is a <section> too. This
+  // class beats that element selector — but only for properties it
+  // actually names. Setting margin-bottom alone left ≈31pt of
+  // inherited air above every block on the sheet.
+  const block = blockAfter(PRINT, ".recipe-block");
+  const margin = block.match(/(?:^|[;{\s])margin:\s*([^;]+)/)?.[1]?.trim();
+  assert(
+    margin,
+    ".recipe-block sets margin-bottom only — sheet.css's `section` rule governs the top",
+  );
+  assert(
+    margin.split(/\s+/).length >= 2,
+    `.recipe-block margin is \`${margin}\` — the top is still inherited`,
+  );
+});
+
+Deno.test("no rule styles a block the schema no longer has", () => {
+  // `#history` outlived the block by one revision (retired
+  // 2026-09-21). A selector for something that cannot render is dead
+  // weight that reads as intent.
+  for (const dead of ["#history", "#revision", ".recipe-number"]) {
+    assert(!css.includes(dead), `print.css still styles \`${dead}\`, which nothing emits`);
+  }
 });
 
 Deno.test("the print path carries no JavaScript hook", () => {

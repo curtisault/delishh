@@ -11,6 +11,12 @@ effort: relaxed
 dietary: [vegetarian]
 cuisine: [american]
 print: card
+gauges:
+  - { label: Pan, value: 23 × 13 CM, note: "metal, parchment sling" }
+  - { label: Bananas, value: BLACK, note: speckled will not do }
+  - { label: Oven, value: 175 °C / 350 °F, note: 55–65 min }
+  - { label: Done at, value: 96 °C / 205 °F, note: center }
+  - { label: Counter, value: 4 DAYS, note: never the fridge }
 ---
 
 ## Equipment

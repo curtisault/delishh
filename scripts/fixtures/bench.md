@@ -11,6 +11,11 @@ effort: focused
 dietary: [vegetarian, gluten-free]
 cuisine: []
 print: sheet
+gauges:
+  - { label: Pan, value: 20 cm, note: pale interior }
+  - { label: Cream, value: 40 °C, note: held }
+  - { label: Take it to, value: 175–180 °C, note: deep amber }
+  - { label: Past, value: 190 °C, note: "bitter, and it does not come back" }
 ---
 
 ## Equipment

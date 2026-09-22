@@ -133,10 +133,18 @@ because the amount changes under a unit that cannot.
 
 Symbols never inflect — `2 g`, `3 tsp`. Words do.
 
+**A word inflects above one, not away from one.** The first version of
+this tested `amountText == "1"`, which is true of exactly one amount
+and false of every fraction below it, so the sheet read `¾ cups` and
+`⅓ cups`. Under one is singular in English — you have three quarters
+of *a cup* — so the question the unit is asking is "is this more than
+one", and it has to be asked of the amount's value rather than of its
+spelling.
+
 -}
 unitLabel : String -> String -> String
 unitLabel amountText unit =
-    if amountText == "1" || not (List.member unit plurals) then
+    if not (List.member unit plurals) || not (exceedsOne amountText) then
         unit
 
     else if unit == "bunch" then
@@ -152,6 +160,111 @@ unitLabel amountText unit =
 plurals : List String
 plurals =
     [ "clove", "can", "sprig", "head", "stick", "sheet", "bunch", "slice", "cup" ]
+
+
+{-| Whether an amount, as it was rendered, reads as more than one.
+
+**A range judges by its high end.** `1–2 cups` is right and `1–2 cup`
+is not: the unit agrees with the largest measure the line offers, the
+same way English does when you read it aloud.
+
+-}
+exceedsOne : String -> Bool
+exceedsOne amountText =
+    magnitude (highEnd amountText) > 1
+
+
+{-| The upper end of a range, or the whole string when it is not one.
+-}
+highEnd : String -> String
+highEnd amountText =
+    String.split "–" amountText
+        |> List.reverse
+        |> List.head
+        |> Maybe.withDefault amountText
+
+
+{-| The numeric value of an amount as rendered: `1½` is 1.5, `¾` is
+0.75, `440` is 440.
+
+Not a parser for arbitrary text — it reads exactly the two shapes this
+module emits (a decimal run, optionally followed by one fraction
+glyph) and answers 0 for anything else, which lands on singular. A
+unit with no number in front of it has no plural to take.
+
+-}
+magnitude : String -> Float
+magnitude amountText =
+    let
+        trimmed =
+            String.trim amountText
+
+        digits =
+            String.filter (\c -> Char.isDigit c || c == '.') trimmed
+    in
+    Maybe.withDefault 0 (String.toFloat digits)
+        + (String.toList trimmed
+            |> List.filterMap glyphValue
+            |> List.head
+            |> Maybe.withDefault 0
+          )
+
+
+{-| The fraction glyphs of DS-01 §05, as values. The list is
+`scripts/vocabulary.ts`'s `FRACTIONS` — the build writes these and
+this reads them, so a glyph added there and not here reads as zero
+and takes the singular, which is wrong but never wildly wrong.
+-}
+glyphValue : Char -> Maybe Float
+glyphValue c =
+    case c of
+        '½' ->
+            Just 0.5
+
+        '⅓' ->
+            Just (1 / 3)
+
+        '⅔' ->
+            Just (2 / 3)
+
+        '¼' ->
+            Just 0.25
+
+        '¾' ->
+            Just 0.75
+
+        '⅕' ->
+            Just 0.2
+
+        '⅖' ->
+            Just 0.4
+
+        '⅗' ->
+            Just 0.6
+
+        '⅘' ->
+            Just 0.8
+
+        '⅙' ->
+            Just (1 / 6)
+
+        '⅚' ->
+            Just (5 / 6)
+
+        '⅛' ->
+            Just 0.125
+
+        '⅜' ->
+            Just 0.375
+
+        '⅝' ->
+            Just 0.625
+
+        '⅞' ->
+            Just 0.875
+
+        _ ->
+            Nothing
 
 
 

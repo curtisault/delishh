@@ -207,6 +207,38 @@ cold chain, magenta = live culture, volt = the action to take now.
 - **One acid dominates a recipe page; a second may cameo; never
   three.** The shelf can be a riot; the page cannot.
 
+> **Amendment 2026-09-21 — an action may wear the colour of what it
+> opens.** The table above gives volt to "the actionable — the
+> primary verb on any surface", and **COOK THIS is now orange**. The
+> rule it bends is real, so here is the reasoning in full.
+>
+> A button can name one of two things: that it is a button, or where
+> it goes. Volt names the first, and on a page with exactly one
+> primary action that is a fact the reader already has — nothing
+> else on a recipe page is a filled block. Orange names the second:
+> cook mode is the surface you open when the food goes on the heat,
+> and heat is what orange has meant here since Revision 2.
+>
+> **The hazard reading survives because the two never share a
+> screen.** Orange also carries alarm in cook mode — a refused wake
+> lock, an expired timer — and an acid that meant "go" and "look
+> out" in one place would be worth refusing. It does not: the button
+> lives on the recipe page and the alarms live in cook mode, one
+> click apart and never together. Both alarms also carry their
+> words, which is §04's own guarantee that no meaning rides on a
+> colour alone.
+>
+> **The counting rule is unaffected, and often improved.** On a bake,
+> fry, sear or sugar-work recipe the page's dominant acid is already
+> heat, so the plate's method word and its button now agree and the
+> surface runs on *one* acid. On a cold or live recipe it is a
+> dominant plus one cameo. Never three, as before.
+>
+> Volt keeps every other actionable role — it is still what
+> `--accent` means, and nothing else moved. The button takes a named
+> role of its own (`--accent-heat`), so this is one deliberate
+> exception rather than a loosening of what volt is for.
+
 ### Themes
 
 Light and dark are the viewer's choice (System/Light/Dark, already
@@ -291,6 +323,9 @@ dietary: [vegetarian, gluten-free]   # verified flags only — absence means unv
 cuisine: []                # optional tags; empty is honest
 print: sheet               # sheet | card | booklet — default template (§09)
 photo: salted-caramel.avif # optional; omitted means no photo, never a placeholder
+gauges:                    # optional; up to five operating numbers (§09)
+  - { label: Pan, value: 20 cm, note: pale interior }
+  - { label: Take it to, value: 175–180 °C, note: deep amber }
 ---
 ```
 
@@ -341,9 +376,33 @@ Adding a value is a deliberate act, not a typo surviving review.
 > how a recipe got here belongs in the note, which was always the
 > better home for it.
 
+> **Amendment 2026-09-21 — the gauge strip.**
+> The frontmatter gains one optional field, `gauges:` — at most five
+> entries, each a label and a value with an optional note. These are
+> the recipe's **operating numbers**: the pan, the oven, the
+> temperature a thing is done at, the life of the thing in a freezer.
+> They ride on the header plate (block 1) and print at the top of
+> every form (§09).
+>
+> **They are authored, never derived, and that is the whole
+> decision.** Every one of these numbers is already somewhere in the
+> document — in an equipment line, inside a step's cue, in the middle
+> of a Keeps paragraph. Lifting them out mechanically would mean
+> guessing which of a recipe's numbers is the one you check with your
+> hands full, and §12's rule is that nothing is ever inferred. So the
+> cook names them, and the cost is borne where every other line of
+> this document bears it: a gauge is read at the bench, and a wrong
+> one fails the cook the same way a wrong step does. That is a
+> different thing from `revision:`, which nothing ever checked —
+> the reason this field is allowed and that counter was not.
+>
+> Optional, and empty is the honest answer. Not every recipe has an
+> operating number worth the plate: a Frosty is blended until it is
+> smooth, and no temperature will tell you more than that.
+
 | # | Block | Carries |
 |---|-------|---------|
-| 1 | Header plate | Rendered from frontmatter: name, method mark, last-batch date, yield, times |
+| 1 | Header plate | Rendered from frontmatter: name, method mark, last-batch date, yield, times, and the gauge strip if the recipe has one |
 | 2 | Photo | One photograph. One. Absent if none — never a grey box |
 | 3 | Equipment | Named with the dimensions and materials that change the result |
 | 4 | Ingredients | Grouped by sub-preparation, mass-first, scalable |
@@ -505,6 +564,61 @@ light is bad, and something is on the heat.
 > file — the screen never pretends to be paper and the paper never
 > apologizes for not being the screen.
 
+> **Amendment 2026-09-21 — the sheet is a page, not a printout.**
+> Everything below this block was written before there was anything
+> to print. It described ink, margins and breaks correctly, and the
+> first real print run — seventeen recipes, cooked from — showed what
+> it had left out: a *page*. What came off the printer was the screen
+> document linearised, carrying the screen's whitespace and the
+> screen's furniture, and spending four pages on two pages of
+> content. Five rules follow, and they are what the rest of this
+> section is now read through.
+>
+> **The gauge strip prints at the top of every form.** Up to five
+> operating numbers from the frontmatter (§06), set as a rule of
+> label-over-value in the data voice, directly beneath the plate.
+> This is the first thing the eye lands on from a metre away and the
+> thing you re-check with your hands full — the pan, the oven, the
+> temperature it is done at. It is ink well spent because it answers
+> questions the bench actually asks.
+>
+> **Facet chips do not print.** Not flavour, not slot, not effort,
+> not cuisine — and not dietary. Facets exist so you can *find* a
+> recipe (§07), and a sheet in your hand has been found. The strip
+> above replaces them in the same band of the page, which is the
+> honest trade: the ink goes to the numbers you cook by instead of
+> the words you searched by. (Dietary was argued for and lost: the
+> ingredients are on the same sheet, and a lone chip row that
+> answers one facet of four invites the reader to think the others
+> were checked.)
+>
+> **The cue rides on the step's number line.** On screen a cue sits
+> beneath its step, where you read down. On paper it sets to the
+> right of the step number, on the same line — clock and tell
+> together, at the left edge where a standing reader scans for their
+> place. The step's prose sits below it. Nothing is re-authored; the
+> sheet sets the same words in a different order, which is what two
+> renderings of one file means.
+>
+> **Ingredients set as a table, not as columns.** Two columns of
+> quantities are right (§09 has always said the held half of the page
+> should not be wasted), but flowed columns are wrong: a flowed
+> column balances by height, so the two stacks drift out of step and
+> the rule under each line stops at the gutter. It reads as a broken
+> table because it is a list pretending to be one. The sheet sets a
+> real grid — quantity, name, quantity, name — so rows share a
+> baseline and every rule runs the width it appears to.
+>
+> **The sheet breaks before Watchpoints, and that makes it duplex.**
+> The block order already splits on the bench seam: Equipment,
+> Ingredients and Steps are what you do; Watchpoints, Rescues, Keeps
+> and the Note are what you consult when it goes wrong or when it is
+> over. One page break at that seam turns the default form into a
+> two-sided leaf — procedure on the front, recovery on the back —
+> which is how a working recipe card has always been laid out. The
+> break is in the form, not in the content: the same nine blocks, in
+> the same order, folded where they already divided.
+
 ### Four templates
 
 The print system is CSS (`@media print`), selected per recipe by the
@@ -513,13 +627,21 @@ time. All templates share the ink discipline and the footer.
 
 | Template | Pages | For | Shape |
 |----------|-------|-----|-------|
-| `sheet` | 1–2 | The default workhorse | Ingredients in two columns up top; numbered steps with temps/times/tells inline; watchpoints and rescues boxed; note and footer at the bottom |
+| `sheet` | 2, one duplex leaf | The default workhorse | Front: the gauge strip, equipment, the ingredient table, the numbered steps with their cues on the number line. Back: watchpoints, rescues, keeps, the note, and the footer |
 | `card` | 1 | Simple recipes cooked from memory-plus-a-glance | Dense single page, larger type, abbreviated steps; fits a card box or the fridge door |
 | `booklet` | ≤4 | Multi-component or multi-day recipes | Page 1 is the overview: component map, full timeline, combined ingredient list. Then one section per component, never split across a page break |
 | `prep` | ½–1 | The day before | Supplemental, printable alongside any of the above: shopping list with quantities, plus prep tasks (cuts, pre-measures, holds) as a checklist |
 
 **Four pages is the ceiling, not a target.** If a recipe won't fit
 the booklet, that's a signal about the recipe.
+
+**The page counts in that table are a contract, not an aspiration.**
+A card that runs to two pages is a bug in the card, and a booklet
+that fills four pages with air is the same bug wearing a different
+name. The body floor below is not where the space comes from — it is
+the one measurement protecting a reader who is standing up. It comes
+from everything the floor does not protect: the padding around the
+plate, the gaps between blocks, the air around a step.
 
 ### The ink discipline
 

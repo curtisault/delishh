@@ -11,6 +11,12 @@ effort: focused
 dietary: []
 cuisine: [american]
 print: sheet
+gauges:
+  - { label: Pan, value: 23 × 33 CM }
+  - { label: Oven, value: 190 °C / 375 °F }
+  - { label: From frozen, value: 70 + 20 MIN, note: panko at the turn }
+  - { label: Panko, value: AT BAKE, note: never frozen on }
+  - { label: Freezer, value: 3 MONTHS, note: no topping }
 ---
 
 ## Equipment

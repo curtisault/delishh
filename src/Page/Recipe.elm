@@ -148,11 +148,23 @@ sideNav : Config msg -> Html msg
 sideNav config =
     let
         row ( anchor, label ) =
+            let
+                here =
+                    config.active == Just anchor
+            in
             a
-                [ class "recipe-nav-link u"
-                , classList [ ( "is-active", config.active == Just anchor ) ]
-                , href ("#" ++ anchor)
-                ]
+                (class "recipe-nav-link u"
+                    :: classList [ ( "is-active", here ) ]
+                    :: href ("#" ++ anchor)
+                    -- present or absent, never "false" — the same
+                    -- contract as the documents' rail (`Doc.tocLink`)
+                    :: (if here then
+                            [ attribute "aria-current" "true" ]
+
+                        else
+                            []
+                       )
+                )
                 [ text label ]
     in
     Html.nav
@@ -220,7 +232,7 @@ plate config =
             config.recipe
     in
     div [ class "recipe-plate" ]
-        [ div [ class "recipe-serial mono" ]
+        ([ div [ class "recipe-serial mono" ]
             [ -- The method leads the plate: the word for the acid the
               -- whole page runs on. Information is never colour-only
               -- (§04), and this is that rule kept where it is loudest.
@@ -240,9 +252,56 @@ plate config =
                 ++ List.map (chip "chip-diet") r.dietary
                 ++ List.map (chip "chip-diet") r.cuisine
             )
-        , scaler config
-        , printer config
-        , cookLink config
+        ]
+            ++ gauges r
+            ++ [ -- Settings on the left, the action on the right.
+                 -- The scale and the form are things you *set* before
+                 -- you start; cooking is the thing you then do, and
+                 -- stacking it under them read as a fourth setting.
+                 -- DOM order is unchanged, so the tab order still
+                 -- runs scale → form → go.
+                 div [ class "recipe-controls" ]
+                    [ div [ class "recipe-settings" ]
+                        [ scaler config, printer config ]
+                    , cookLink config
+                    ]
+               ]
+        )
+
+
+{-| The gauge strip: the recipe's operating numbers, authored in the
+frontmatter (DS-01 §06, amended 2026-09-21).
+
+**Absent when the recipe has none** — the same rule every block on
+this page follows. A drink blended until it is smooth has no
+temperature to report, and an empty strip would be a row of labels
+over nothing.
+
+On paper this is the band that replaces the facet chips: a sheet in
+your hand has already been found, so the ink goes to the numbers you
+cook by instead of the words you searched by (§09).
+
+-}
+gauges : Recipe -> List (Html msg)
+gauges r =
+    if List.isEmpty r.gauges then
+        []
+
+    else
+        [ div [ class "recipe-gauges mono" ] (List.map gauge r.gauges) ]
+
+
+gauge : Recipe.Gauge -> Html msg
+gauge g =
+    div [ class "recipe-gauge" ]
+        [ span [ class "recipe-gauge-k u" ] [ text (String.toUpper g.label) ]
+        , span [ class "recipe-gauge-v" ] [ text g.value ]
+        , case g.note of
+            Nothing ->
+                text ""
+
+            Just n ->
+                span [ class "recipe-gauge-n" ] [ text n ]
         ]
 
 

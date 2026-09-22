@@ -11,6 +11,12 @@ effort: focused
 dietary: []
 cuisine: [mexican, american]
 print: sheet
+gauges:
+  - { label: Pan, value: 23 × 33 CM }
+  - { label: Oven, value: 190 °C / 375 °F }
+  - { label: From frozen, value: 60 + 15 MIN, note: "covered, then not" }
+  - { label: Tortillas, value: CORN, note: never flour }
+  - { label: Freezer, value: 3 MONTHS, note: unbaked }
 ---
 
 ## Equipment

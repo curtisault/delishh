@@ -11,6 +11,12 @@ effort: project
 dietary: []
 cuisine: [american, italian]
 print: booklet
+gauges:
+  - { label: Pan, value: 30 × 5 CM, note: or 25 cm cast iron }
+  - { label: Crust, value: BUTTER, note: rolled and coiled }
+  - { label: Oven, value: 220 °C / 425 °F, note: "lowest rack, 30–35" }
+  - { label: Cheese, value: SLICED, note: never shredded }
+  - { label: Sauce, value: RAW, note: it cooks on the pie }
 ---
 
 ## Equipment

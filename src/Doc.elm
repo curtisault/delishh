@@ -313,10 +313,16 @@ viewSearch chrome =
         ]
 
 
-{-| A rail row, marked when the reader is inside its section. The mark
-is the persistent form of the row's own hover — an accent bar under
-the label — because "where you are" and "where this would take you"
-are the same fact.
+{-| A rail row, marked when the reader is inside its section. Hover
+offers the accent bar down the row's left edge; being inside the
+section fills the row behind it as well, so "where this would take
+you" and "where you are" are the same vocabulary at two strengths.
+
+**`aria-current` is present or absent, never "false".** Absence *is*
+the default, so writing it out on all thirteen other rows announces
+nothing a screen reader did not already know — it just gives the
+attribute a value to be wrong about.
+
 -}
 tocLink : Maybe String -> Int -> Section msg -> Html msg
 tocLink active i s =
@@ -325,17 +331,16 @@ tocLink active i s =
             active == Just s.anchor
     in
     a
-        [ class "doc-toc-link"
-        , classList [ ( "is-active", here ) ]
-        , href ("#" ++ s.anchor)
-        , attribute "aria-current"
-            (if here then
-                "true"
+        (class "doc-toc-link"
+            :: classList [ ( "is-active", here ) ]
+            :: href ("#" ++ s.anchor)
+            :: (if here then
+                    [ attribute "aria-current" "true" ]
 
-             else
-                "false"
-            )
-        ]
+                else
+                    []
+               )
+        )
         [ span [ class "doc-toc-num mono" ] [ text (sectionNum i) ]
         , span [ class "doc-toc-label u" ] [ text s.tocLabel ]
         ]

@@ -11,6 +11,12 @@ effort: project
 dietary: []
 cuisine: [american, mexican]
 print: sheet
+gauges:
+  - { label: Format, value: BAGS, note: "4 cups each, laid flat" }
+  - { label: Simmer, value: 90 MIN, note: before the beans }
+  - { label: From frozen, value: 25 MIN, note: "stovetop, covered" }
+  - { label: Thicken, value: 1 TBSP MASA, note: "slaked, at the end" }
+  - { label: Freezer, value: 4 MONTHS, note: better on month two }
 ---
 
 ## Equipment

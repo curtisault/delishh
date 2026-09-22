@@ -11,6 +11,12 @@ effort: focused
 dietary: []
 cuisine: [american]
 print: sheet
+gauges:
+  - { label: Pan, value: 23 × 33 CM }
+  - { label: Oven, value: 205 °C / 400 °F }
+  - { label: Stage 1, value: 65 MIN, note: "filling, covered" }
+  - { label: Stage 2, value: 30 MIN, note: "pastry, four vents" }
+  - { label: Freezer, value: 3 MONTHS, note: filling and pastry apart }
 ---
 
 ## Equipment

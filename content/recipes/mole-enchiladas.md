@@ -11,6 +11,12 @@ effort: project
 dietary: []
 cuisine: [mexican]
 print: booklet
+gauges:
+  - { label: Pan, value: 23 × 33 CM, note: 8 large rolls }
+  - { label: Mole, value: JAR, note: "paste, not sauce" }
+  - { label: Oven, value: 175 °C / 350 °F, note: 30 covered + 5 }
+  - { label: Queso chill, value: 2 H, note: scoops like cold mash }
+  - { label: Freezer, value: 4 MONTHS, note: "parts, never a pan" }
 ---
 
 ## Equipment

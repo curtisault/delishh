@@ -203,12 +203,21 @@
     line-height: 1.35;
   }
 
-  /* Screen furniture. The nav, the two controls and the way-back link
-     are all things you press, and paper has nothing to press. */
+  /* Screen furniture. The nav, the two controls, the way-back link
+     and the cook-mode button are all things you press, and paper has
+     nothing to press.
+
+     `.cook-enter` was missing from this list until 2026-09-21, which
+     put a filled acid button — a solid black block with knockout
+     text, under the print palette — at the foot of the plate on every
+     sheet. Nobody saw it because nobody had printed one; it is the
+     exact failure this file's header warns about. */
   .site-nav,
+  .recipe-controls,
   .scaler,
   .printer,
-  .recipe-back {
+  .recipe-back,
+  .cook-enter {
     display: none !important;
   }
 
@@ -251,8 +260,8 @@
 
   .recipe-plate {
     border-bottom: 2pt solid #000;
-    padding-bottom: 6pt;
-    margin-bottom: 10pt;
+    padding-bottom: 5pt;
+    margin-bottom: 8pt;
   }
   .recipe-title {
     font-size: 24pt;
@@ -266,6 +275,7 @@
   }
   .recipe-facts {
     gap: 14pt;
+    margin-bottom: 0;
   }
   .recipe-fact-k {
     font-size: 7pt;
@@ -274,13 +284,45 @@
     font-size: 11pt;
   }
 
-  /* A chip prints as an outlined capsule carrying its word. The fill
-     is gone; the information is not (§04). */
-  .chip {
-    border: 0.75pt solid #000;
-    color: #000;
+  /* THE FACET CHIPS DO NOT PRINT (§09, amended 2026-09-21).
+     Facets exist so you can *find* a recipe (§07), and a sheet in
+     your hand has been found. The gauge strip takes this band of the
+     page instead: the ink goes to the numbers you cook by rather
+     than the words you searched by. Dietary goes with them —
+     the ingredients are on the same sheet, and one chip row
+     answering one facet of four invites the reader to assume the
+     other three were checked. */
+  .recipe-chips {
+    display: none !important;
+  }
+
+  /* ---------- the gauge strip ----------
+     The first thing the eye lands on from a metre away, so it is the
+     one band on the sheet that may set larger than the body. Ruled
+     top and bottom: it is looked *at*, not read through. */
+  .recipe-gauges {
+    gap: 0 16pt;
+    margin: 6pt 0 0;
+    padding: 4pt 0 0;
+    border-top: 1pt solid #000;
+    /* No bottom rule on paper: the strip is the last thing in the
+       plate once the chips and the controls are gone, so the plate's
+       own 2pt rule closes it. Two rules 4pt apart is a band nobody
+       drew on purpose. On screen the border stays — the scale and
+       print controls follow it there. */
+    border-bottom: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .recipe-gauge-k {
     font-size: 6.5pt;
-    padding: 1pt 3pt;
+  }
+  .recipe-gauge-v {
+    font-size: 12pt;
+    font-weight: 700;
+  }
+  .recipe-gauge-n {
+    font-size: 7pt;
   }
 
   /* ---------- blocks ---------- */
@@ -288,14 +330,29 @@
   .recipe-h {
     font-size: 8.5pt;
     border-bottom: 1pt solid #000;
+    padding-bottom: 2pt;
+    margin: 0 0 5pt;
     /* never a heading orphaned from what it heads */
     break-after: avoid;
     page-break-after: avoid;
   }
+  /* Margin stated on BOTH sides, which is not redundant: `sheet.css`
+     carries a bare `section { margin-top: 2.6rem }` for the prose
+     documents, and a recipe block is a `<section>` too. An element
+     selector loses to this class, but only if this rule actually
+     names the property — setting `margin-bottom` alone left 2.6rem
+     (≈31pt) of inherited air above every block on the sheet, which
+     is most of a page across a recipe. Measured, not guessed. */
   .recipe-block {
-    margin-bottom: 10pt;
+    margin: 0 0 7pt;
     /* a block that fits should not be split for the sake of it */
     break-inside: auto;
+  }
+  .recipe-sub {
+    font-size: 7pt;
+    margin: 5pt 0 2pt;
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   /* ---------- the break law (§09) ----------
@@ -315,12 +372,26 @@
     page-break-inside: avoid;
   }
 
-  /* ---------- ingredients: two columns on paper ----------
-     A sheet is read standing up, at a glance, and a single column of
-     quantities wastes the half of the page you are holding. */
+  /* ---------- ingredients: a table, not two flowed columns ----------
+     (§09, amended 2026-09-21.)
+
+     Two columns of quantities is right — a sheet is read standing up
+     and a single column wastes the half of the page you are holding.
+     `columns: 2` was the wrong way to get them. A flowed column
+     balances by HEIGHT, so the moment one item's name wraps, the two
+     stacks fall out of step with each other and the hairline under
+     each row stops at the gutter instead of continuing across it. It
+     reads as a broken table, because it is a list impersonating one.
+
+     A real grid instead: two equal tracks, auto-placed across then
+     down. Both cells in a row stretch to the taller of the pair, so
+     their rules are one rule at one height — which is the entire
+     point of drawing them. The nested `.ing` grid keeps quantity and
+     name aligned inside each half. */
   .ing-list {
-    columns: 2;
-    column-gap: 14pt;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16pt;
   }
   .ing {
     grid-template-columns: 4.5rem 1fr;
@@ -332,21 +403,48 @@
     font-size: 10pt;
   }
 
-  /* ---------- steps ---------- */
+  /* ---------- steps: the cue rides the number line ----------
+     (§09, amended 2026-09-21.)
 
+     On screen the cue sits beneath its step, where you read down. On
+     paper it sets beside the step number, on the same line, because a
+     standing reader scans the left edge for their place and wants the
+     clock and the tell there when they find it. The prose follows
+     underneath.
+
+     `display: contents` dissolves the body wrapper so the cue and the
+     text become grid items of the step itself. The cue is pinned to
+     row 1; the text names its column but not its row, so it lands in
+     row 2 behind a cue and in row 1 when a step has none — no empty
+     line either way. */
   .step {
-    padding: 4pt 0;
+    padding: 3pt 0;
     border-bottom: 0.5pt solid #999;
+    gap: 0 8pt;
+  }
+  .step-body {
+    display: contents;
   }
   /* 14pt, larger than the screen: the sheet is on a counter and you
      are standing over it (§09). */
   .step-n {
+    grid-column: 1;
+    grid-row: 1;
     font-size: 14pt;
     font-weight: 700;
   }
   .step-cue {
-    font-size: 8.5pt;
-    border-left: 1.5pt solid #000;
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    padding-left: 0;
+    border-left: 0;
+    font-size: 9pt;
+    font-weight: 700;
+  }
+  .step-text {
+    grid-column: 2;
+    margin-top: 1pt;
   }
 
   /* ---------- rescues ----------
@@ -422,12 +520,32 @@
   }
 
   /* ======================================================================
-     FORM: SHEET (.form-sheet) — 1–2 pages, the workhorse.
+     FORM: SHEET (.form-sheet) — two pages, one duplex leaf.
 
-     No rule targets `.form-sheet`, deliberately: everything above IS
-     the sheet, and it neither adds nor hides anything. The class is
-     still emitted so the wrapper always names its form.
+     Everything above IS the sheet; the form adds exactly one rule,
+     and that rule is what makes it a leaf rather than a printout.
+
+     THE DUPLEX BREAK. The block order already divides on the bench
+     seam — Equipment, Ingredients and Steps are what you DO;
+     Watchpoints, Rescues, Keeps and the Note are what you consult
+     when it goes wrong or when it is over. Breaking there turns the
+     default form into a two-sided card: procedure on the front,
+     recovery on the back, which is how a working recipe card has
+     always been laid out.
+
+     It breaks before WATCHPOINTS, not before Rescues: a watchpoint
+     is read *before* trouble, and it belongs with the reference half
+     rather than buried at the end of the procedure.
+
+     The break is in the form, not in the content — the same nine
+     blocks in the same order, folded where they already divided
+     (§09, amended 2026-09-21).
      ====================================================================== */
+
+  .form-sheet #watchpoints {
+    break-before: page;
+    page-break-before: always;
+  }
 
   /* ======================================================================
      FORM: CARD — one page, dense, for a recipe you already know.
@@ -439,7 +557,6 @@
 
   .form-card .recipe-photo,
   .form-card #note,
-  .form-card #history,
   .form-card #equipment {
     display: none;
   }
@@ -459,12 +576,28 @@
   .form-card .step-text {
     font-size: 10.5pt;
   }
+  /* Three tracks of the same grid, never a third layout. */
   .form-card .ing-list {
-    columns: 3;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 12pt;
   }
   .form-card .ing {
     grid-template-columns: 3.6rem 1fr;
     font-size: 9.5pt;
+  }
+  .form-card .recipe-gauges {
+    margin-top: 4pt;
+    padding: 3pt 0;
+  }
+  .form-card .recipe-gauge-v {
+    font-size: 10.5pt;
+  }
+  /* A card is one page, and the duplex break belongs to the sheet.
+     Reinstated explicitly because `#watchpoints` is a page break a
+     reader can see the effect of and not the cause. */
+  .form-card #watchpoints {
+    break-before: auto;
+    page-break-before: auto;
   }
   /* A card is one page by contract. If a recipe will not fit, that is
      a signal about the recipe — print it as a sheet. */
@@ -480,14 +613,17 @@
 
   .form-booklet {
     font-size: 11.5pt;
-    line-height: 1.45;
+    line-height: 1.4;
   }
   .form-booklet #steps {
     break-before: page;
     page-break-before: always;
   }
+  /* Generous, not airy. Four pages is the ceiling and a booklet that
+     fills them with air is the same bug as a card that runs to two
+     (§09, amended 2026-09-21). */
   .form-booklet .step {
-    padding: 7pt 0;
+    padding: 5pt 0;
   }
   .form-booklet .step-n {
     font-size: 16pt;
@@ -499,8 +635,11 @@
     break-after: avoid;
     page-break-after: avoid;
   }
-  .form-booklet .ing-list {
-    columns: 2;
+  /* The steps already start on their own page, so the reference half
+     follows the procedure rather than being folded away from it. */
+  .form-booklet #watchpoints {
+    break-before: auto;
+    page-break-before: auto;
   }
   .form-booklet #rescues,
   .form-booklet #keeps {

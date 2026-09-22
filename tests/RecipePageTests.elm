@@ -62,6 +62,10 @@ full =
     , cuisine = []
     , print = "sheet"
     , photo = Nothing
+    , gauges =
+        [ { label = "Pan", value = "20 cm", note = Just "pale interior" }
+        , { label = "Take it to", value = "175–180 °C", note = Nothing }
+        ]
     , ingredients = [ { name = Nothing, items = [ ingredient "caster sugar" ] } ]
     , equipment = [ "Heavy 20 cm saucepan" ]
     , steps = [ { n = 1, text = "Warm the cream.", cue = Just "40 °C · HOLD", timer = Nothing } ]
@@ -256,6 +260,60 @@ suite =
                     -- random.
                     rendered full (Just "sec-colophon")
                         |> Query.findAll [ Selector.class "is-active" ]
+                        |> Query.count (Expect.equal 0)
+            , test "the marked row says so to a screen reader" <|
+                \_ ->
+                    -- The mark is a 3px bar and a shift to full ink.
+                    -- Neither reaches a reader who is not looking at
+                    -- it, which is what `aria-current` is for.
+                    rendered full (Just "steps")
+                        |> Query.find [ Selector.class "is-active" ]
+                        |> Query.has
+                            [ Selector.attribute (Attr.attribute "aria-current" "true") ]
+            , test "aria-current is present or absent, never \"false\"" <|
+                \_ ->
+                    -- Absence IS the default. Spelling it out on the
+                    -- six unmarked rows announces nothing, and gives
+                    -- the attribute a value it can be wrong about.
+                    rendered full (Just "steps")
+                        |> Query.findAll
+                            [ Selector.attribute (Attr.attribute "aria-current" "false") ]
+                        |> Query.count (Expect.equal 0)
+            ]
+        , describe "the gauge strip — DS-01 §06, amended 2026-09-21"
+            [ test "renders one entry per authored gauge" <|
+                \_ ->
+                    plain
+                        |> Query.findAll [ Selector.class "recipe-gauge" ]
+                        |> Query.count (Expect.equal 2)
+            , test "a gauge carries its label and its value" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "recipe-gauges" ]
+                        |> Query.has
+                            [ Selector.text "PAN"
+                            , Selector.text "20 cm"
+                            , Selector.text "175–180 °C"
+                            ]
+            , test "the note renders when there is one" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "recipe-gauge-n" ]
+                        |> Query.has [ Selector.text "pale interior" ]
+            , test "a gauge with no note renders no note element" <|
+                \_ ->
+                    -- The second fixture gauge has none. One note
+                    -- element for two gauges, not an empty span.
+                    plain
+                        |> Query.findAll [ Selector.class "recipe-gauge-n" ]
+                        |> Query.count (Expect.equal 1)
+            , test "no strip at all when the recipe has no gauges" <|
+                \_ ->
+                    -- An absent block is absent, never a heading over
+                    -- blank space — and a strip of labels over nothing
+                    -- is exactly that (DS-01 §06).
+                    rendered { full | gauges = [] } Nothing
+                        |> Query.findAll [ Selector.class "recipe-gauges" ]
                         |> Query.count (Expect.equal 0)
             ]
         ]

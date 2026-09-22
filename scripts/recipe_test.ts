@@ -243,3 +243,84 @@ Deno.test("a malformed rescue is rejected", () => {
 Deno.test("a file with no frontmatter is rejected", () => {
   rejects("## Steps\n\n1. Do the thing.\n", "no YAML frontmatter");
 });
+
+// --- the gauge strip (DS-01 §06, amended 2026-09-21) -----------------------
+
+/** The fixture's gauge block, as one string, so the tests below can
+ * swap it wholesale rather than matching three lines of YAML. */
+const GAUGES = `gauges:
+  - { label: Pan, value: 20 cm, note: pale interior }
+  - { label: Cream, value: 40 °C, note: held }
+  - { label: Take it to, value: 175–180 °C, note: deep amber }
+  - { label: Past, value: 190 °C, note: "bitter, and it does not come back" }`;
+
+Deno.test("the bench specimen's gauges parse, notes and all", () => {
+  const { recipe, problems } = parseRecipe("salted-caramel", good);
+  assertEquals(problems, []);
+  assert(recipe);
+  assertEquals(recipe.gauges.length, 4);
+  assertEquals(recipe.gauges[0], {
+    label: "Pan",
+    value: "20 cm",
+    note: "pale interior",
+  });
+});
+
+Deno.test("gauges are optional — absent is an empty strip, never a placeholder", () => {
+  const { recipe, problems } = parseRecipe(
+    "salted-caramel",
+    swap(good, `${GAUGES}\n`, ""),
+  );
+  assertEquals(problems, []);
+  assert(recipe);
+  assertEquals(recipe.gauges, []);
+});
+
+Deno.test("a gauge without a value is rejected", () => {
+  rejects(
+    swap(good, "- { label: Pan, value: 20 cm, note: pale interior }", "- { label: Pan }"),
+    "gauges[0].value",
+  );
+});
+
+Deno.test("a gauge without a label is rejected", () => {
+  rejects(
+    swap(good, "- { label: Pan, value: 20 cm, note: pale interior }", "- { value: 20 cm }"),
+    "gauges[0].label",
+  );
+});
+
+Deno.test("a bare string is not a gauge", () => {
+  rejects(
+    swap(good, "- { label: Pan, value: 20 cm, note: pale interior }", "- 20 cm pan"),
+    "is not a `{ label, value }` entry",
+  );
+});
+
+Deno.test("a fourth field on a gauge is rejected", () => {
+  rejects(
+    swap(
+      good,
+      "- { label: Pan, value: 20 cm, note: pale interior }",
+      "- { label: Pan, value: 20 cm, why: it is pale }",
+    ),
+    "gauges[0].why",
+  );
+});
+
+Deno.test("a sixth gauge is rejected — the cap is the feature", () => {
+  rejects(
+    swap(good, GAUGES, `${GAUGES}\n  - { label: Five, value: 5 }\n  - { label: Six, value: 6 }`),
+    "is the ceiling",
+  );
+});
+
+Deno.test("the word rules read the gauge strip", () => {
+  // A gauge is procedure, not the note's human voice — it is read at
+  // the bench in the same register as a step. The note's exemption is
+  // the one exemption (DS-01 §11).
+  rejects(
+    swap(good, "{ label: Pan, value: 20 cm, note: pale interior }", "{ label: Pan, value: 20 cm, note: foolproof }"),
+    "in a gauge",
+  );
+});

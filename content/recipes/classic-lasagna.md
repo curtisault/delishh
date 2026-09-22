@@ -11,6 +11,12 @@ effort: project
 dietary: []
 cuisine: [italian, american]
 print: sheet
+gauges:
+  - { label: Pan, value: 23 × 33 CM, note: or two 20 cm squares }
+  - { label: Oven, value: 190 °C / 375 °F }
+  - { label: From frozen, value: 75 + 20 MIN, note: "covered, then not" }
+  - { label: From thawed, value: 35 + 15 MIN }
+  - { label: Freezer, value: 3 MONTHS, note: unbaked }
 ---
 
 ## Equipment

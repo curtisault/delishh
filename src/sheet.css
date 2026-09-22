@@ -165,14 +165,27 @@
   padding-bottom: 0.35rem;
   margin-bottom: 0.4rem;
 }
+/* A rail row is a row, not a line of text with a link on it.
+   Revised 2026-09-21, against the spine of the DS-01 proof sheet:
+   the rows carry 2.75rem of height — §12's tap-target minimum,
+   which the 1.1rem rows this replaced never came close to — and the
+   mark takes the whole row, a field and a bar down its left edge,
+   instead of underlining the last nine pixels of its label. */
 .doc-toc-link {
   display: flex;
   gap: 0.55rem;
-  align-items: baseline;
-  padding: 0.3rem 0 0.28rem;
+  align-items: center;
+  min-height: 2.75rem;
+  /* symmetric side padding, because the active row's field has two
+     edges and text against either of them reads as a mistake */
+  padding: 0.3rem 0.65rem 0.28rem;
   text-decoration: none;
-  color: var(--tx);
-  border-bottom: 1px solid var(--hairline);
+  color: var(--tx-dim);
+  /* Every row carries the bar and only its colour changes, so
+     marking a section can never move the list under the reader.
+     The rows' own hairlines went with it: a continuous left rail
+     already separates them, and ruling both read as a ladder. */
+  border-left: 3px solid var(--hairline);
 }
 .doc-toc-num {
   font-size: 0.6rem;
@@ -184,18 +197,35 @@
   letter-spacing: 0.12em;
   line-height: 1.4;
 }
-.doc-toc-link:hover .doc-toc-label {
-  box-shadow: inset 0 -3px 0 var(--here);
+.doc-toc-link:hover {
+  color: var(--tx);
+  border-left-color: var(--here);
+}
+/* Unconditional, and outside every motion query: a focus ring is
+   not decoration. The rail carried none at all until 2026-09-21. */
+.doc-toc-link:focus-visible {
+  outline: 3px solid var(--data-accent);
+  outline-offset: 1px;
 }
 /* where the reader actually is: the persistent form of that hover.
    The anchor arrives from boot.js through the sectionSeen port —
    Elm has no scroll subscription.
 
    `--here` and not --accent directly: the raw accent is a block
-   color, and as a 3px underline on the surface it can be very nearly
-   not there. Anything that draws this underline uses --here. */
-.doc-toc-link.is-active .doc-toc-label {
-  box-shadow: inset 0 -3px 0 var(--here);
+   color, and as a 3px bar on the surface it can be very nearly not
+   there. Anything that draws this mark uses --here.
+
+   The row goes from --tx-dim to full ink with it, so "you are here"
+   survives the colour being removed — §04's never-colour-only rule,
+   applied to the one mark on the page that moves on its own.
+
+   The field is what separates the mark from the hover: hovering
+   offers the bar, being there fills the row. Both are paint, so
+   neither can move the list under the reader. */
+.doc-toc-link.is-active {
+  color: var(--tx);
+  background: var(--here-fill);
+  border-left-color: var(--here);
 }
 .doc-toc-link.is-active .doc-toc-num {
   color: var(--data-accent);

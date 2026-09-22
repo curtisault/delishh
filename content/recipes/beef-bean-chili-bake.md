@@ -11,6 +11,12 @@ effort: project
 dietary: []
 cuisine: [american]
 print: sheet
+gauges:
+  - { label: Pan, value: 23 × 33 CM }
+  - { label: Oven, value: 190 °C / 375 °F }
+  - { label: Stage 1, value: 60 MIN, note: "chili, covered, bubbling" }
+  - { label: Stage 2, value: 30 MIN, note: "cornbread, uncovered" }
+  - { label: Freezer, value: 4 MONTHS, note: "chili only, batter fresh" }
 ---
 
 ## Equipment

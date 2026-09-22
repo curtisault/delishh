@@ -119,6 +119,77 @@
   color: var(--acid);
 }
 
+/* ---------- the gauge strip (DS-01 §06, amended 2026-09-21) ----------
+   The recipe's operating numbers, authored in frontmatter. Ruled off
+   above and below because it is a band you look *at*, not prose you
+   read through — the one place on a quiet page where a horizontal
+   rule earns itself.
+
+   No acid anywhere in here, deliberately. Every value is a quantity,
+   and acid never lands on a quantity (§04); the emphasis comes from
+   weight and from the rules, which is also what survives the printer. */
+.recipe-gauges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.6rem;
+  margin: 0.9rem 0 0;
+  padding: 0.55rem 0;
+  border-top: 1.5px solid var(--rule);
+  border-bottom: 1.5px solid var(--rule);
+}
+.recipe-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.15rem 0;
+}
+.recipe-gauge-k {
+  font-size: 0.55rem;
+  color: var(--tx-dim);
+}
+.recipe-gauge-v {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx);
+}
+/* The aside after the number — `covered`, `center`, `flat bags`. Set
+   quiet: it qualifies the value, and a qualifier that competes with
+   what it qualifies is noise. */
+.recipe-gauge-n {
+  font-size: 0.6rem;
+  color: var(--tx-dim);
+}
+
+/* ---------- the control band: settings left, action right ----------
+   The scale and the print form are things you SET before you start.
+   Cooking is what you then do, and a primary action stacked under two
+   rows of settings reads as a third setting — while the right half of
+   the plate sits empty.
+
+   It wraps rather than shrinks: below the wrap the button returns to
+   its own line at full left, because a control that narrows toward
+   its label is how a bar starts printing through itself. */
+.recipe-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 1.6rem;
+}
+.recipe-settings {
+  /* Grows into the space the button does not want, so the two rows of
+     settings keep their own widths and the button stays at the edge. */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* The button carries its own top margin for the stacked case; inside
+   the band the flex row owns the spacing. */
+.recipe-controls .cook-enter {
+  flex: none;
+  margin-top: 0;
+}
+
 /* ---------- the scale control ---------- */
 
 .scaler {
@@ -469,28 +540,42 @@
     padding-bottom: 0.35rem;
     margin-bottom: 0.4rem;
   }
+  /* The documents' rail geometry, to the pixel (sheet.css), revised
+     2026-09-21: 2.75rem rows per §12, and the mark taking the whole
+     row — a field and a bar down its left edge — rather than
+     underlining the label. Two navs that mark the reader's place the
+     same way are one thing to learn. */
   .recipe-nav-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
     font-size: 0.56rem;
     letter-spacing: 0.12em;
-    color: var(--tx);
+    color: var(--tx-dim);
     text-decoration: none;
-    padding: 0.28rem 0;
-    border-bottom: 1px solid var(--hairline);
+    padding: 0.28rem 0.65rem;
+    border-left: 3px solid var(--hairline);
   }
-  .recipe-nav-link:hover,
-  .recipe-nav-link:focus-visible {
-    box-shadow: inset 0 -3px 0 var(--here);
+  .recipe-nav-link:hover {
+    color: var(--tx);
+    border-left-color: var(--here);
   }
   .recipe-nav-link:focus-visible {
     outline: 3px solid var(--tx);
     outline-offset: 2px;
   }
   /* The reading-line mark, same vocabulary as the contents rail —
-     and like the rail, it must never affect layout: a row gaining
-     the mark must not move the list under the reader. */
+     and like the rail, it must never affect layout: every row
+     carries the bar and the field is paint, so a row gaining the
+     mark cannot move the list under the reader. The row goes to full
+     ink with it, so the mark is never colour alone (§04).
+
+     `--here-fill` and not the page's own `--acid`: this is chrome
+     marking a position, not the document stating its method, and
+     the two must not be confused at a glance. */
   .recipe-nav-link.is-active {
-    box-shadow: inset 0 -3px 0 var(--here);
     color: var(--tx);
+    background: var(--here-fill);
+    border-left-color: var(--here);
   }
 }
