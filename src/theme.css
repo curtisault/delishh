@@ -101,12 +101,19 @@
   --mark: #4c5147; /* §N.M clause marks, rail numbers · 6.62:1 */
   --data-accent: #12150e; /* numerals & section numbers: ink while the
                              lights are on, volt after dark */
-  --here: var(--page-act); /* 7.07:1 — the "you are here" mark on the
-                              rail's active section. Raw volt on this
-                              ground is a hair over 1:1, a mark nobody
-                              can see, which is exactly what the page
-                              layer exists to fix, so it takes that
-                              cut rather than the fill. */
+  --here: var(--page-heat); /* 6.63:1 — the "you are here" mark on
+                               every rail in the product: the
+                               documents' contents rail, the recipe's
+                               side nav, cook mode's. HEAT, not volt,
+                               since 2026-09-24 — one reading line,
+                               one colour, whichever rail it is
+                               drawn on.
+
+                               It takes the page cut rather than the
+                               fill for the reason volt did: a raw
+                               acid at 3px on this ground is a mark
+                               nobody can see, and fixing that is
+                               what the page layer is for. */
 
   /* The marked row's whole field, not just its bar (revised
      2026-09-21, against the proof sheet's spine). Minted as its own
@@ -114,12 +121,37 @@
      colour is a ground nothing can measure and this file's contract
      is that every ground a glyph lands on carries its number.
 
-     Volt at ~30% here and ~10% after dark: the lit cut needs three
-     times as much acid because volt and the lit ground sit at almost
-     the same luminance — the same fact that keeps volt off light
-     text (§04), which is why this pair's numbers are large and its
-     visible difference is chroma rather than lightness. */
-  --here-fill: #d9eaa0; /* --tx on it 14.24:1 · --data-accent on it 14.24:1 */
+     THE TWO THEMES USE OPPOSITE MECHANISMS, which is the split the
+     Themes block below already names: on the lit bench acid is a
+     FILL with ink on it, and after dark it is acid at full strength
+     on a near-black ground. So the marked row is a solid heat block
+     wearing ink while the lights are on (2026-09-24, in place of the
+     tinted washes that came before it — 7%, 18% and 25% were all
+     tried and all read as a highlighter rather than a plate), and
+     after dark it is a quiet warm field with a full-strength bar
+     down its edge. Same role, same job, drawn the way each ground
+     allows.
+
+     Minted as its own hex and NOT `var(--shelf-heat)`: a --shelf-*
+     token on a recipe surface is a bug, and the recipe's side nav is
+     one of the three rails this role draws. The value is the same
+     today; the name is what keeps it from being a licence.
+
+     Neither field is load-bearing: the row also goes from --tx-dim
+     to full ink and the bar is always there, so the mark survives
+     the colour being removed — §04's never-colour-only rule met
+     twice over. */
+  --here-fill: #ff6a00; /* --tx on it 6.42:1 · --data-accent on it 6.42:1 */
+
+  /* The bar down the marked row's edge, which is NOT --here: --here
+     is drawn on --surface (a hover bar, the shelf's row underline,
+     the list's focus ring) and this one is drawn on --here-fill. A
+     rust bar on a full heat plate is 2.84:1 and very nearly not
+     there, so on the lit bench the edge goes to ink and reads as the
+     plate's own boundary. After dark it is the acid, because there
+     the field is the quiet one. Two grounds, two answers, one
+     role each. */
+  --here-edge: #12150e; /* 6.42:1 on --here-fill */
 
   /* ---- the shelf layer: acid as a FILL, ink on top (DS-01 §04) ----
      Browse surfaces only. Every ratio is ink-on-fill, measured. */
@@ -278,8 +310,9 @@
     --block-tx: #0a0d10;
     --mark: var(--accent);
     --data-accent: var(--accent);
-    --here: var(--accent);
-    --here-fill: #1d250e; /* --tx on it 12.92:1 · --data-accent on it 13.42:1 */
+    --here: var(--page-heat);
+    --here-fill: #2c1f16; /* --tx on it 13.00:1 · --data-accent on it 13.51:1 */
+    --here-edge: var(--page-heat); /* 6.81:1 on --here-fill */
 
     /* the shelf layer — brighter cuts, ratios are ink-on-fill */
     --shelf-act: #c8ff00; /* --shelf-tx on it 16.48:1 */
@@ -320,8 +353,9 @@
   --block-tx: #0a0d10;
   --mark: var(--accent);
   --data-accent: var(--accent);
-  --here: var(--accent);
-  --here-fill: #1d250e; /* --tx on it 12.92:1 · --data-accent on it 13.42:1 */
+  --here: var(--page-heat);
+  --here-fill: #2c1f16; /* --tx on it 13.00:1 · --data-accent on it 13.51:1 */
+  --here-edge: var(--page-heat); /* 6.81:1 on --here-fill */
 
   /* the shelf layer — brighter cuts, ratios are ink-on-fill */
   --shelf-act: #c8ff00; /* --shelf-tx on it 16.48:1 */

@@ -418,9 +418,11 @@
    The anchor arrives from boot.js through the sectionSeen port —
    Elm has no scroll subscription.
 
-   `--here` and not --accent directly: the raw accent is a block
-   color, and as a 3px bar on the surface it can be very nearly not
-   there. Anything that draws this mark uses --here.
+   `--here` and not an acid directly: a raw acid is a block colour,
+   and as a 3px bar on the surface it can be very nearly not there.
+   Anything that draws this mark uses --here — which is why retargeting
+   that one role from volt to heat (2026-09-24) moved every rail in the
+   product at once, and why no rail had to be edited to follow.
 
    The row goes from --tx-dim to full ink with it, so "you are here"
    survives the colour being removed — §04's never-colour-only rule,
@@ -432,7 +434,7 @@
 .doc-toc-link.is-active {
   color: var(--tx);
   background: var(--here-fill);
-  border-left-color: var(--here);
+  border-left-color: var(--here-edge);
 }
 .doc-toc-link.is-active .doc-toc-num {
   color: var(--data-accent);

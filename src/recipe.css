@@ -617,12 +617,18 @@
      ink with it, so the mark is never colour alone (§04).
 
      `--here-fill` and not the page's own `--acid`: this is chrome
-     marking a position, not the document stating its method, and
-     the two must not be confused at a glance. */
+     marking a position, not the document stating its method, and the
+     mark must not change meaning from one recipe to the next.
+
+     Since 2026-09-24 that role is heat rather than volt, so on a
+     bake, fry, sear or sugar-work page the rail and the method now
+     agree by coincidence. They are still not the same thing: `--acid`
+     follows the recipe and this does not, which is the difference a
+     cold or blend page makes visible. */
   .recipe-nav-link.is-active {
     color: var(--tx);
     background: var(--here-fill);
-    border-left-color: var(--here);
+    border-left-color: var(--here-edge);
   }
 }
 

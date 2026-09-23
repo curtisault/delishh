@@ -102,6 +102,9 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   // one — the whole reason it is a token and not a `color-mix`.
   { fg: "tx", bg: "here-fill", min: 4.5 },
   { fg: "data-accent", bg: "here-fill", min: 4.5 },
+  // The bar down the marked row, drawn ON the field rather than on
+  // the ground — a non-text mark, so 1.4.11's 3:1 rather than AA.
+  { fg: "here-edge", bg: "here-fill", min: 3, note: "the marked row's own edge" },
   { fg: "tx", bg: "panel", min: 4.5 },
   { fg: "tx", bg: "tint", min: 4.5 },
   // The query line's focus ring, drawn on the field it belongs to.

@@ -395,11 +395,13 @@
      alone (§04).
 
      `--here-fill`, not the page's `--acid`: this is chrome marking a
-     position, not the recipe stating its method. */
+     position, not the recipe stating its method. Heat since
+     2026-09-24, and the same heat the documents' rail and the recipe's
+     side nav take — one reading line, one colour, three surfaces. */
   .cook-nav-link.is-active {
     color: var(--tx);
     background: var(--here-fill);
-    border-left-color: var(--here);
+    border-left-color: var(--here-edge);
   }
 
   /* The steps, as a strip of numbers. Compact enough to take in at a
