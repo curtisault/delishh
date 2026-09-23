@@ -132,6 +132,22 @@
   padding-bottom: 0.15rem;
   border-bottom: 2px solid transparent;
 }
+/* how many recipes are on the shopping list, beside its route.
+
+   No acid: a count is a quantity (§04). The data voice with tabular
+   figures (§05) is what stops 9 going to 10 from nudging the theme
+   control a pixel sideways — and it is set at the size it looks,
+   because --nav-h is a hard 2.4rem and a figure that outgrew the
+   route beside it would burst the bar.
+
+   `.u` is on the run, not the link, so the tracking and the caps are
+   inherited: a lone figure wants neither. */
+.site-nav .nav-count {
+  margin-left: 0.4rem;
+  font-size: 0.58rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
 .site-nav a.active {
   border-bottom-color: var(--stencil-mark);
 }
@@ -169,19 +185,167 @@
   border-bottom-color: var(--stencil-mark);
 }
 
+/* ---------- the liner, and the leaf laid on it ----------
+   DS-01 §04 as amended 2026-09-23. Every page but cook mode is a
+   LEAF — a flat sheet with a kiss-cut edge — laid on a LINER: the
+   release paper of a sticker sheet, printed with the archive's name
+   on the diagonal the way real ones are (§03). Liner.elm decides
+   which routes get it; this file decides what it looks like.
+
+   THE LINER IS FIXED AND THE LEAF SCROLLS OVER IT. Scrolling drags
+   the sheet across the paper under your hand, which is what peeling
+   a sticker sheet across a table looks like. The paper also drifts
+   along its own rows on its own — the one ambient motion in the
+   product, ruled below — and a reader who asked for stillness gets
+   the same paper, held still.
+
+   The words are GENERATED CONTENT, not text nodes: `content:` is not
+   found by find-in-page, not selected by a drag, and — with the
+   container `aria-hidden` — not read aloud. It is the one place the
+   display voice is set in `--hairline`, and it is decoration, so
+   there is no pair to measure: the ink is the leaf's, not the
+   paper's.
+
+   z-index -1 puts it above the canvas (html's ground) and below every
+   in-flow block — which is why `body` carries no background of its
+   own (theme.css). */
+.liner {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--hairline);
+  /* One row of the paper. Long enough that a row rotated 18° still
+     clears a 2900px viewport; the extra is clipped, not paid for. */
+  --liner-line: 'DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · ';
+}
+/* Oversized and rotated as one block, so the rows run off every edge
+   and the corners never show the paper's end. */
+.liner-rows {
+  position: absolute;
+  inset: -40% -25%;
+  transform: rotate(-18deg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.95rem;
+  line-height: 3.1;
+  white-space: nowrap;
+}
+.liner-row::before {
+  content: var(--liner-line);
+}
+/* Every other row is set half a word along, as a real liner is: the
+   words brick rather than stack, and no column of gaps opens up. */
+.liner-row:nth-child(even) {
+  padding-left: 5.2rem;
+}
+
+/* THE LEAF. A `--surface` fill is what covers the paper where a page
+   is; the border is the kiss-cut line round a sticker sheet, drawn
+   in the mid-grey that divides without structuring. Each page's own
+   sheet sets its width; the padding is the leaf's margin, shared.
+
+   The zero-offset shadow is not decoration — it is the seat the
+   landing below returns to, and it must be a colour rather than
+   `none` so the seat interpolates as a size and never as a fade. */
+.leaf {
+  background: var(--surface);
+  border: 1px solid var(--rule-soft);
+  padding: 1.8rem 2.2rem 2.8rem;
+  box-shadow: 0 0 0 var(--rule);
+}
+
+/* THE LEAF LANDS. A new page is a new sheet laid on the paper, and it
+   arrives held a few pixels off it — one hard offset block beneath,
+   the press dress's own vocabulary (§04) — then seats flush. §10
+   sanctions it as motion in answer to the reader's hand (the click
+   that navigated), on every surface but cook mode, in under 150ms.
+
+   It is a box-shadow and not a transform ON PURPOSE. `Main.jumpTo`
+   measures the anchor in the frame the page renders; a leaf that
+   arrived translated would put every deep-linked section a few
+   pixels low. A shadow moves no geometry, so nothing can be measured
+   wrong while it settles. Authored inside the guard, so a reduced-
+   motion reader's leaf is simply seated from the first frame. */
+@media (prefers-reduced-motion: no-preference) {
+  .leaf {
+    transition: box-shadow 120ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  @starting-style {
+    .leaf {
+      box-shadow: 0.45rem 0.45rem 0 var(--rule);
+    }
+  }
+}
+
+/* THE PAPER DRIFTS. The one sanctioned ambient motion in the product
+   (§10, amended 2026-09-23), everywhere the liner is — which is every
+   route but cook mode, by `Liner.on`. The LEAF holds still; the
+   margin it lies in is not the page, and that is the whole of the
+   argument. `motion_test.ts` holds this to one keyframes block, on
+   this selector, inside the guard, at a period of 45 s or more.
+
+   The loop is seamless by construction rather than by tuning: the
+   rows alternate a half-word stagger, so shifting the block by
+   exactly TWO rows returns the pattern to itself, and two rows is a
+   known length in rem (2 × 3.1 × 0.95). Nothing depends on how wide
+   the word renders. The translate rides INSIDE the rotate, so the
+   paper moves along its own rows and not down the viewport.
+
+   60 s a cycle is about 1.6px a second: invisible while reading the
+   leaf, alive when you look at the margin. */
+@media (prefers-reduced-motion: no-preference) {
+  .liner .liner-rows {
+    animation: liner-drift 60s linear infinite;
+  }
+  @keyframes liner-drift {
+    from {
+      transform: rotate(-18deg) translateY(0);
+    }
+    to {
+      transform: rotate(-18deg) translateY(-5.89rem);
+    }
+  }
+}
+
+/* Below the one narrow tier there is no margin for paper to show in,
+   so the leaf runs edge to edge as the page always did, and the liner
+   is not painted at all rather than painted behind it. */
+@media (max-width: 60rem) {
+  .liner {
+    display: none;
+  }
+  .leaf {
+    border: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+}
+
 /* ---------- the document layout (Doc.elm) ----------
    Full-bleed handbook dimensions: the contents rail holds
    the left margin, the document takes the rest of the viewport.
    Section rules run the full width; body text sits left at a reading
    measure, leaving the right side open for the intent labels. The
    rail is sticky on desktop and becomes an ink jump-strip on small
-   screens. */
+   screens.
+
+   Since 2026-09-23 the layout is also the document's LEAF: the whole
+   handbook — rail and sheet — is one sheet laid on the liner, with
+   the margin outside it where the paper shows. */
 .doc-layout {
   display: grid;
   grid-template-columns: 13rem minmax(0, 1fr);
   gap: 0 3rem;
-  padding: 0 3.5rem;
   align-items: start;
+  margin: 1.6rem 1.2rem 4rem;
+}
+.doc-layout.leaf {
+  padding: 0 2.4rem;
 }
 
 /* The rail's grid cell must span the whole row for its sticky child to
@@ -721,10 +885,12 @@ ul.tight li {
   .doc-toc {
     display: none;
   }
-  .doc-layout {
+  .doc-layout,
+  .doc-layout.leaf {
     display: block;
     max-width: none;
     padding: 0;
+    margin: 0;
   }
   .doc-clause-row {
     display: block;
@@ -765,9 +931,11 @@ ul.tight li {
    correct, not a bug. 60rem is 960px at the default font size — that
    is arithmetic, not the unit doing the work. */
 @media (max-width: 60rem) {
-  .doc-layout {
+  .doc-layout,
+  .doc-layout.leaf {
     display: block;
     padding: 0;
+    margin: 0;
   }
   .sheet {
     padding: 1.5rem 1.5rem 3rem;

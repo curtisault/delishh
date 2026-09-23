@@ -59,7 +59,7 @@ viewFailed =
 
 shell : List (Html msg) -> Html msg
 shell body =
-    div [ class "shelf-layout" ] [ div [ class "shelf" ] body ]
+    div [ class "shelf-layout" ] [ div [ class "shelf leaf" ] body ]
 
 
 
@@ -76,7 +76,7 @@ view config =
             List.filter (\( _, v ) -> v == Shown) rows
     in
     div [ class "shelf-layout" ]
-        [ div [ class "shelf" ]
+        [ div [ class "shelf leaf" ]
             [ masthead config
             , tiles config
             , activeBar config

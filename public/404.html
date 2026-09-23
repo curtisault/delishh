@@ -50,6 +50,8 @@
         --tx: #12150e;
         --tx-dim: #4c5147;
         --rule: #12150e;
+        --rule-soft: #9aa093;
+        --hairline: #c2c5bc;
         --accent: #b9ee00;
         --ink: #12150e;
       }
@@ -59,6 +61,8 @@
           --tx: #e4e9e6;
           --tx-dim: #98a19b;
           --rule: #e4e9e6;
+          --rule-soft: #39424a;
+          --hairline: #232a2f;
           --accent: #c8ff00;
         }
       }
@@ -67,11 +71,19 @@
         --tx: #e4e9e6;
         --tx-dim: #98a19b;
         --rule: #e4e9e6;
+        --rule-soft: #39424a;
+        --hairline: #232a2f;
         --accent: #c8ff00;
       }
 
       * {
         box-sizing: border-box;
+      }
+      /* html is the canvas and body carries no fill, for the same
+         reason as theme.css: the liner below sits at z-index -1,
+         above the canvas and under every in-flow block. */
+      html {
+        background: var(--surface);
       }
       body {
         margin: 0;
@@ -79,16 +91,74 @@
         display: grid;
         place-items: center;
         padding: 2rem 1.5rem;
-        background: var(--surface);
         color: var(--tx);
         font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
         font-weight: 500;
         font-size: 16px;
         line-height: 1.5;
       }
+      /* The leaf, inlined from sheet.css: this page is a sheet laid on
+         the backing paper like every other. */
       main {
         width: 100%;
-        max-width: 34rem;
+        max-width: calc(34rem + 4.4rem);
+        background: var(--surface);
+        border: 1px solid var(--rule-soft);
+        padding: 1.8rem 2.2rem 2.8rem;
+      }
+      /* The backing paper, inlined from sheet.css (DS-01 §04, amended
+         2026-09-23). Change it there, change it here. */
+      .liner {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+        user-select: none;
+        color: var(--hairline);
+        --liner-line: 'DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · DELISHH · ';
+      }
+      .liner-rows {
+        position: absolute;
+        inset: -40% -25%;
+        transform: rotate(-18deg);
+        font-family: 'Archivo Expanded', 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-size: 0.95rem;
+        line-height: 3.1;
+        white-space: nowrap;
+      }
+      .liner-row::before {
+        content: var(--liner-line);
+      }
+      .liner-row:nth-child(even) {
+        padding-left: 5.2rem;
+      }
+      /* The drift, inlined from sheet.css: two rows a minute, inside
+         the guard. */
+      @media (prefers-reduced-motion: no-preference) {
+        .liner .liner-rows {
+          animation: liner-drift 60s linear infinite;
+        }
+        @keyframes liner-drift {
+          from {
+            transform: rotate(-18deg) translateY(0);
+          }
+          to {
+            transform: rotate(-18deg) translateY(-5.89rem);
+          }
+        }
+      }
+      @media (max-width: 60rem) {
+        .liner {
+          display: none;
+        }
+        main {
+          border: 0;
+          padding: 0;
+        }
       }
       .kicker {
         font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
@@ -150,6 +220,100 @@
     </style>
   </head>
   <body>
+    <div class="liner" aria-hidden="true">
+      <div class="liner-rows">
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+        <div class="liner-row"></div>
+      </div>
+    </div>
     <main>
       <div class="kicker">
         <span class="code">404</span>

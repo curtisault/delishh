@@ -58,7 +58,7 @@ view config =
             GroceryList.lines config.list
     in
     div [ class "list-layout" ]
-        [ div [ class "shopping-list" ]
+        [ div [ class "shopping-list leaf" ]
             (if GroceryList.isEmpty config.list then
                 [ masthead "Nothing on it yet.", empty ]
 

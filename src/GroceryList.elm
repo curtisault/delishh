@@ -8,6 +8,7 @@ module GroceryList exposing
     , check
     , clearPress
     , contributions
+    , count
     , decoder
     , empty
     , encode
@@ -193,6 +194,21 @@ member slug (Model m) =
 contributions : Model -> List Contribution
 contributions (Model m) =
     m.contributions
+
+
+{-| How many recipes are on the list.
+
+**Recipes, not rows.** The bar counts what the reader put there —
+presses of one button they can undo with the same press — and not the
+lines those presses summed into. Two recipes that both want onions
+are two things on the list and one thing to pick up, and a badge that
+said "7" where seven was the answer to a question nobody asked is the
+count lying about what it is beside.
+
+-}
+count : Model -> Int
+count (Model m) =
+    List.length m.contributions
 
 
 {-| Put a recipe on the list, or take it off.

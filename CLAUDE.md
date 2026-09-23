@@ -20,6 +20,7 @@ the authority on how this looks and why.
 | `src/print.css` | **All of DS-01 §09.** The four printed forms, the ink discipline, the break law, the traceability footer |
 | `src/Shelf.elm` | The four browse paths and the filter logic (DS-01 §07), pure. `judge` returns a verdict **with its reasons** |
 | `src/Cook.elm` | The step timer and the wake state (DS-01 §08, §10). The timer counts to an **absolute end**, never down a counter |
+| `src/Liner.elm` | The backing paper and the leaf (DS-01 §04 as amended 2026-09-23). `on` is the one place that says which routes get the liner (every one but cook mode); `leafKey` is what makes a navigation a new sheet |
 
 ## Commands
 
@@ -358,6 +359,26 @@ fixture must never drift under the suite. Keep it parsing.
   boot.js reads the active section on scroll, resize and DOM
   mutation, rAF-throttled. The active style must never affect layout,
   or marking a section could move it.
+- `src/Liner.elm` / `sheet.css` — the backing paper. Every route but
+  cook mode is a **leaf** (a `--surface` sheet with a `--rule-soft`
+  edge, class `leaf` on each page's column) laid on a **liner** fixed
+  to the viewport. Four things that are easy to undo without noticing:
+  - **`body` has no background.** `html` is the canvas and the liner
+    sits at z-index −1 between it and every in-flow block; a body fill
+    paints straight over the paper and nothing fails.
+  - **The liner drifts, and it is the only thing that does.** The one
+    keyframes block in the product rides the liner's rows, so it
+    reaches exactly the routes `Liner.on` names and never cook mode.
+    The leaf holds still; the margin is not the page. `motion_test.ts`
+    holds the drift to that one block, inside the guard, at 45 s a
+    cycle or slower.
+  - **The leaf lands as a `box-shadow`, never a transform.**
+    `Main.jumpTo` measures the anchor in the frame the page renders,
+    so a leaf that arrived translated would put every deep link a few
+    pixels low. `Main.view` keys the page on `Liner.leafKey`, which is
+    what lets `@starting-style` see a fresh leaf.
+  - **Neither prints**, and `print_test.ts` holds it: a fixed element
+    prints on every page.
 - There is currently **no subscription but `sectionSeen`**. Add one
   only when something on screen genuinely changes on its own. A
   cooking timer will qualify; a document will not.

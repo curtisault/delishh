@@ -155,6 +155,18 @@
      there; contrast_test.ts resolves it the same way. */
   --accent-heat: var(--shelf-heat);
 
+  /* The page's SECOND action, by the same amendment's mechanism and
+     not by its argument (§04, amended 2026-09-23). COOK THIS names
+     where it goes; ADD TO LIST is magenta because the pair has to be
+     told apart at arm's length, and a face against a rail was doing
+     that job with the weaker of the two carriers.
+
+     A named role, not `--shelf-live` used directly. The rule that a
+     --shelf-* token on a recipe surface is a bug is what keeps the
+     page layer honest, and naming each exception is what keeps the
+     count of them readable — there are two, and they are these. */
+  --accent-live: var(--shelf-live);
+
   /* ---- the extruded slab: a press with a shadow that moved first ----
      Adopted 2026-09-23 as the machined block; re-cut to DK-06
      EXTRUDED SLAB 45 on 2026-09-24, which is the dress the source
@@ -344,10 +356,17 @@ html {
 
 /* Procedure voice at 500, per DS-01 §05: this is read at arm's length
    in bad light with wet hands, so it is sized and weighted for
-   distance rather than for density. */
+   distance rather than for density.
+
+   NO BACKGROUND ON BODY, since 2026-09-23. The ground is painted by
+   `html` above, which makes it the canvas; the liner (sheet.css) is a
+   fixed element at z-index -1, and a negative z-index sits ABOVE the
+   canvas but BELOW any in-flow block's own background — so a fill
+   here would paint straight over the paper. The leaves carry their
+   own `--surface` fill, which is what covers the liner where a page
+   actually is. */
 body {
   margin: 0;
-  background: var(--surface);
   color: var(--tx);
   font-family: var(--font-body);
   font-weight: 500;

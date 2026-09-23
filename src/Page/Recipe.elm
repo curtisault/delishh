@@ -89,7 +89,7 @@ viewFailed slug =
 
 shell : List (Html msg) -> Html msg
 shell body =
-    div [ class "recipe-layout" ] [ div [ class "recipe" ] body ]
+    div [ class "recipe-layout" ] [ div [ class "recipe leaf" ] body ]
 
 
 
@@ -109,7 +109,7 @@ view config =
         , classList [ ( "with-prep", config.prepCard ) ]
         ]
         [ sideNav config
-        , div [ class "recipe" ]
+        , div [ class "recipe leaf" ]
             [ plate config
             , div [ class "recipe-cols" ]
                 [ -- What you NEED. Sticky on a wide screen, so the

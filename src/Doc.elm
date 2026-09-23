@@ -93,7 +93,7 @@ view config =
         hits =
             Search.run config.chrome.query
     in
-    div [ class "doc-layout" ]
+    div [ class "doc-layout leaf" ]
         [ viewToc config searching (List.length hits)
         , div [ class "sheet" ]
             (viewMasthead config

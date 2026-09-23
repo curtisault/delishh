@@ -363,3 +363,24 @@ Deno.test("the print path carries no JavaScript hook", () => {
     assert(!boot.includes(hook), `boot.js wires ${hook} — print must stay pure CSS`);
   }
 });
+
+Deno.test("the liner never prints, and the leaf is the paper", () => {
+  // The backing paper (DS-01 §04, 2026-09-23) is a screen ground. A
+  // fixed element prints on EVERY page — the debugger badge taught
+  // that on 2026-09-21 — so the liner is gone rather than dimmed, and
+  // the leaf's kiss-cut edge, fill and seat go with it: a border
+  // round a printed recipe would be a frame round a frame.
+  assert(/display:\s*none/.test(blockAfter(PRINT, ".liner")), "the liner is not hidden in print");
+  const leaf = blockAfter(PRINT, ".leaf");
+  for (const [property, value] of [
+    ["border", "0"],
+    ["background", "none"],
+    ["box-shadow", "none"],
+    ["padding", "0"],
+  ]) {
+    assert(
+      new RegExp(`${property}:\\s*${value}\\b`).test(leaf),
+      `the leaf's ${property} reaches paper`,
+    );
+  }
+});

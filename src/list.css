@@ -31,7 +31,8 @@
 }
 .shopping-list {
   width: 100%;
-  max-width: 44rem;
+  /* 44rem plus the leaf's margin either side (sheet.css). */
+  max-width: calc(44rem + 4.4rem);
 }
 
 /* ---------- the plate ---------- */

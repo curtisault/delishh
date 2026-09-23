@@ -142,6 +142,13 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   // row above it.
   { fg: "ink", bg: "accent-heat", min: 4.5 },
 
+  // ADD TO LIST's face. `--press-tx` and not `--ink`, because the
+  // lister is a <button> and takes its colour from the dress, where
+  // `.cook-enter` is a link and sets --ink by hand. The two hexes are
+  // the same today; the pair names the one that actually paints, so a
+  // re-cut of either cannot pass here and fail on the bench.
+  { fg: "press-tx", bg: "accent-live", min: 4.5 },
+
   // Structural rules are lines, not glyphs: AA's non-text bar.
   { fg: "rule", bg: "surface", min: 3 },
   { fg: "rule-soft", bg: "surface", min: 1.5, note: "divides without structuring" },

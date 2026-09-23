@@ -239,6 +239,22 @@
     display: none !important;
   }
 
+  /* THE PAPER IS THE PAPER. The liner is a screen ground and the leaf
+     is a sheet drawn on it; on a real sheet both are the page itself.
+     A fixed element prints on EVERY page (the debugger badge taught
+     that on 2026-09-21), so the liner is not merely dimmed but gone,
+     and the leaf's kiss-cut edge, fill and seat go with it — a border
+     round a printed recipe would be a frame round a frame. */
+  .liner {
+    display: none !important;
+  }
+  .leaf {
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
   /* THE BLOCK HAS NO BODY ON PAPER, and nothing here has to say so
      — which is worth writing down, because it is true by accident of
      two other decisions and would stop being true quietly.

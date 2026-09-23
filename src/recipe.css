@@ -26,13 +26,18 @@
 }
 
 .recipe-layout {
-  padding: 2.2rem 1.2rem 4rem;
+  /* Less air on top than there was: the leaf's own margin (sheet.css)
+     now sits between this and the plate. */
+  padding: 1.6rem 1.2rem 4rem;
   display: flex;
   justify-content: center;
 }
 .recipe {
   width: 100%;
-  max-width: var(--measure);
+  /* The measure plus the leaf's margin either side (sheet.css): the
+     sheet grew a border and padding on 2026-09-23 and the reading
+     measure inside it did not. Every width below adds the same. */
+  max-width: calc(var(--measure) + 4.4rem);
 }
 
 .recipe-state {
@@ -487,10 +492,10 @@
    layout sooner (DS-01 §12). */
 @media (min-width: 60rem) {
   .recipe {
-    /* 21rem rail + 2.8rem gap + a 44rem reading measure. Wider than
-       the old 44rem column, but still a composed page rather than
-       text poured to the viewport. */
-    max-width: 68rem;
+    /* 21rem rail + 2.8rem gap + a 44rem reading measure, plus the
+       leaf's margin. Wider than the old 44rem column, but still a
+       composed page rather than text poured to the viewport. */
+    max-width: calc(68rem + 4.4rem);
   }
   .recipe-cols {
     display: grid;
@@ -543,7 +548,10 @@
 @media (min-width: 76rem) {
   .recipe-layout {
     display: grid;
-    grid-template-columns: 11rem minmax(0, 68rem);
+    /* The content column carries the leaf's margin too; between 76rem
+       and 80.4rem the minmax gives the measure back a little, which
+       is a squeeze and not a break. */
+    grid-template-columns: 11rem minmax(0, calc(68rem + 4.4rem));
     justify-content: center;
     gap: 0 3rem;
   }
@@ -553,11 +561,18 @@
        lesson .doc-toc learned, and .recipe-side after it. */
     align-self: stretch;
   }
+  /* The nav stands in the margin, on the paper, so it is a tab of its
+     own: the same fill and kiss-cut edge as the leaf beside it, and
+     no landing — it is furniture, not a page. Not a `.leaf`, because
+     a leaf's padding is a page margin and this is a list. */
   .recipe-nav-inner {
     position: sticky;
     top: calc(var(--nav-h) + 1.6rem);
     max-height: calc(100vh - var(--nav-h) - 2rem);
     overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--rule-soft);
+    padding: 0.9rem 0.8rem 1rem;
   }
   /* The recipe's own plate, at nav scale: the nav says which recipe
      it belongs to without repeating the title. */
@@ -613,24 +628,31 @@
 
 /* ---------- the shopping control ---------- */
 
-/* Sizing only — the dress is the extruded slab (`.press-block` in
-   sheet.css, re-cut 2026-09-24; the outlined box retired).
+/* Sizing and face — the dress is the extruded slab (`.press-block` in
+   sheet.css, re-cut 2026-09-24).
 
-   NEUTRAL FACE, VOLT RAIL. It carries no acid of its own, so it takes
-   the neutral face and the rail states what it is: the actionable, as
-   a border, which is what the page layer has always been allowed
-   (§04). COOK THIS beside it takes a whole orange face, and that is
-   now what separates the page's primary verb from its second action —
-   a face against a rail, rather than a fill against an outline.
+   A MAGENTA FACE (§04, amended 2026-09-23; the neutral face and volt
+   rail retired). COOK THIS beside it is a whole orange face, and two
+   filled slabs one gap apart have to be told apart before either is
+   read: colour does that at arm's length and a rail against a fill
+   does not. The rail is a milled edge of the same magenta, derived by
+   the dress — a volt rail on a magenta face would be two acids on one
+   control, which is the error `.cook-enter` avoids the same way.
+
+   The face is `--accent-live`, a named role, NOT `--shelf-live`: a
+   --shelf-* token on a recipe surface is a bug and naming the
+   exception is what stops it becoming a licence (theme.css).
 
    ON IS SEATED, not filled. The block is held down with its walls
-   collapsed, so the state is DEPTH and costs no second acid on a
-   quiet surface. The word changes too, and `aria-pressed` says the
-   same thing; the shape is never the only carrier (§04).
+   collapsed, so the state is DEPTH and costs nothing in ink on top of
+   a face that now carries a colour. The word changes too, and
+   `aria-pressed` says the same thing; the shape is never the only
+   carrier (§04).
 
    Its metrics are COOK THIS's, so the two read as one pair of actions
    rather than a button and a leftover. */
 .lister-btn {
+  --press-face: var(--accent-live);
   display: inline-flex;
   align-items: center;
   min-height: var(--tap);

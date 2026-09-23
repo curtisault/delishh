@@ -38,7 +38,9 @@ import GroceryList
 import Html exposing (Html, a, button, div, nav, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
+import Html.Keyed as Keyed
 import Http
+import Liner
 import Json.Decode as D
 import Json.Encode as E
 import Page.About
@@ -914,7 +916,28 @@ view model =
     { title = Route.title model.route
     , body =
         [ siteNav model
-        , case model.route of
+
+        -- The backing paper, on every route but cook mode. Outside the
+        -- keyed wrapper below on purpose: it is the constant the pages
+        -- are laid on, and must survive a navigation.
+        , if Liner.on model.route then
+            Liner.view
+
+          else
+            text ""
+
+        -- Keyed on the route, so a navigation unmounts the old leaf and
+        -- mounts a fresh one — which is what lets `@starting-style` in
+        -- sheet.css seat it. A filter, a query or a scale keeps the key
+        -- and the leaf stays put (Liner.leafKey).
+        , Keyed.node "div" [ class "leaves" ] [ ( Liner.leafKey model.route, page model ) ]
+        ]
+    }
+
+
+page : Model -> Html Msg
+page model =
+        case model.route of
             Route.Home ->
                 case model.index of
                     Fetching ->
@@ -1002,8 +1025,6 @@ view model =
                             -- already cleared on navigation.
                             , active = model.active
                             }
-        ]
-    }
 
 
 chrome : Model -> Doc.Chrome Msg
@@ -1026,7 +1047,7 @@ siteNav model =
         , div [ id "nav-menu", class "nav-menu" ]
             [ div [ class "nav-links u" ]
                 [ navLink model.route Route.Home "Home"
-                , navLink model.route Route.ShoppingList "List"
+                , listLink model.route (GroceryList.count model.list)
                 , navLink model.route Route.DesignStandard "Standard"
                 , navLink model.route Route.About "About"
                 ]
@@ -1077,6 +1098,60 @@ navLink current target label =
         , classList [ ( "active", current == target ) ]
         ]
         [ text label ]
+
+
+{-| The shopping list's route, wearing how much is on it.
+
+Three things the figure is not. It is **not an acid** — a count is a
+quantity, and DS-01 §04 keeps acid off quantities wherever they fall,
+including here. It is **not colour-only** — it is a number, and it
+reads as one in the black-and-white bar of a printed page. And it is
+**not a zero**: an empty list has nothing to report, and a badge
+reading "0" is a heading over blank space (§06). Absent means the
+list is empty, which is the only thing it can mean.
+
+The accessible name carries the word the figure stands for, because
+"Shopping List 3" is not a sentence and a screen reader has no bar to
+see it in. `Doc`'s rule that nothing is inferred applies to the ear
+as much as the eye.
+
+-}
+listLink : Route -> Int -> Html msg
+listLink current n =
+    let
+        target =
+            Route.ShoppingList
+    in
+    a
+        (href (Route.toPath target)
+            :: classList [ ( "active", current == target ) ]
+            :: (if n > 0 then
+                    [ attribute "aria-label" (listLabel n) ]
+
+                else
+                    []
+               )
+        )
+        (text "Shopping List"
+            :: (if n > 0 then
+                    [ span [ class "nav-count mono" ] [ text (String.fromInt n) ] ]
+
+                else
+                    []
+               )
+        )
+
+
+listLabel : Int -> String
+listLabel n =
+    "Shopping List, "
+        ++ String.fromInt n
+        ++ (if n == 1 then
+                " recipe"
+
+            else
+                " recipes"
+           )
 
 
 themeControl : Theme -> Html Msg

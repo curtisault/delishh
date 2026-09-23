@@ -372,6 +372,75 @@ cold chain, magenta = live culture, volt = the action to take now.
 > press, so §09 was already hiding every one of them before this dress
 > existed.
 
+> **Amendment 2026-09-23 — the backing paper.** Every page but cook
+> mode is now a **leaf** laid on a **liner**: the release paper of a
+> sticker sheet, printed with the archive's name on the diagonal the
+> way real ones are (§03), in the display voice at hairline strength.
+> The leaf is the page — a flat `--surface` sheet with a kiss-cut
+> edge in `--rule-soft` — and the liner shows only in the margin
+> around it. This is the one decoration permitted to reach the
+> page layer, and the reasoning is that it never reaches the page:
+> no word of it sits under procedure, under a quantity, or under
+> anything a reader reads, because the leaf covers the whole
+> measure. Below the narrow tier there is no margin, the leaf runs
+> edge to edge as the page always did, and the liner is not painted.
+>
+> **It is type, not texture.** §2.6 bars grain, noise and distress,
+> and §2.1 bars anything that could not be silk-screened; a word set
+> in the house display face and repeated is a printed thing. It is
+> generated content rather than text, so it is not found by
+> find-in-page, not selected by a drag, and not read aloud.
+>
+> **Cook mode has no paper.** It is the stillest surface in the
+> product, read at arm's length with a pan on the heat (§08), and it
+> gets neither the liner nor the landing (§10). The printed sheet has
+> none either: the paper on a real page is the page.
+>
+> **The recipe page's side nav stands on the paper**, in the margin
+> beside the leaf, so it is a tab of its own — same fill, same edge,
+> no landing. It is furniture, not a page.
+
+> **Amendment 2026-09-24 — ADD TO LIST takes the magenta face.** The
+> clause above it supersedes is its own: "COOK THIS is a whole orange
+> slab and ADD TO LIST is the neutral one." Both actions are now
+> filled, and what tells them apart is which acid.
+>
+> **Two slabs one gap apart have to separate before either is read.**
+> The retired arrangement separated them by face against rail, which
+> is the weaker of the two carriers and the one that goes first at
+> arm's length, in bad light, and at the moment a reader is reaching
+> rather than looking. Colour is the carrier that survives all three.
+> The words still differ and `aria-pressed` still speaks, so nothing
+> rides on the acid alone — this is §12's rule met, not waived.
+>
+> **What this costs, stated plainly.** The 2026-09-21 amendment gave
+> COOK THIS orange on the argument that an action may wear the colour
+> of what it opens, and that argument does not extend here: magenta
+> is live and sweet in the table above, and a shopping list is
+> neither. This is the mechanism of that amendment — a named role,
+> `--accent-live`, so the exception is countable — used for a
+> different reason, which is that the pair needs separating. There
+> are now two named exceptions to volt being the actionable, and two
+> is the number; a third would mean volt no longer means anything.
+>
+> **The counting rule is the real price.** "One acid dominates a
+> recipe page; a second may cameo; never three" now depends on the
+> recipe. On a bake, fry, sear or sugar-work page — every recipe in
+> the corpus but one today — the dominant is heat, COOK THIS agrees
+> with it, and magenta is the single cameo: two, as before. On a
+> live page magenta is the dominant and orange the cameo: also two.
+> On a **cold** or **blend** page it is three, and that is a breach
+> rather than a reading of the rule. The corpus has one such recipe
+> at the time of writing and the vocabulary has room for many.
+>
+> The resolution is not to soften the count. Either the list page's
+> own acid moves from volt to magenta, which restores the
+> "colour of what it opens" argument and makes this the same
+> exception as COOK THIS rather than a second kind, or the cold and
+> blend pages give up their dominant to the two buttons. Until one
+> of those is decided this clause is a known breach, recorded here
+> so that it is not found later as a surprise.
+
 ### Themes
 
 Light and dark are the viewer's choice (System/Light/Dark, already
@@ -916,16 +985,19 @@ ink, small in pages, and traceable to the archive's current copy.
 Revision 2 relaxes the total-stillness rule, but only on the shelf,
 and never ambiently.
 
-- **Zero ambient motion, everywhere.** Nothing loops, drifts,
-  breathes, or pulses on its own. Motion is always a response to the
-  user's hand.
+- **Zero ambient motion, everywhere** — with one named entry, the
+  backing paper, below. Nothing else loops, drifts, breathes, or
+  pulses on its own. Motion is always a response to the user's hand.
 - **The shelf may respond playfully.** Tiles, chips, and buttons may
   acknowledge press and hover — under 200 ms, stepped or snappy
   easing, no springs that overshoot more than they travel. Think
   machinery with good detents, not jelly.
 - **Recipe pages hold still.** Reading surfaces get state transitions
   under 150 ms and nothing else. Cook mode is the stillest surface in
-  the product.
+  the product. Since 2026-09-23 "the page" here means the leaf — the
+  sheet the reader reads from — and not the margin it lies in: the
+  backing paper drifts there, and the clause below says why that is
+  not this rule breaking.
 - **A cut is not a travel** (amended 2026-09-23). The press dress
   (§04) seats when you press it: the slab changes position and the
   body it throws changes to nothing, with no interpolation between the two
@@ -949,6 +1021,35 @@ and never ambiently.
   inside `@media (prefers-reduced-motion: no-preference)`, so
   reduced-motion users never have motion defined at all rather than
   merely overridden.
+- **Sanctioned exception — the paper drifts** (amended 2026-09-23;
+  ruled shelf-only earlier the same day, then widened). Everywhere
+  the backing paper (§04) is — every route but cook mode — it creeps
+  along its own rows on its own: two rows every sixty seconds, about
+  1.6px a second, in a loop that closes on itself because the rows'
+  stagger repeats every two. It is invisible while you read the leaf
+  and alive when you look at the margin, and that is the argument for
+  letting it reach a reading surface: the leaf holds still, the
+  margin is not the page, and nothing a reader reads from ever moves.
+  Three things hold it to one exception rather than a loosening: it
+  rides the liner and nothing else, so `Liner.on` is the only thing
+  that says where it runs; the period has a floor of 45 s that the
+  motion test enforces; and it is authored inside the reduced-motion
+  guard, so a reader who asked for calm has the still paper and not a
+  slowed one. Scrolling is still the paper's other motion — the leaf
+  drags across it under your hand — and it never runs at a second
+  speed behind the page. Cook mode has no paper and nothing moves.
+- **Sanctioned exception — the leaf lands** (amended 2026-09-23). A
+  new page is a new sheet laid on the paper: it arrives held a few
+  pixels off the liner, one hard offset beneath it in the press
+  dress's own vocabulary (§04), and seats flush in under 150 ms. It is
+  motion in answer to a hand — the click or the address that opened
+  the page — and it is the one travel a reading surface carries,
+  which is why it is authored in the chrome sheet inside the guard
+  and `recipe.css` still may not contain a `transition` at all. It is
+  drawn as a shadow and not as a movement of the sheet, because the
+  shell measures a deep-linked anchor in the frame the page renders
+  and a sheet that arrived displaced would land every one of them
+  low. Cook mode does not land; it has no paper to land on.
 
 ---
 
