@@ -214,8 +214,10 @@
      exact failure this file's header warns about. */
   .site-nav,
   .recipe-controls,
+  .recipe-actions,
   .scaler,
   .printer,
+  .lister-btn,
   .recipe-back,
   .cook-enter {
     display: none !important;

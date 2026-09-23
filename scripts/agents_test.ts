@@ -16,6 +16,7 @@
 
 import { assert, assertEquals } from "@std/assert";
 import {
+  AISLES,
   BLOCKS,
   COURSES,
   CUISINES,
@@ -185,6 +186,43 @@ Deno.test("the unit lists match UNITS, kind by kind", () => {
       sorted(listedOn(kind)),
       sorted([...canonical]),
       `AGENTS.md's ${kind} units disagree with vocabulary.ts`,
+    );
+  }
+});
+
+Deno.test("the aisle list matches AISLES, in the same order", () => {
+  // Order is load-bearing here in a way it is not for a facet: this
+  // list IS the order the shopping list renders in, and AGENTS.md
+  // tells authors it is a walk through a shop. Sorting both sides
+  // before comparing would let the walk scramble silently.
+  assertEquals(
+    listedOn("aisle"),
+    [...AISLES],
+    "AGENTS.md's aisle list disagrees with vocabulary.ts",
+  );
+});
+
+Deno.test("AGENTS.md teaches the pantry table's two hard rules", () => {
+  // The rules a recipe author cannot infer from the schema: that an
+  // unmapped item fails the build, and that a non-purchase is stated
+  // rather than detected. Both are reasoning, not lists, so they are
+  // held by their words — the same way the keeping-life section is.
+  const section = doc.slice(
+    doc.indexOf("### Every ingredient must be in the pantry table"),
+    doc.indexOf("### Steps"),
+  );
+  assert(section.length > 0, "AGENTS.md has no pantry-table section");
+  for (
+    const phrase of [
+      "scripts/pantry.ts",
+      "the exact item string",
+      "omit: true",
+      "buyAs",
+    ]
+  ) {
+    assert(
+      section.includes(phrase),
+      `the pantry-table section never mentions \`${phrase}\``,
     );
   }
 });

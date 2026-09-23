@@ -64,7 +64,13 @@ suite =
                 -- check a hand-written list, so adding a route means
                 -- adding it below as well, AND adding a line to
                 -- public/_redirects
-                [ Home, About, DesignStandard, Recipe "salted-caramel", Cook "salted-caramel" ]
+                [ Home
+                , About
+                , DesignStandard
+                , ShoppingList
+                , Recipe "salted-caramel"
+                , Cook "salted-caramel"
+                ]
             )
         , describe "cook mode is its own address"
             [ test "reads the slug off the path" <|

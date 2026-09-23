@@ -194,9 +194,21 @@
   flex: 1 1 auto;
   min-width: 0;
 }
-/* The button carries its own top margin for the stacked case; inside
-   the band the flex row owns the spacing. */
-.recipe-controls .cook-enter {
+/* The two actions, together at the edge. Both send something
+   somewhere else — one to a shop, one to the heat — which is the seam
+   this row is split on. Outlined first, filled last: the primary verb
+   is the one you reach past the other to get to. */
+.recipe-actions {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+/* Both carry their own top margin for the stacked case; inside the
+   band the flex row owns the spacing. */
+.recipe-controls .cook-enter,
+.recipe-actions .lister-btn {
   flex: none;
   margin-top: 0;
 }
@@ -451,6 +463,7 @@
 .scaler-btn:focus-visible,
 .printer-btn:focus-visible,
 .printer-prep:focus-visible,
+.lister-btn:focus-visible,
 .cook-enter:focus-visible,
 .recipe-back:focus-visible {
   outline: 3px solid var(--tx);
@@ -589,4 +602,35 @@
     background: var(--here-fill);
     border-left-color: var(--here);
   }
+}
+
+/* ---------- the shopping control ---------- */
+
+/* Outlined, never filled. DS-01's COOK THIS amendment stakes itself on
+   nothing else on a recipe page being a filled block, so the pressed
+   state here is a RULE and a weight rather than a second fill — the
+   same filled-against-outlined logic the cook rail uses, run the other
+   way up because this control has to stay quieter than the one it
+   stands beside. The word changes too; the mark is never the only
+   carrier (§04).
+
+   Its metrics are COOK THIS's, so the two read as one pair of actions
+   rather than a button and a leftover. */
+.lister-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: 0.8rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  background: none;
+  border: 1.5px solid var(--rule);
+  color: var(--tx);
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+.lister-btn.active {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+  font-weight: 700;
 }

@@ -6,6 +6,7 @@ module Recipe exposing
     , IngredientGroup
     , Recipe
     , Rescue
+    , Shop
     , Step
     , Yield
     , decoder
@@ -106,7 +107,24 @@ type alias Ingredient =
     , indivisible : Bool
     , item : String
     , note : Maybe String
+    , shop : Maybe Shop
     }
+
+
+{-| Where a thing is bought, and what it is called in the trolley.
+
+Joined by the build from `scripts/pantry.ts`, never read out of the
+ingredient line — `buyAs` is what two recipes merge on, which is why
+"yellow onion" and "yellow onions" become one entry on the list.
+
+`Nothing` is an authored non-purchase: tap water, or an option to add
+nothing at all. It is the one ingredient the shopping list skips, and
+it is absent here because somebody said so rather than because a rule
+failed to place it (DS-01 §06).
+
+-}
+type alias Shop =
+    { aisle : String, buyAs : String }
 
 
 type alias IngredientGroup =
@@ -270,13 +288,21 @@ groupDecoder =
 
 ingredientDecoder : Decoder Ingredient
 ingredientDecoder =
-    D.map6 Ingredient
+    D.map7 Ingredient
         (D.field "amount" (D.nullable amountDecoder))
         (D.field "unit" (D.nullable D.string))
         (D.field "unitKind" (D.nullable D.string))
         (D.field "indivisible" D.bool)
         (D.field "item" D.string)
         (D.field "note" (D.nullable D.string))
+        (D.maybe (D.field "shop" shopDecoder))
+
+
+shopDecoder : Decoder Shop
+shopDecoder =
+    D.map2 Shop
+        (D.field "aisle" D.string)
+        (D.field "buyAs" D.string)
 
 
 amountDecoder : Decoder Amount

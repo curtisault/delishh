@@ -42,6 +42,13 @@ type alias Config msg =
     , onForm : Print.Form -> msg
     , prepCard : Bool
     , onPrepCard : msg
+
+    -- Whether this recipe is already on the shopping list, and how to
+    -- put it on or take it off. The button reads its own state: a
+    -- control that said "Add" while the thing was already added is a
+    -- control you press twice.
+    , inList : Bool
+    , onToggleList : msg
     , origin : String
     , today : String
 
@@ -277,16 +284,22 @@ plate config =
             )
         ]
             ++ gauges r
-            ++ [ -- Settings on the left, the action on the right.
-                 -- The scale and the form are things you *set* before
-                 -- you start; cooking is the thing you then do, and
-                 -- stacking it under them read as a fourth setting.
-                 -- DOM order is unchanged, so the tab order still
-                 -- runs scale → form → go.
+            ++ [ -- Settings on the left, actions on the right, and the
+                 -- seam between them is what each one changes. The
+                 -- scale and the print form change the document in
+                 -- front of you. Adding to the list and entering cook
+                 -- mode both send something somewhere else — one to a
+                 -- shop, one to the heat — and stacking either of
+                 -- those under the settings read as a third setting.
+                 --
+                 -- Within the actions, outlined before filled: the
+                 -- primary is last, which is also the tab order.
+                 -- DOM order runs scale → form → list → go.
                  div [ class "recipe-controls" ]
                     [ div [ class "recipe-settings" ]
                         [ scaler config, printer config ]
-                    , cookLink config
+                    , div [ class "recipe-actions" ]
+                        [ lister config, cookLink config ]
                     ]
                ]
         )
@@ -711,6 +724,49 @@ note r =
                 (List.map (\para -> p [] [ text para ]) r.note)
             ]
 
+
+
+{-| Put this recipe's shopping on the list, or take it back off.
+
+**Outlined, never filled.** DS-01's 2026-09-21 amendment gives COOK
+THIS its fill on the stated grounds that nothing else on a recipe
+page is a filled block, and a second fill beside it would spend that
+premise rather than honour it. The two stand together because both
+send something elsewhere; the fill is what says which one is the
+page's primary verb.
+
+It carries no key word of its own, unlike the scale and the print
+form. Those label a set of options you choose between; this is one
+control that already says what it does, and a word in front of it
+would only be furniture.
+
+The label says which way the press goes, and `aria-pressed` says the
+same thing to a screen reader: neither carrier is the only one (§04).
+
+-}
+lister : Config msg -> Html msg
+lister config =
+    Html.button
+        [ Html.Attributes.type_ "button"
+        , class "lister-btn u"
+        , classList [ ( "active", config.inList ) ]
+        , attribute "aria-pressed"
+            (if config.inList then
+                "true"
+
+             else
+                "false"
+            )
+        , onClick config.onToggleList
+        ]
+        [ text
+            (if config.inList then
+                "On your list"
+
+             else
+                "Add to list"
+            )
+        ]
 
 
 {-| The way into cook mode, carrying the scale it was set at.

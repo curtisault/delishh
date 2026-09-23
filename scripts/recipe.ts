@@ -71,6 +71,12 @@ export type Ingredient = {
   item: string;
   /** The preparation after the first comma — "cubed, cold". */
   note: string | null;
+  /** Where this is bought and what it is called in the trolley, joined
+   * from `pantry.ts` by `build-content.ts` — never parsed out of the
+   * line. Absent means an authored non-purchase (tap water, an option
+   * to add nothing), which is the one ingredient a shopping list
+   * skips. `parseRecipe` never sets it; the corpus-wide check does. */
+  shop?: { aisle: string; buyAs: string };
 };
 
 export type IngredientGroup = { name: string | null; items: Ingredient[] };

@@ -40,6 +40,7 @@ ingredient item =
     , indivisible = False
     , item = item
     , note = Nothing
+    , shop = Just { aisle = "baking", buyAs = item }
     }
 
 
@@ -88,6 +89,8 @@ rendered recipe active =
             , onForm = always ()
             , prepCard = False
             , onPrepCard = ()
+            , inList = False
+            , onToggleList = ()
             , origin = "https://delishh.test"
             , today = "2026-09-20"
             , active = active
@@ -98,6 +101,28 @@ rendered recipe active =
 plain : Query.Single ()
 plain =
     rendered full Nothing
+
+
+{-| The page with the recipe already on the shopping list.
+-}
+listed : Query.Single ()
+listed =
+    Query.fromHtml
+        (Page.Recipe.view
+            { recipe = full
+            , factor = Scale.one
+            , onScale = always ()
+            , form = Print.Sheet
+            , onForm = always ()
+            , prepCard = False
+            , onPrepCard = ()
+            , inList = True
+            , onToggleList = ()
+            , origin = "https://delishh.test"
+            , today = "2026-09-20"
+            , active = Nothing
+            }
+        )
 
 
 {-| The nav's rows, in order, as their anchors. -}
@@ -111,6 +136,8 @@ navAnchors recipe =
         , onForm = always ()
         , prepCard = False
         , onPrepCard = ()
+        , inList = False
+        , onToggleList = ()
         , origin = "https://delishh.test"
         , today = "2026-09-20"
         , active = Nothing
@@ -162,6 +189,59 @@ suite =
                         |> Query.findAll [ Selector.class "recipe-h" ]
                         |> Query.index 1
                         |> Query.has [ Selector.text "Ingredients" ]
+            ]
+        , describe "the shopping control — DS-01 §04, amended 2026-09-22"
+            [ test "the page offers a way onto the shopping list" <|
+                \_ ->
+                    plain |> Query.has [ Selector.class "lister-btn" ]
+            , test "it says which way the press goes" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "lister-btn" ]
+                        |> Query.has [ Selector.text "Add to list" ]
+            , test "and says the other thing once the recipe is on the list" <|
+                \_ ->
+                    -- A control that read "Add" while the thing was
+                    -- already added is a control you press twice.
+                    listed
+                        |> Query.find [ Selector.class "lister-btn" ]
+                        |> Query.has [ Selector.text "On your list" ]
+            , test "the state reaches a screen reader too, not only an eye" <|
+                \_ ->
+                    listed
+                        |> Query.find [ Selector.class "lister-btn" ]
+                        |> Query.has
+                            [ Selector.attribute (Attr.attribute "aria-pressed" "true") ]
+            , test "it is not the page's filled block" <|
+                \_ ->
+                    -- DS-01's COOK THIS amendment stakes its whole
+                    -- reasoning on nothing else here being a fill, so
+                    -- this must not become the second one.
+                    listed
+                        |> Query.find [ Selector.class "lister-btn" ]
+                        |> Query.hasNot [ Selector.class "cook-enter" ]
+            , test "it stands with the action, not with the settings" <|
+                \_ ->
+                    -- The row is split on what each control CHANGES:
+                    -- the scale and the form change this document,
+                    -- these two send something elsewhere.
+                    plain
+                        |> Query.find [ Selector.class "recipe-actions" ]
+                        |> Query.has [ Selector.class "lister-btn" ]
+            , test "the settings cluster keeps only the settings" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "recipe-settings" ]
+                        |> Query.hasNot [ Selector.class "lister-btn" ]
+            , test "the filled primary comes last, in the DOM and in tab order" <|
+                \_ ->
+                    -- You reach past the quieter control to get to the
+                    -- loud one; a screen reader walks them the same way.
+                    plain
+                        |> Query.find [ Selector.class "recipe-actions" ]
+                        |> Query.children []
+                        |> Query.index -1
+                        |> Query.has [ Selector.class "cook-enter" ]
             ]
         , describe "the split"
             [ test "what you need and what you do are separate columns" <|

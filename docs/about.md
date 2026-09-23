@@ -77,10 +77,17 @@ CDN, and nothing is fetched from anywhere else either.
 Nothing. There is no analytics, no tracking, no error reporting and
 no third-party script of any kind on this site.
 
-**One thing is stored in this browser**: which lighting you chose,
-under a single key, so the page does not flash the wrong theme before
-it loads. Choosing "System" clears it. Nothing is sent anywhere, and
-there is no server to send it to — the whole site is static files.
+**Two things are stored in this browser**, each under a single key.
+The first is which lighting you chose, so the page does not flash the
+wrong theme before it loads; choosing "System" clears it. The second
+is your shopping list — the recipes you added to it and the items you
+have ticked off — so it is still there when you get to the shop.
+Taking the last recipe back off the list clears that one.
+
+Nothing is sent anywhere, and there is no server to send it to — the
+whole site is static files. Both keys are local to this browser, so
+the list does not follow you to another device, and clearing your
+site data ends both.
 
 ### Checks that run on every build
 

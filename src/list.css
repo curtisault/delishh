@@ -1,0 +1,205 @@
+/* The shopping list — DS-01 §04, amended 2026-09-22.
+ *
+ * THE QUIET LAYER, on a surface that is neither shelf nor recipe.
+ * This page is carried into a shop and read one-handed, so it takes
+ * the procedure register: --page-* marks only, no --shelf-* fill
+ * anywhere, and quantities in ink. Volt lands on the one actionable
+ * thing — the control that puts something in the cart — and nowhere
+ * else. One acid, no cameo.
+ *
+ * IN THE CART IS A SHAPE. A ticked row fills its box against the
+ * outlined boxes above it, which is the cook rail's glance (§08) and
+ * survives a monochrome screen and a colour-blind reader. The line
+ * through the name is decoration ON TOP of that fill and of the words
+ * ", in cart" that go to a screen reader — never the only carrier
+ * (§12). Ticked rows sink to one group and stay fully legible, the
+ * way an excluded shelf row does, because you will look down to check
+ * whether you already got the butter.
+ *
+ * NOTHING MOVES. There is no transition and no keyframe in this file,
+ * guarded or otherwise. A row leaving its aisle for the cart does it
+ * instantly: the motion register is zero (§10), and a list
+ * rearranging itself under a thumb in a shop would be hostile rather
+ * than delightful. `motion_test.ts` has this sheet in its SHEETS list,
+ * so a transition added here fails the build.
+ */
+
+.list-layout {
+  padding: 1.6rem 1.2rem 4rem;
+  display: flex;
+  justify-content: center;
+}
+.shopping-list {
+  width: 100%;
+  max-width: 44rem;
+}
+
+/* ---------- the plate ---------- */
+
+.list-plate {
+  border-bottom: 3px solid var(--rule);
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.6rem;
+}
+.list-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 6vw, 2.6rem);
+  line-height: 0.95;
+  margin: 0;
+  text-transform: uppercase;
+}
+.list-standfirst {
+  font-size: 0.82rem;
+  color: var(--tx-dim);
+  margin: 0.5rem 0 0;
+}
+
+/* ---------- the empty state ---------- */
+
+/* A dead end is a design failure: this says where the list comes from
+   and offers the way there. */
+.list-empty {
+  font-size: 0.9rem;
+  max-width: 34rem;
+}
+.list-empty p {
+  margin: 0 0 0.9rem;
+}
+.list-back {
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  border-bottom: 1.5px solid var(--accent);
+  color: var(--tx);
+  text-decoration: none;
+  padding-bottom: 0.1rem;
+}
+
+/* ---------- what the list is made of ---------- */
+
+.list-sources {
+  margin-bottom: 2rem;
+}
+.list-source-set {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+}
+.list-source {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+.list-source-link {
+  color: var(--tx);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--rule-soft);
+}
+/* The scale a recipe went on at. Data, so mono — and ink, because an
+   acid never lands on a quantity (§04). */
+.list-source-scale {
+  font-family: var(--font-data);
+  font-size: 0.66rem;
+  color: var(--tx-dim);
+}
+
+/* ---------- an aisle ---------- */
+
+.list-aisle {
+  margin-bottom: 2rem;
+}
+.list-h {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  border-bottom: 1.5px solid var(--rule);
+  padding-bottom: 0.3rem;
+  margin: 0 0 0.6rem;
+}
+.list-set {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.list-row + .list-row {
+  border-top: 1px solid var(--rule-soft);
+}
+
+/* ---------- a row ---------- */
+
+/* The whole row is the target. DS-01 §08's tap-target floor is about
+   cook mode, but the same hand is holding the same phone here, with a
+   trolley in the other one. */
+.list-tick {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0.6rem 0.2rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+  text-align: left;
+  color: var(--tx);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+/* An unticked box drawn as a rule, not a glyph: a character checkbox
+   is a font dependency, and this is the same box the printed prep
+   sheet gets ticked in with a pen (§09). */
+.list-box {
+  flex: none;
+  width: 0.82rem;
+  height: 0.82rem;
+  border: 1.5px solid var(--rule);
+  align-self: center;
+}
+.list-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* Quantities are data and stay ink, on every surface. */
+.list-qty {
+  flex: none;
+  font-family: var(--font-data);
+  font-size: 0.8rem;
+  color: var(--tx-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- in the cart ---------- */
+
+/* THE FILL IS THE SIGNAL. Filled against outlined survives a
+   monochrome screen; the strikethrough and the hidden ", in cart" are
+   the second and third carriers, and the row keeps every word legible
+   because you re-read it at the till. */
+.list-row.is-cart .list-box {
+  background: var(--stencil-bg);
+  border-color: var(--stencil-bg);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.list-row.is-cart .list-name {
+  text-decoration: line-through;
+  color: var(--tx-dim);
+}
+.list-row.is-cart .list-qty {
+  text-decoration: line-through;
+}
+.list-aisle.is-cart .list-h {
+  color: var(--tx-dim);
+  border-bottom-color: var(--rule-soft);
+}
+
+/* Focus is unconditional — it is not decoration, and it is never
+   inside a motion query. */
+.list-tick:focus-visible,
+.list-back:focus-visible {
+  outline: 2px solid var(--here);
+  outline-offset: 2px;
+}

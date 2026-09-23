@@ -239,6 +239,61 @@ cold chain, magenta = live culture, volt = the action to take now.
 > role of its own (`--accent-heat`), so this is one deliberate
 > exception rather than a loosening of what volt is for.
 
+> **Amendment 2026-09-22 — a third surface: the shopping list.**
+> §01 splits the product into a loud shelf and a quiet page, and for
+> two revisions that was every surface there was. The list at `/list`
+> is neither. It is a working document you carry *out* of the
+> kitchen, read standing in an aisle with one hand, and throw away
+> when the shopping is done.
+>
+> **It runs page-quiet.** `--page-*` marks only; no `--shelf-*` fill
+> ever lands here. The reasoning is the reasoning of §01: decoration
+> is for the surface where you are choosing, and by the time you are
+> holding this you have chosen. Volt is its one acid and it lands
+> only on the actionable — the control that puts something in the
+> cart. Quantities stay ink, as they do everywhere (§04), because a
+> shopping list is a page made almost entirely of quantities and the
+> rule that makes a dense page trustworthy is needed most here.
+>
+> **In the cart is a shape, not a colour.** A checked item fills its
+> box against the outlined boxes of everything still to buy — the
+> same filled-against-outlined glance the cook rail uses for a done
+> step (§08), and the same drawn box the printed prep sheet uses
+> (§09), because a character checkbox is a font dependency. It also
+> says ", in cart" to a screen reader. The line through the name is
+> decoration on top of those two carriers and never the only one:
+> that is §12's never-colour-alone rule applied to a treatment that
+> is not a colour but would fail the same way.
+>
+> **Checked items sink; they do not vanish.** The cart group sits at
+> the bottom of the list, struck but fully legible. This is the
+> shelf's lockout rule (§07) rather than cook mode's stamp: on the
+> shelf an excluded recipe stays on the page wearing the reason, and
+> here you want to be able to look down and see that you did already
+> get the butter. Nothing animates on the way down — the motion
+> register is still zero (§10) and a list that rearranged itself
+> under your thumb in a shop would be actively hostile.
+>
+> **The recipe page's second button is outlined, never filled.** The
+> amendment above stakes COOK THIS on there being exactly one filled
+> block on a recipe page, and that premise is preserved rather than
+> quietly spent. ADD TO LIST stands beside it, outlined.
+>
+> They stand together because the controls row is split on *what each
+> thing changes*, not on how important it is. The scale and the print
+> form change the document in front of you, and they sit on the left
+> wearing their key words. These two send something somewhere else —
+> one to a shop, one to the heat — and neither is a setting you would
+> think to read back. Putting the list button with the settings made
+> it a third row of options nobody was choosing between; putting it
+> with the action makes the pair what it is.
+>
+> **The fill is what separates them**, and it is now doing real work
+> rather than merely being unique: of two adjacent actions, one is
+> the page's primary verb and one is not. Outlined first, filled
+> last, which is also the tab order — you reach past the quieter one
+> to get to the loud one.
+
 ### Themes
 
 Light and dark are the viewer's choice (System/Light/Dark, already
@@ -506,6 +561,57 @@ Clamp it toward the neutral family or render it as a coarse halftone
 — halftone is already in the graphic vocabulary, it keeps the payload
 tiny, and it's the only form a photo survives printing in (§09). No
 photo means the block is absent. Never a placeholder.
+
+> **Amendment 2026-09-22 — an ingredient knows what aisle it is
+> bought in, and a person decided that.** Every ingredient the build
+> emits carries `shop: {aisle, buyAs}` so the list at `/list` can
+> group a shop by where you will be standing. Neither half is read
+> out of the ingredient line.
+>
+> **The aisle is a join, not a guess.** A central table maps the
+> exact item string to one of a closed list of aisles, and the build
+> fails on an item the table has never heard of. The alternative — a
+> rule that sees "potatoes" and reasons its way to produce — is the
+> move §06 has already refused for a gauge, for a keeping life and
+> for a flavour level, and it fails in the same direction: quietly,
+> plausibly, and only in the shop. A new ingredient costs one line in
+> a table. That friction is the point, exactly as it is for a facet.
+>
+> **`buyAs` is what goes in the trolley**, and it is the name two
+> recipes merge on. The corpus says "yellow onion" in one file and
+> "yellow onions" in another; it says "cilantro" and "cilantro — at
+> serving only". Those are one purchase, and collapsing them by
+> stemming the strings would be inference wearing a tidier hat. The
+> table states the purchase name, the recipes keep their own words,
+> and neither has to bend.
+>
+> **A bullet that is not a purchase says so out loud.** One
+> ingredient line in this archive reads "or nothing at all; it is
+> excellent plain". The table marks it omitted, by hand. An unmapped
+> item and a deliberate non-purchase must never look the same to the
+> build, or the check stops meaning anything the first time somebody
+> silences it.
+>
+> **Merging never converts between kinds.** Mass sums with mass,
+> volume with volume, a count with the same count unit. Flour asked
+> for in grams by one recipe and cups by another is *one line
+> carrying both* — `500 g + 2 cups` — because a cup of flour weighs
+> what it weighs on the day, and a shopping list that made that
+> number up would be wrong in the only place it is ever read. A
+> compound item is never split for the same reason: nothing here
+> knows how much of "Monterey Jack and sharp cheddar" is the cheddar.
+>
+> **Where it rounds, it rounds up.** Half an egg is not a thing to
+> buy, and the honest answer for a shop is *enough*. This is the one
+> place the measurement ladder (§05) deliberately reads differently
+> from the recipe page, which still states what the arithmetic
+> actually wanted.
+>
+> **A "pick one" group contributes all of its options.** The list
+> does not carry sub-preparation headings, so a recipe offering
+> chocolate chips *or* pepitas puts both on it. Over-inclusive is
+> recoverable at the shelf edge; under-inclusive sends you home
+> without dinner.
 
 ---
 
@@ -801,6 +907,12 @@ copy is written in a hurry and nobody reviews a tooltip.
   loaded.
 - **Self-hosted assets only.** No font CDNs, no third-party analytics
   on a document you may want to read in ten years.
+- **Nothing about a reader leaves their browser.** Two things are
+  stored, both local and both named in the colophon: the lighting
+  they chose, and the shopping list they built. Either may fail to
+  save — a full or blocked store degrades to the choice holding for
+  the session, never to a surface that will not render. State that
+  cannot be read back is discarded and the reader starts empty.
 
 ---
 

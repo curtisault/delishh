@@ -34,13 +34,17 @@ import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Cook
 import Doc
+import GroceryList
 import Html exposing (Html, a, button, div, nav, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
 import Http
+import Json.Decode as D
+import Json.Encode as E
 import Page.About
 import Page.Cook
 import Page.DesignStandard
+import Page.GroceryList
 import Page.Recipe
 import Page.Shelf
 import Print
@@ -56,6 +60,21 @@ import Viewport
 
 
 port saveTheme : String -> Cmd msg
+
+
+{-| Write the shopping list back to this browser.
+
+The second thing this product stores, and the only one with any
+shape to it — the theme is a word. Out as an encoded value rather
+than a string so the schema lives in `GroceryList.encode` beside the
+decoder that has to agree with it; boot.js only stringifies.
+
+It fails the way the theme fails: silently, into a list that holds
+for the session. A shop is not the moment to learn that storage is
+full.
+
+-}
+port saveList : E.Value -> Cmd msg
 
 
 {-| Which section the reader is currently inside, reported by boot.js.
@@ -158,6 +177,11 @@ type alias Flags =
 
     -- the date a printed sheet says it was pulled (DS-01 §09)
     , today : String
+
+    -- the shopping list as it was stored, still a string. Decoded in
+    -- `init`, where anything that will not decode becomes an empty
+    -- list rather than a shell that does not boot
+    , list : Maybe String
     }
 
 
@@ -228,6 +252,12 @@ type alias Model =
     -- every other page state; the SCALE is not held here at all — it
     -- rides in the URL, so entering cook mode cannot silently change
     -- the quantities (DS-01 §08)
+    -- what to buy. The one piece of page state navigation does NOT
+    -- reset, because it is not page state: it is the reader's, it
+    -- outlives the tab, and a list that emptied itself when you
+    -- opened the next recipe would be worse than no list
+    , list : GroceryList.Model
+
     , done : Set Int
     , timer : Maybe Cook.Timer
     , now : Time.Posix
@@ -265,6 +295,10 @@ init flags url key =
       , index = Fetching
       , filters = Shelf.noFilters
       , openPath = Nothing
+      , list =
+            flags.list
+                |> Maybe.andThen (D.decodeString GroceryList.decoder >> Result.toMaybe)
+                |> Maybe.withDefault GroceryList.empty
       , done = Set.empty
       , timer = Nothing
       , now = Time.millisToPosix 0
@@ -287,12 +321,25 @@ init flags url key =
     )
 
 
+{-| Keep a changed list, and write it through. Every edit to the list
+goes out in the same breath it happens, because the next thing the
+reader does with a shopping list is close the tab and walk to a shop.
+-}
+store : Model -> ( Model, Cmd Msg )
+store model =
+    ( model, saveList (GroceryList.encode model.list) )
+
+
 {-| What arriving at a route costs in requests.
 
 Every route but `Recipe` is already in the bundle — DS-01 is generated
 into Elm at build time precisely so it needs no fetch (see
 `scripts/build-docs.ts`). Recipes are a growing corpus and are fetched
 one at a time.
+
+The shopping list is the one page that fetches **nothing**: it is a
+snapshot, taken when each recipe went on, so it renders in a shop
+with no signal.
 
 -}
 routeCmd : Route -> Cmd Msg
@@ -336,6 +383,8 @@ type Msg
     | SetForm Print.Form
     | TogglePrepCard
     | GotIndex (Result Http.Error Shelf.Index)
+    | ToggleInList
+    | CheckItem String
     | OpenPath (Maybe Shelf.Path)
     | ToggleFacet Shelf.Path String
     | ShelfQuery String
@@ -531,6 +580,27 @@ update msg model =
 
         SetForm form ->
             ( { model | form = form }, Cmd.none )
+
+        ToggleInList ->
+            -- The recipe has to be in hand: what goes on the list is a
+            -- snapshot of its ingredients at the scale on screen, not
+            -- a pointer to a document that may not be there when the
+            -- list is read.
+            case model.recipe of
+                Fetched recipe ->
+                    store
+                        { model
+                            | list =
+                                GroceryList.toggle
+                                    (GroceryList.fromRecipe model.factor recipe)
+                                    model.list
+                        }
+
+                _ ->
+                    ( model, Cmd.none )
+
+        CheckItem key ->
+            store { model | list = GroceryList.check key model.list }
 
         GotIndex (Ok index) ->
             ( { model | index = Fetched index }, Cmd.none )
@@ -813,6 +883,12 @@ view model =
                             , onClear = ClearFilters
                             }
 
+            Route.ShoppingList ->
+                Page.GroceryList.view
+                    { list = model.list
+                    , onCheck = CheckItem
+                    }
+
             Route.About ->
                 Page.About.view (chrome model)
 
@@ -862,6 +938,8 @@ view model =
                             , onForm = SetForm
                             , prepCard = model.prepCard
                             , onPrepCard = TogglePrepCard
+                            , inList = GroceryList.member slug model.list
+                            , onToggleList = ToggleInList
                             , origin = model.origin
                             , today = model.today
 
@@ -894,6 +972,7 @@ siteNav model =
         , div [ id "nav-menu", class "nav-menu" ]
             [ div [ class "nav-links u" ]
                 [ navLink model.route Route.Home "Home"
+                , navLink model.route Route.ShoppingList "List"
                 , navLink model.route Route.DesignStandard "Standard"
                 , navLink model.route Route.About "About"
                 ]

@@ -181,6 +181,7 @@ fixture =
                   , indivisible = False
                   , item = "caster sugar"
                   , note = Nothing
+                  , shop = Just { aisle = "baking", buyAs = "caster sugar" }
                   }
                 ]
           }

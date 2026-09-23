@@ -231,6 +231,59 @@ export const UNITS: Record<string, { kind: UnitKind; canonical: string }> = {
  * yield of "¾ tsp" is a mistake, not a recipe. */
 export const YIELD_UNITS = ["g", "kg", "ml", "l", "pieces"] as const;
 
+// ---------------------------------------------------------------------------
+// Aisles — where the shopping list groups a purchase (DS-01 §04, §06)
+// ---------------------------------------------------------------------------
+
+/**
+ * The parts of a shop, **in the order you walk them**.
+ *
+ * This is the render order of the list at `/list`, and it is not
+ * alphabetical for the same reason the shelf's default order is not:
+ * the useful order is the working one. Perimeter first — produce,
+ * meat, the cold wall, the bread — then the centre aisles, then the
+ * freezer last, because anything picked up there rides in the trolley
+ * until you leave.
+ *
+ * No ingredient names an aisle. `scripts/pantry.ts` maps the item
+ * string to one of these by hand, and `build-content.ts` fails on an
+ * item the table has never heard of — deriving "potatoes → produce"
+ * from the string is the inference DS-01 §06 refuses for a gauge, a
+ * keeping life and a flavour level alike.
+ *
+ * Widen this list only when a real item needs it. An aisle nothing is
+ * bought in is a heading that never renders, which is the shopping
+ * equivalent of a filter that always returns nothing.
+ */
+export const AISLES = [
+  "produce",
+  "meat",
+  "dairy",
+  "bakery",
+  "dry-goods",
+  "canned",
+  "spices",
+  "baking",
+  "condiments",
+  "frozen",
+] as const;
+
+/** What a shopping-list heading reads as. The token is a key; this is
+ * the words, and the two are separate because "dry-goods" is a
+ * sensible identifier and a poor thing to print above a list. */
+export const AISLE_LABELS: Record<Aisle, string> = {
+  "produce": "Produce",
+  "meat": "Meat",
+  "dairy": "Dairy & eggs",
+  "bakery": "Bakery",
+  "dry-goods": "Dry goods",
+  "canned": "Canned & jarred",
+  "spices": "Spices",
+  "baking": "Baking",
+  "condiments": "Oils & condiments",
+  "frozen": "Frozen",
+};
+
 /** Vulgar fraction glyphs and their values. DS-01 §05: volume
  * fractions are glyphs, never decimals — so these are the only legal
  * way to write a part of a spoon. */
@@ -374,4 +427,5 @@ export type Effort = (typeof EFFORTS)[number];
 export type Dietary = (typeof DIETARY)[number];
 export type Cuisine = (typeof CUISINES)[number];
 export type PrintTemplate = (typeof PRINT_TEMPLATES)[number];
+export type Aisle = (typeof AISLES)[number];
 export type BlockKey = (typeof BLOCKS)[number]["key"];

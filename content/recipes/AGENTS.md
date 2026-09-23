@@ -222,6 +222,46 @@ The grammar, **enforced** where marked:
   saying what the arithmetic wanted. Write plurals naturally
   (`3 cloves`); the build canonicalises them.
 
+### Every ingredient must be in the pantry table
+
+You do not write this in the recipe, but the build will stop you if
+it is missing. `scripts/pantry.ts` maps **the exact item string** —
+what is left after the amount, the unit and the comma-note are taken
+off — to the aisle it is bought in and the name it goes on a shopping
+list under. A recipe naming an item no other recipe has named yet
+fails the build until the table gains a line:
+
+```
+"yellow onions":  { aisle: "produce", buyAs: "yellow onions" },
+"yellow onion":   { aisle: "produce", buyAs: "yellow onions" },
+"cilantro — at serving only": { aisle: "produce", buyAs: "cilantro" },
+"or nothing at all; it is excellent plain": { omit: true },
+```
+
+Three things that trip people:
+
+- **`buyAs` is the name two recipes merge on**, so it is written as
+  the thing you put in the trolley — plural, no preparation, no
+  aside. That is how "yellow onion" and "yellow onions" become one
+  line, and why the table is the only place that knows they are the
+  same purchase. Leave it out and the key itself is used.
+- **`omit: true` is for a bullet that is not a purchase** — a line
+  offering to add nothing at all. It must be stated, never detected:
+  an item nobody has mapped and an item deliberately not bought have
+  to look different to the build.
+- **An `or` picks one; an `and` does not.** `corn oil or neutral oil`
+  is written `buyAs: "neutral oil"` — the recipe offered a choice and
+  the table makes it once, so the line joins the six others wanting
+  neutral oil. `Monterey Jack and sharp cheddar` keeps its own name,
+  because nothing here knows how much of the 200 g is the cheddar and
+  a list that split it would be making the number up.
+
+- `aisle` — exactly one of: `produce` · `meat` · `dairy` · `bakery` · `dry-goods` · `canned` · `spices` · `baking` · `condiments` · `frozen`
+
+The order of that list is the order the shopping list renders in, and
+it is a walk through a shop — perimeter first, freezer last so it is
+not sitting in the trolley the whole time.
+
 ### Steps
 
 A numbered list. Each step may carry one `cue:` continuation line —

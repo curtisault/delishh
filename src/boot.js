@@ -11,10 +11,12 @@ import './sheet.css'
 import './shelf.css'
 import './recipe.css'
 import './cook.css'
+import './list.css'
 import './print.css'
 import { Elm } from './Main.elm'
 
 const THEME_KEY = 'delishh-theme'
+const LIST_KEY = 'delishh-list'
 
 // Apply the stored preference BEFORE Elm boots — the page must never
 // flash the wrong theme. "system" is represented by absence: no
@@ -29,9 +31,21 @@ if (storedTheme === 'light' || storedTheme === 'dark') {
   document.documentElement.dataset.theme = storedTheme
 }
 
+// The shopping list, read raw. Elm decodes it, because the schema
+// belongs beside the encoder that writes it — and because anything
+// that will not decode has to become an empty list rather than a
+// shell that does not boot, which is a decision, not a parse.
+let storedList = null
+try {
+  storedList = localStorage.getItem(LIST_KEY)
+} catch (_) {
+  // storage unavailable: start empty, and say nothing
+}
+
 const app = Elm.Main.init({
   flags: {
     theme: storedTheme,
+    list: storedList,
     // The date a printed sheet says it was pulled (DS-01 §09). Elm
     // cannot read a clock without a subscription, and a document does
     // not need one ticking — this is the load date, which for a page
@@ -104,6 +118,23 @@ app.ports.saveTheme.subscribe((theme) => {
   } catch (_) {
     // storage full or unavailable: the attribute still applied, so the
     // choice holds for this session even if it can't persist
+  }
+})
+
+app.ports.saveList.subscribe((list) => {
+  try {
+    // An empty list clears the key rather than storing an empty one.
+    // The colophon says taking the last recipe off clears it, and a
+    // key holding `{"contributions":[]}` would make that a lie.
+    if (list && list.contributions && list.contributions.length > 0) {
+      localStorage.setItem(LIST_KEY, JSON.stringify(list))
+    } else {
+      localStorage.removeItem(LIST_KEY)
+    }
+  } catch (_) {
+    // storage full or unavailable: the list holds for this session,
+    // the same degradation the theme takes. A shop is not the moment
+    // to learn that storage is full.
   }
 })
 

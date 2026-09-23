@@ -18,6 +18,8 @@
  */
 
 import { parseRecipe, type Problem, type Recipe } from "./recipe.ts";
+import { AISLES } from "./vocabulary.ts";
+import { shopFor } from "./pantry.ts";
 import {
   COURSES,
   CUISINES,
@@ -135,6 +137,38 @@ async function main() {
           `\`${r.photo}\` is not in ${PHOTOS}/. Add the file, or drop the ` +
           `field — a recipe with no photograph has no photo block at all.`,
       }]);
+      failed++;
+    }
+  }
+
+  // Every ingredient must be placeable in a shop, and a person must
+  // have placed it. The shopping list groups by aisle and merges on
+  // the purchase name, and both come out of `pantry.ts` — an item the
+  // table has never heard of fails here rather than turning up
+  // unsorted at the bottom of somebody's list (DS-01 §06).
+  for (const r of recipes) {
+    const unplaced: Problem[] = [];
+    for (const group of r.ingredients) {
+      for (const ing of group.items) {
+        const shop = shopFor(ing.item);
+        if (shop === undefined) {
+          unplaced.push({
+            where: "ingredients",
+            message:
+              `\`${ing.item}\` is not in scripts/pantry.ts. Add it — the ` +
+              `aisle it is bought in (${AISLES.join(", ")}), and \`buyAs\` ` +
+              `if two recipes should merge onto one line. A bullet that ` +
+              `is not a purchase at all takes \`{ omit: true }\`, because ` +
+              `an item nobody mapped and an item deliberately not bought ` +
+              `must not look the same to this check.`,
+          });
+        } else if (shop !== null) {
+          ing.shop = shop;
+        }
+      }
+    }
+    if (unplaced.length) {
+      report(`${RECIPES_IN}/${r.slug}.md`, unplaced);
       failed++;
     }
   }
