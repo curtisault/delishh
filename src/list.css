@@ -80,19 +80,33 @@
 .list-sources {
   margin-bottom: 2rem;
 }
+.list-sources-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.list-sources-head .list-h {
+  flex: 1 1 auto;
+}
 .list-source-set {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.1rem;
 }
+/* One recipe per row rather than a wrapped strip: each now carries a
+   control of its own, and a wrapped run of title/scale/Remove is
+   three kinds of thing at three widths with no column to read down. */
 .list-source {
   display: flex;
   align-items: baseline;
-  gap: 0.4rem;
+  gap: 0.5rem;
   font-size: 0.8rem;
+  padding: 0.35rem 0;
+}
+.list-source + .list-source {
+  border-top: 1px solid var(--rule-soft);
 }
 .list-source-link {
   color: var(--tx);
@@ -105,6 +119,41 @@
   font-family: var(--font-data);
   font-size: 0.66rem;
   color: var(--tx-dim);
+}
+
+/* ---------- unmaking the list ---------- */
+
+/* Both are quieter than anything that buys something. Removing one
+   recipe sits at the end of its own row; clearing everything sits up
+   with the heading, away from the rows, so the hand that is ticking
+   things off is never near it. */
+.list-drop,
+.list-clear {
+  flex: none;
+  background: none;
+  border: 0;
+  color: var(--tx-dim);
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.2rem;
+  min-height: 2rem;
+  cursor: pointer;
+  border-bottom: 1.5px solid var(--rule-soft);
+}
+.list-drop {
+  margin-left: auto;
+}
+
+/* ARMED IS A WORD. The button already says what the next press will
+   do — "Press again to clear" — and this only makes it look like the
+   thing it now is. The rule under it goes full-strength and the text
+   goes to full ink: emphasis on a sentence that changed, never a
+   colour carrying the meaning by itself (§12). */
+.list-clear.is-armed {
+  color: var(--tx);
+  font-weight: 700;
+  border-bottom-color: var(--tx);
 }
 
 /* ---------- an aisle ---------- */
@@ -199,6 +248,8 @@
 /* Focus is unconditional — it is not decoration, and it is never
    inside a motion query. */
 .list-tick:focus-visible,
+.list-drop:focus-visible,
+.list-clear:focus-visible,
 .list-back:focus-visible {
   outline: 2px solid var(--here);
   outline-offset: 2px;

@@ -147,6 +147,69 @@ suite =
         , grouping
         , ticking
         , storage
+        , clearing
+        ]
+
+
+clearing : Test
+clearing =
+    describe "clearing takes two presses"
+        [ test "the first press does not clear anything" <|
+            \_ ->
+                -- The whole point. This is the one irreversible thing
+                -- on the page, pressed one-handed beside a trolley.
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.clearPress False
+                    |> Tuple.first
+                    |> rows
+                    |> Expect.equal [ ( "potatoes", "4" ) ]
+        , test "the first press arms it" <|
+            \_ ->
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.clearPress False
+                    |> Tuple.second
+                    |> Expect.equal True
+        , test "the second press clears" <|
+            \_ ->
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.clearPress True
+                    |> Tuple.first
+                    |> GroceryList.isEmpty
+                    |> Expect.equal True
+        , test "and disarms, so a third press cannot clear again" <|
+            \_ ->
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.clearPress True
+                    |> Tuple.second
+                    |> Expect.equal False
+        , test "clearing takes the ticks with it" <|
+            \_ ->
+                -- A tick is a fact about a row, and there are no rows.
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.check "potatoes"
+                    |> GroceryList.clearPress True
+                    |> Tuple.first
+                    |> GroceryList.lines
+                    |> Expect.equal { toBuy = [], inCart = [] }
+        , test "a cleared list forgets which recipes made it" <|
+            \_ ->
+                listOf [ from "lasagna" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.clearPress True
+                    |> Tuple.first
+                    |> GroceryList.member "lasagna"
+                    |> Expect.equal False
+        , test "a cleared list stores nothing to come back from" <|
+            \_ ->
+                -- boot.js removes the key outright when there are no
+                -- contributions, which is what the colophon promises.
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.clearPress True
+                    |> Tuple.first
+                    |> GroceryList.encode
+                    |> E.encode 0
+                    |> D.decodeString
+                        (D.field "contributions" (D.list (D.succeed ())))
+                    |> Expect.equal (Ok [])
         ]
 
 
@@ -199,6 +262,39 @@ merging =
                 listOf [ once, once, once ]
                     |> rows
                     |> Expect.equal [ ( "potatoes", "4" ) ]
+        , test "removing a recipe by slug takes only its share" <|
+            \_ ->
+                listOf
+                    [ from "a" 1 [ bare "potatoes" 4 ]
+                    , from "b" 1 [ bare "potatoes" 2 ]
+                    ]
+                    |> GroceryList.remove "b"
+                    |> rows
+                    |> Expect.equal [ ( "potatoes", "4" ) ]
+        , test "removing a recipe that is not on the list changes nothing" <|
+            \_ ->
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.remove "never-added"
+                    |> rows
+                    |> Expect.equal [ ( "potatoes", "4" ) ]
+        , test "removing the last recipe empties the list" <|
+            \_ ->
+                listOf [ from "a" 1 [ bare "potatoes" 4 ] ]
+                    |> GroceryList.remove "a"
+                    |> GroceryList.isEmpty
+                    |> Expect.equal True
+        , test "removing a recipe leaves the other recipes' ticks alone" <|
+            \_ ->
+                listOf
+                    [ from "a" 1 [ bare "potatoes" 4 ]
+                    , from "b" 1 [ bare "carrots" 2 ]
+                    ]
+                    |> GroceryList.check "potatoes"
+                    |> GroceryList.remove "b"
+                    |> GroceryList.lines
+                    |> .inCart
+                    |> List.map .name
+                    |> Expect.equal [ "potatoes" ]
         , test "a purchase with no number is still a row" <|
             \_ ->
                 -- "flaky salt, to finish" is a real thing to buy.

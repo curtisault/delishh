@@ -82,7 +82,8 @@ The first is which lighting you chose, so the page does not flash the
 wrong theme before it loads; choosing "System" clears it. The second
 is your shopping list — the recipes you added to it and the items you
 have ticked off — so it is still there when you get to the shop.
-Taking the last recipe back off the list clears that one.
+Clearing the list, or taking the last recipe back off it, removes
+that key too.
 
 Nothing is sent anywhere, and there is no server to send it to — the
 whole site is static files. Both keys are local to this browser, so

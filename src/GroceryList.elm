@@ -6,6 +6,7 @@ module GroceryList exposing
     , Model
     , aisles
     , check
+    , clearPress
     , contributions
     , decoder
     , empty
@@ -14,6 +15,7 @@ module GroceryList exposing
     , isEmpty
     , lines
     , member
+    , remove
     , toggle
     )
 
@@ -211,6 +213,47 @@ toggle contribution (Model m) =
 
     else
         Model { m | contributions = m.contributions ++ [ contribution ] }
+
+
+{-| What a press of CLEAR THE LIST does, given whether an earlier
+press already armed it. Returns the list and whether it is armed now.
+
+**Separated out because it is the one irreversible thing a reader can
+do here, and an inline `if` in the shell is the one place nothing can
+check it.** The same reason `Viewport.actionFor` is its own module:
+the rule is three lines and easy to get half-right — arming on the
+press that should have cleared, or clearing on the press that should
+have armed, and nobody finds out until a list is gone.
+
+Clearing drops the ticks with the contributions. A tick is a fact
+about a row, and there are no rows left.
+
+-}
+clearPress : Bool -> Model -> ( Model, Bool )
+clearPress armed list =
+    if armed then
+        ( empty, False )
+
+    else
+        ( list, True )
+
+
+{-| Take one recipe off the list, by slug.
+
+`toggle` needs a whole `Contribution` because it may be putting one
+on; this only ever takes one away, and the list page asking for a
+recipe's ingredients back in order to throw them out would be the
+page fetching something to discard it.
+
+Ticks are left alone. A row two recipes wanted is still wanted by the
+other one, and `encode` drops any tick that no longer names a row, so
+nothing accumulates.
+
+-}
+remove : String -> Model -> Model
+remove slug (Model m) =
+    Model
+        { m | contributions = List.filter (\c -> c.slug /= slug) m.contributions }
 
 
 {-| Tick an item off, or put it back in the aisle. Keyed by purchase

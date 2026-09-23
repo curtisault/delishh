@@ -69,8 +69,22 @@ stocked =
 
 rendered : GroceryList.Model -> Query.Single ()
 rendered list =
+    renderedWith list False
+
+
+{-| The page with CLEAR THE LIST armed by a first press.
+-}
+renderedWith : GroceryList.Model -> Bool -> Query.Single ()
+renderedWith list clearArmed =
     Query.fromHtml
-        (Page.GroceryList.view { list = list, onCheck = always () })
+        (Page.GroceryList.view
+            { list = list
+            , onCheck = always ()
+            , onRemove = always ()
+            , onClear = ()
+            , clearArmed = clearArmed
+            }
+        )
 
 
 ticked : Query.Single ()
@@ -196,6 +210,40 @@ suite =
                 \_ ->
                     rendered stocked
                         |> Query.hasNot [ Selector.id "in-cart" ]
+            ]
+        , describe "unmaking the list"
+            [ test "every recipe on the list can be taken back off here" <|
+                \_ ->
+                    -- Without this, unpicking a list means walking back
+                    -- through every recipe that made it.
+                    rendered stocked
+                        |> Query.findAll [ Selector.class "list-drop" ]
+                        |> Query.count (Expect.equal 2)
+            , test "each remove names the recipe it removes" <|
+                \_ ->
+                    -- Four controls all reading "Remove" are four
+                    -- identical controls to a screen reader.
+                    rendered stocked
+                        |> Query.findAll [ Selector.class "list-drop" ]
+                        |> Query.index 0
+                        |> Query.has [ Selector.text "Classic lasagna" ]
+            , test "the first press does not clear — it changes the word" <|
+                \_ ->
+                    rendered stocked
+                        |> Query.find [ Selector.class "list-clear" ]
+                        |> Query.has [ Selector.text "Clear the list" ]
+            , test "armed, it says what the next press will do" <|
+                \_ ->
+                    -- The armed state is a WORD. A colour alone would
+                    -- be the one carrier §12 forbids, and this is the
+                    -- single irreversible control in the archive.
+                    renderedWith stocked True
+                        |> Query.find [ Selector.class "list-clear" ]
+                        |> Query.has [ Selector.text "Press again to clear" ]
+            , test "an empty list offers nothing to clear" <|
+                \_ ->
+                    rendered GroceryList.empty
+                        |> Query.hasNot [ Selector.class "list-clear" ]
             ]
         , describe "where the list came from"
             [ test "each contributing recipe is named and linked" <|

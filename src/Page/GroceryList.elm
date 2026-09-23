@@ -42,6 +42,12 @@ import Route
 type alias Config msg =
     { list : GroceryList.Model
     , onCheck : String -> msg
+    , onRemove : String -> msg
+    , onClear : msg
+
+    -- Whether CLEAR THE LIST has been armed by a first press. Held by
+    -- the shell, so leaving the page disarms it.
+    , clearArmed : Bool
     }
 
 
@@ -113,36 +119,87 @@ empty =
         ]
 
 
-{-| What the list is made of.
+{-| What the list is made of, and the two ways to unmake it.
 
 Named rather than counted, because "3 recipes" is not something you
 can act on and a title you did not mean to add is. The scale rides
 beside each one: the list is a sum, and the only way to read where a
-number came from is to see what went into it.
+number came from is to see what went into it — or to take it back out
+and watch the numbers drop.
+
+Removing is here rather than only on the recipe page because this is
+the page you are looking at when you change your mind, and sending
+somebody back through four recipes to unpick a list is not managing
+it.
 
 -}
 sources : Config msg -> Html msg
 sources config =
     section [ class "list-sources" ]
-        [ h2 [ class "list-h u" ] [ text "From" ]
+        [ div [ class "list-sources-head" ]
+            [ h2 [ class "list-h u" ] [ text "From" ]
+            , clear config
+            ]
         , ul [ class "list-source-set" ]
-            (GroceryList.contributions config.list
-                |> List.map
-                    (\c ->
-                        li [ class "list-source" ]
-                            [ a
-                                [ class "list-source-link"
-                                , href (Route.toPath (Route.Recipe c.slug))
-                                ]
-                                [ text c.title ]
-                            , if c.factor == 1 then
-                                text ""
+            (GroceryList.contributions config.list |> List.map (source config))
+        ]
 
-                              else
-                                span [ class "list-source-scale u" ]
-                                    [ text ("×" ++ scaleLabel c.factor) ]
-                            ]
-                    )
+
+source : Config msg -> GroceryList.Contribution -> Html msg
+source config c =
+    li [ class "list-source" ]
+        [ a
+            [ class "list-source-link"
+            , href (Route.toPath (Route.Recipe c.slug))
+            ]
+            [ text c.title ]
+        , if c.factor == 1 then
+            text ""
+
+          else
+            span [ class "list-source-scale u" ]
+                [ text ("×" ++ scaleLabel c.factor) ]
+        , button
+            [ attribute "type" "button"
+            , class "list-drop u"
+            , onClick (config.onRemove c.slug)
+            ]
+            [ text "Remove"
+
+            -- Four rows all reading "Remove" is four identical
+            -- controls to a screen reader. The name goes with it.
+            , span [ class "vh" ] [ text (" " ++ c.title) ]
+            ]
+        ]
+
+
+{-| Empty the whole list — in two presses.
+
+**The first press only arms it.** There is no undo, rebuilding a list
+means walking back through every recipe that made it, and this
+surface is read one-handed beside a trolley. Everywhere else in the
+archive a press does what it says, and this is the one control where
+doing that on the first try is the wrong answer.
+
+The armed state is a *word*, not a colour: the button says what the
+next press will do. Pressing anything else on the page disarms it,
+and so does leaving.
+
+-}
+clear : Config msg -> Html msg
+clear config =
+    button
+        [ attribute "type" "button"
+        , class "list-clear u"
+        , classList [ ( "is-armed", config.clearArmed ) ]
+        , onClick config.onClear
+        ]
+        [ text
+            (if config.clearArmed then
+                "Press again to clear"
+
+             else
+                "Clear the list"
             )
         ]
 

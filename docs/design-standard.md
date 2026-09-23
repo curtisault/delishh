@@ -265,6 +265,23 @@ cold chain, magenta = live culture, volt = the action to take now.
 > that is §12's never-colour-alone rule applied to a treatment that
 > is not a colour but would fail the same way.
 >
+> **The one control in the archive that asks twice.** Clearing the
+> list is the only irreversible thing a reader can do here: there is
+> no undo, and rebuilding one means walking back through every recipe
+> that made it. So the first press arms it and the second press does
+> it, and what changes in between is the **word** — the button stops
+> saying what it is and starts saying what the next press will do.
+> Pressing anything else disarms it, and so does leaving the page.
+>
+> This is a deliberate exception, not a new habit. Everywhere else a
+> press does what it says on it, and a product that asks "are you
+> sure" out of caution teaches people to stop reading the question.
+> The test for the exception is the one met here and nowhere else
+> yet: irreversible, and read one-handed in a shop. A reader who
+> wants only one recipe gone takes that recipe off its own row, and
+> that needs no confirming because it is a press away from being
+> undone.
+>
 > **Checked items sink; they do not vanish.** The cart group sits at
 > the bottom of the list, struck but fully legible. This is the
 > shelf's lockout rule (§07) rather than cook mode's stamp: on the

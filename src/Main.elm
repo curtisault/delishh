@@ -258,6 +258,12 @@ type alias Model =
     -- opened the next recipe would be worse than no list
     , list : GroceryList.Model
 
+    -- whether CLEAR THE LIST has been armed by a first press. A list
+    -- is rebuilt by walking back through every recipe that made it,
+    -- there is no undo, and the surface it lives on is read
+    -- one-handed in a shop — so the second press is the confirmation
+    , clearArmed : Bool
+
     , done : Set Int
     , timer : Maybe Cook.Timer
     , now : Time.Posix
@@ -299,6 +305,7 @@ init flags url key =
             flags.list
                 |> Maybe.andThen (D.decodeString GroceryList.decoder >> Result.toMaybe)
                 |> Maybe.withDefault GroceryList.empty
+      , clearArmed = False
       , done = Set.empty
       , timer = Nothing
       , now = Time.millisToPosix 0
@@ -385,6 +392,8 @@ type Msg
     | GotIndex (Result Http.Error Shelf.Index)
     | ToggleInList
     | CheckItem String
+    | RemoveFromList String
+    | ClearList
     | OpenPath (Maybe Shelf.Path)
     | ToggleFacet Shelf.Path String
     | ShelfQuery String
@@ -487,6 +496,17 @@ update msg model =
 
                             else
                                 model.openPath
+                        -- The list itself survives navigation; the
+                        -- ARMED state does not. Leaving the page and
+                        -- coming back to find a live destructive
+                        -- control is the one way this could go wrong
+                        -- without anybody pressing it twice.
+                        , clearArmed =
+                            if arrived then
+                                False
+
+                            else
+                                model.clearArmed
                         , done =
                             if arrived then
                                 Set.empty
@@ -594,13 +614,44 @@ update msg model =
                                 GroceryList.toggle
                                     (GroceryList.fromRecipe model.factor recipe)
                                     model.list
+                            , clearArmed = False
                         }
 
                 _ ->
                     ( model, Cmd.none )
 
         CheckItem key ->
-            store { model | list = GroceryList.check key model.list }
+            -- Any other press disarms. Reaching for a row is the
+            -- reader saying they were doing something else.
+            store
+                { model
+                    | list = GroceryList.check key model.list
+                    , clearArmed = False
+                }
+
+        RemoveFromList slug ->
+            store
+                { model
+                    | list = GroceryList.remove slug model.list
+                    , clearArmed = False
+                }
+
+        ClearList ->
+            -- The arm-then-clear rule lives in `GroceryList`, where it
+            -- is tested. This only decides that an arming press has
+            -- nothing to write.
+            let
+                ( list, armed ) =
+                    GroceryList.clearPress model.clearArmed model.list
+
+                updated =
+                    { model | list = list, clearArmed = armed }
+            in
+            if armed then
+                ( updated, Cmd.none )
+
+            else
+                store updated
 
         GotIndex (Ok index) ->
             ( { model | index = Fetched index }, Cmd.none )
@@ -887,6 +938,9 @@ view model =
                 Page.GroceryList.view
                     { list = model.list
                     , onCheck = CheckItem
+                    , onRemove = RemoveFromList
+                    , onClear = ClearList
+                    , clearArmed = model.clearArmed
                     }
 
             Route.About ->
