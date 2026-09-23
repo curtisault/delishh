@@ -62,6 +62,7 @@ export type Shop = { aisle: Aisle; buyAs: string };
 export const PANTRY: Record<string, Purchase> = {
   // --- produce -------------------------------------------------------------
   "carrots": { aisle: "produce" },
+  "carrot": { aisle: "produce", buyAs: "carrots" },
   "ribs celery": { aisle: "produce", buyAs: "celery" },
   "chopped parsley": { aisle: "produce", buyAs: "parsley" },
   "cilantro": { aisle: "produce" },
@@ -71,6 +72,8 @@ export const PANTRY: Record<string, Purchase> = {
   "mushrooms": { aisle: "produce" },
   "garlic": { aisle: "produce" },
   "garlic clove": { aisle: "produce", buyAs: "garlic" },
+  "fresh ginger": { aisle: "produce" },
+  "Napa cabbage": { aisle: "produce" },
   "green bell pepper": { aisle: "produce", buyAs: "green bell peppers" },
   "red bell pepper": { aisle: "produce", buyAs: "red bell peppers" },
   "jalapeños": { aisle: "produce" },
@@ -87,6 +90,7 @@ export const PANTRY: Record<string, Purchase> = {
 
   // --- meat ----------------------------------------------------------------
   "beef chuck": { aisle: "meat" },
+  "skin-on pork belly": { aisle: "meat" },
   "ground beef": { aisle: "meat" },
   "boneless chicken thighs": { aisle: "meat" },
   "chicken thighs": { aisle: "meat" },
@@ -156,6 +160,7 @@ export const PANTRY: Record<string, Purchase> = {
   "corn tortillas": { aisle: "bakery" },
   "corn tortillas — corn": { aisle: "bakery", buyAs: "corn tortillas" },
   "fresh flour tortillas": { aisle: "bakery", buyAs: "flour tortillas" },
+  "small flour tortillas": { aisle: "bakery", buyAs: "flour tortillas" },
 
   // --- dry goods -----------------------------------------------------------
   "lasagna noodles": { aisle: "dry-goods" },
@@ -217,6 +222,7 @@ export const PANTRY: Record<string, Purchase> = {
   "nutmeg": { aisle: "spices" },
   "red pepper flakes": { aisle: "spices" },
   "smoked paprika": { aisle: "spices" },
+  "sesame seeds": { aisle: "spices" },
 
   // --- baking --------------------------------------------------------------
   "flour": { aisle: "baking", buyAs: "all-purpose flour" },
@@ -250,6 +256,16 @@ export const PANTRY: Record<string, Purchase> = {
   "lard or neutral oil": { aisle: "condiments", buyAs: "neutral oil" },
   "corn oil plus butter": { aisle: "condiments" },
   "olive oil": { aisle: "condiments" },
+  "avocado oil": { aisle: "condiments" },
+  "sesame oil": { aisle: "condiments", buyAs: "toasted sesame oil" },
+  "soy sauce": { aisle: "condiments" },
+  "hoisin sauce": { aisle: "condiments" },
+  // The author offered a choice; the shopper makes it once.
+  "doenjang or white miso": { aisle: "condiments", buyAs: "doenjang" },
+  "mirin": { aisle: "condiments" },
+  "rice vinegar": { aisle: "condiments" },
+  "honey": { aisle: "condiments" },
+  "Kewpie mayonnaise": { aisle: "condiments" },
   "mayonnaise": { aisle: "condiments" },
   "Dijon": { aisle: "condiments", buyAs: "Dijon mustard" },
   "cider vinegar": { aisle: "condiments" },
