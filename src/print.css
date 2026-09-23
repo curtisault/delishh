@@ -112,7 +112,9 @@
   padding: 0.3rem 0.6rem;
   cursor: pointer;
   text-align: left;
-  min-height: 2rem;
+  /* The tap floor (§12) — see .scaler-btn, the other segmented set. */
+  min-height: var(--tap);
+  min-width: var(--tap);
 }
 .printer-btn:last-child {
   border-right: 0;
@@ -135,17 +137,22 @@
 .printer-btn.active .printer-btn-note {
   color: var(--ink);
 }
+/* Sizing only — the dress is the extruded slab (`.press-block` in
+   sheet.css, re-cut 2026-09-24). Shorter travel than the two
+   actions: the block is dress, the depth is sizing, and a 2rem
+   control standing 8px proud of the page would outweigh COOK THIS.
+
+   ON IS SEATED AND INVERTED. This is the one toggle in the pair
+   whose WORD cannot change — "+ Prep card" is what it adds either
+   way — so it keeps the applied-block inversion it already had and
+   the seat is a second carrier over the top of it, not a
+   replacement. `aria-pressed` is the third. */
 .printer-prep {
   font-size: 0.6rem;
-  background: none;
-  border: 1.5px solid var(--rule);
-  color: var(--tx);
   padding: 0.3rem 0.6rem;
-  cursor: pointer;
-  min-height: 2rem;
 }
 .printer-prep.active {
-  background: var(--block-bg);
+  --press-face: var(--block-bg);
   color: var(--block-tx);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
@@ -189,6 +196,15 @@
     --stencil-tx: #fff !important;
     --accent: #000 !important;
     --ink: #fff !important;
+    /* The extruded slab's two roles. Nothing block-dressed reaches
+       paper today (see the note further down), so these are the
+       palette holding its own contract rather than a fix for a
+       visible fault: this block's job is that NO token leaks a
+       colour into a monochrome queue, and `--press-face` is the one
+       press token that is not an acid, so the overrides below do not
+       reach it. After dark it is `#212931` — a grey plate, which is
+       what it would print as. */
+    --press-face: #fff !important;
     --acid: #000 !important;
     --page-heat: #000 !important;
     --page-cold: #000 !important;
@@ -220,6 +236,43 @@
   .lister-btn,
   .recipe-back,
   .cook-enter {
+    display: none !important;
+  }
+
+  /* THE BLOCK HAS NO BODY ON PAPER, and nothing here has to say so
+     — which is worth writing down, because it is true by accident of
+     two other decisions and would stop being true quietly.
+
+     Every control that wears the extruded slab (sheet.css) is
+     hidden on paper: the six above, plus `.paths`, `.active-bar` and
+     `.zero-clear`, which `shelf.css`'s own print block hides on the
+     grounds that paper cannot choose. So there is no press left to
+     draw walls, and a rule here would be dead code claiming to
+     prevent something.
+
+     IF YOU EVER UN-HIDE ONE, look again. The walls are
+     `::before`/`::after`, and `display: none` on a parent reaches
+     its own pseudo-elements but not those of a box that is shown —
+     so a newly-printable press brings two skewed grey flaps with it,
+     hanging off its bottom-right corner. Depth is a lighting effect
+     and paper has no lighting; the fix is to hide the pair and
+     flatten the face, not to retune them. */
+
+  /* The shelf title is a two-screen overprint on the page (shelf.css),
+     and on paper that is the `.cook-enter` failure above, again: a
+     filled acid plate with knockout ink on it, which comes off a
+     black-and-white printer as a solid block with unreadable text
+     across it. The `--shelf-*` tokens are NOT among the ones :root
+     overrides for print — only `--acid`, the four `--page-*` and
+     `--accent` are — so nothing upstream disarms this and it has to
+     be said here. §2.2: print surfaces are black and white, full
+     stop. */
+  .shelf-title {
+    color: inherit !important;
+    padding: 0 !important;
+  }
+  .shelf-title::before,
+  .shelf-title::after {
     display: none !important;
   }
 

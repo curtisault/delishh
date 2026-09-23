@@ -108,10 +108,27 @@
 .list-source + .list-source {
   border-top: 1px solid var(--rule-soft);
 }
+/* The recipe this row came from. An OVERLAY target (§12, and see the
+   site bar in sheet.css), for the reason the bar has: the underline
+   is what makes this read as a link, and growing the box to the floor
+   would carry that rule to the bottom of a 2.75rem box and leave it
+   floating under the title. The overlay is exactly as wide as the
+   title, so it never reaches the DROP button at the other end of the
+   row. */
 .list-source-link {
+  position: relative;
   color: var(--tx);
   text-decoration: none;
   border-bottom: 1.5px solid var(--rule-soft);
+}
+.list-source-link::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
 }
 /* The scale a recipe went on at. Data, so mono — and ink, because an
    acid never lands on a quantity (§04). */
@@ -137,9 +154,26 @@
   font-size: 0.6rem;
   letter-spacing: 0.08em;
   padding: 0.3rem 0.2rem;
-  min-height: 2rem;
   cursor: pointer;
+  /* OVERLAY TARGETS, not grown boxes (§12). Both of these wear a rule
+     under the word as their whole treatment — it is what makes them
+     read as controls at all, since neither has a fill or a border —
+     and `border-bottom` draws on the BOX. Growing them to the floor
+     carried the rule to the bottom of a 2.75rem box and left it
+     floating an inch under its own label, which is the same failure
+     `.list-source-link` below is shaped around. */
+  position: relative;
   border-bottom: 1.5px solid var(--rule-soft);
+}
+.list-drop::after,
+.list-clear::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
 }
 .list-drop {
   margin-left: auto;
@@ -190,7 +224,7 @@
   background: none;
   border: 0;
   padding: 0.6rem 0.2rem;
-  min-height: 2.75rem;
+  min-height: var(--tap);
   cursor: pointer;
   text-align: left;
   color: var(--tx);

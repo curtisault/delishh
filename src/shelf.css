@@ -30,7 +30,27 @@
   border-bottom: 3px solid var(--rule);
   padding-bottom: 1.1rem;
   margin-bottom: 1.4rem;
+  /* Contains the overprint. Without it the second screen multiplies
+     against the page ground, and cyan over a dark ground is black —
+     the overhang would simply vanish after dark. */
+  isolation: isolate;
 }
+
+/* ---------- the title: two screens, overprinted ----------
+
+   THE TITLE IS A PLATE AND A SECOND SCREEN CROSSES IT. §2.1 makes
+   depth out of layering and overlap and never out of lighting, so
+   this is two flat inks with hard edges — no gradient, no blur,
+   nothing that needs a light source to explain it — and where they
+   cross, the colour real overprinting makes.
+
+   Volt dominates and cyan cameos: §04 allows a second acid on a
+   browse surface and never a third. Cyan is also the only second
+   screen that survives the crossing with ink still on it — volt ×
+   cyan measures 7.12:1 on light and 11.30:1 on dark, against 4.25:1
+   for orange and 2.99:1 for magenta, both of which fail AA. That is
+   not a taste call, and `contrast_test.ts` recomputes all of it from
+   these same tokens. */
 .shelf-title {
   font-family: var(--font-display);
   text-transform: uppercase;
@@ -39,6 +59,42 @@
   font-size: clamp(2.2rem, 9vw, 3.6rem);
   line-height: 0.9;
   margin: 0 0 0.4rem;
+  position: relative;
+  display: inline-block;
+  padding: 0.18em 0.42em 0.22em;
+  color: var(--shelf-tx);
+  /* Contains the blend, and gives the two screens a stacking context
+     to sit behind the word in. Without it the cyan multiplies against
+     the page ground, and cyan over a dark ground is black — the
+     overhang would simply vanish after dark. */
+  isolation: isolate;
+}
+
+/* THE TWO SCREENS. Both sit behind the word, so the ink is measured
+   against each field it can land on rather than against whatever the
+   blend happens to produce on top of it: volt alone is 13.42:1 on
+   light, the crossing 7.12:1, cyan alone 9.04:1, and the dark theme
+   is higher on all three. */
+.shelf-title::before,
+.shelf-title::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.shelf-title::before {
+  background: var(--shelf-act);
+}
+
+/* Off register on purpose: a second plate laid down a few millimetres
+   out is what two-colour printing looks like when a person pulled it
+   and not a press. The word ends up sitting across the crossing,
+   which is the whole reason the crossing had to be measured. */
+.shelf-title::after {
+  background: var(--shelf-cold);
+  transform: translate(0.34rem, 0.32rem);
+  mix-blend-mode: multiply;
 }
 .shelf-standfirst {
   margin: 0 0 0.9rem;
@@ -86,6 +142,7 @@
   color: var(--data-accent);
 }
 .shelf-query {
+  min-height: var(--tap);
   flex: 1 1 auto;
   min-width: 0;
   font-size: 0.92rem;
@@ -110,6 +167,12 @@
   gap: 0.5rem;
   margin-bottom: 1.2rem;
 }
+/* Sizing and colour only — the dress is the extruded slab
+   (`.press-block` in sheet.css, re-cut 2026-09-24). The tiles are
+   the loudest thing in the product and they already carried a full
+   acid face, so the dress gives them a body under it and repaints
+   nothing: each still sets its own fill, now through `--press-face`
+   so the block's walls and milled corner derive from it. */
 .path-tile {
   width: 100%;
   display: flex;
@@ -117,10 +180,7 @@
   align-items: flex-start;
   gap: 0.15rem;
   position: relative;
-  border: 0;
-  border-radius: 0;
   padding: 0.7rem 0.8rem;
-  cursor: pointer;
   text-align: left;
   color: var(--shelf-tx);
   /* The fills are the point of this surface, so they survive a
@@ -130,18 +190,22 @@
 }
 /* One acid per path, named for what it is: meals are the actionable
    "what's for dinner", flavour is the sweet end, effort is heat,
-   needs is the cold chain. */
+   needs is the cold chain.
+
+   Each sets the FACE, and the rail is that acid's own milled edge:
+   a volt rail on an orange tile would be a second acid on a surface
+   whose whole grammar is one acid per path. */
 .path-tile.path-slot {
-  background: var(--shelf-act);
+  --press-face: var(--shelf-act);
 }
 .path-tile.path-flavor {
-  background: var(--shelf-live);
+  --press-face: var(--shelf-live);
 }
 .path-tile.path-effort {
-  background: var(--shelf-heat);
+  --press-face: var(--shelf-heat);
 }
 .path-tile.path-dietary {
-  background: var(--shelf-cold);
+  --press-face: var(--shelf-cold);
 }
 .path-label {
   font-size: 0.78rem;
@@ -172,21 +236,33 @@
   padding: 0.7rem 0 0.2rem;
 }
 /* Every chip carries its word. A chip that is only a colour is
-   confetti; one that says SWEET is navigation (§04). */
+   confetti; one that says SWEET is navigation (§04).
+
+   Sizing only; the dress is the extruded slab. ON is the stencil
+   inversion it always was AND the seat: the chips are the one
+   control whose word cannot change to say it is on, so it keeps
+   both carriers.
+
+   IT TAKES BACK THE TWO PROPERTIES `.chip` SPENDS. A filter chip is
+   the base `.chip` component (recipe.css) wearing the dress, and
+   that component is a READ-ONLY tag everywhere else it appears — on
+   the recipe plate, on a shelf row — so it dims its own word and
+   draws its own hairline. Both are (0,1,0) and recipe.css loads
+   after sheet.css, so both beat the dress on order alone. Here the
+   chip is not a tag but a control, and the two have to be said again
+   at (0,2,0): full ink on the slab, and the slab's own edge. Without
+   them the tray renders as dimmed words in hairline boxes sitting on
+   press bodies, which is two components arguing in public. */
 .path-chips .chip {
   font-size: 0.6rem;
   letter-spacing: 0.08em;
   padding: 0.3rem 0.55rem;
-  border: 1.5px solid var(--rule);
-  background: none;
-  color: var(--tx);
-  cursor: pointer;
-  border-radius: 0;
+  color: var(--press-tx);
+  border: 1px solid var(--press-edge);
 }
 .path-chips .chip.on {
-  background: var(--stencil-bg);
+  --press-face: var(--stencil-bg);
   color: var(--stencil-tx);
-  border-color: var(--stencil-bg);
 }
 
 /* The open tile's chips sit under the whole row, not under one
@@ -229,14 +305,13 @@
   font-size: 0.82rem;
   font-weight: 500;
 }
+/* Sizing only; the dress is the extruded slab — it sits in a bar of
+   running text and is the quietest thing here that still does
+   something. */
 .active-clear {
   margin-left: auto;
   font-size: 0.56rem;
-  background: none;
-  border: 1.5px solid var(--rule);
-  color: var(--tx);
   padding: 0.2rem 0.5rem;
-  cursor: pointer;
 }
 
 /* ---------- results ----------
@@ -381,13 +456,15 @@
   padding-bottom: 0.3rem;
   margin-bottom: 0.9rem;
 }
+/* Sizing and colour only; the dress is the extruded slab. The one
+   volt-faced press in the product — it is the way out of a shelf
+   that has narrowed to nothing, and volt is what the actionable
+   means everywhere else (§04). */
 .zero-clear {
+  --press-face: var(--accent);
   font-size: 0.58rem;
-  background: var(--accent);
   color: var(--ink);
-  border: 0;
   padding: 0.35rem 0.7rem;
-  cursor: pointer;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -459,37 +536,25 @@
    Nothing here carries information. Every state the motion marks is
    already readable without it — the chip inverts, the count appears,
    the row underlines — so a still screenshot of this page says
-   exactly what a moving one does. */
+   exactly what a moving one does.
+
+   WHAT USED TO BE HERE AND IS NOT ANY MORE (2026-09-23): the 2px
+   press and the 4px hover offset block, both on the tiles and the
+   chips. The press dress replaced them, and it replaced them by
+   being the thing they were imitating — the hover shadow was a
+   sticker lifting off the page, and the slab IS the object the
+   sticker was pretending to be, throwing its own body, all the
+   time, whether or not a pointer is near it. A hover state that
+   only draws what the element already has is a hover state with
+   nothing to say.
+
+   It also moved OUT of this query, and that is not a loosening.
+   The block's seat is a cut, not a travel: nothing interpolates, so
+   there is no motion for the guard to withhold — and withholding it
+   would leave a reduced-motion reader with a chip whose on-state
+   had one carrier fewer than everyone else's (§10, amended
+   2026-09-23). */
 @media (prefers-reduced-motion: no-preference) {
-  .path-tile,
-  .path-chips .chip,
-  .active-clear,
-  .zero-clear {
-    transition:
-      transform 120ms steps(2, end),
-      box-shadow 120ms steps(2, end);
-  }
-
-  /* Pressed: the tile moves the distance of its own shadow and stops.
-     A press that travels further than the thing it is attached to
-     reads as bounce. */
-  .path-tile:active,
-  .path-chips .chip:active,
-  .active-clear:active,
-  .zero-clear:active {
-    transform: translateY(2px);
-  }
-
-  /* Hovered: a hard offset block behind the tile, which is the same
-     printed-artifact vocabulary as everything else on this surface —
-     a sticker lifting, not a card floating. No blur, no opacity
-     fade: flat colour, hard edges (§2.1). */
-  .path-tile:hover,
-  .path-tile:focus-visible {
-    box-shadow: 4px 4px 0 var(--rule);
-    transform: translate(-1px, -1px);
-  }
-
   .row-link {
     transition: box-shadow 100ms steps(2, end);
   }
@@ -498,11 +563,7 @@
 /* Focus is NOT inside the media query. It is not decoration and it is
    not motion — it is how a keyboard tells you where it is, and a
    reader who asked for reduced motion still needs to see it. */
-.path-tile:focus-visible,
-.path-chips .chip:focus-visible,
-.row-link:focus-visible,
-.active-clear:focus-visible,
-.zero-clear:focus-visible {
+.row-link:focus-visible {
   outline: 3px solid var(--tx);
   outline-offset: 2px;
 }

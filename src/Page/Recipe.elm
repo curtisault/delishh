@@ -748,8 +748,11 @@ lister : Config msg -> Html msg
 lister config =
     Html.button
         [ Html.Attributes.type_ "button"
-        , class "lister-btn u"
-        , classList [ ( "active", config.inList ) ]
+        , class "press-block lister-btn u"
+        , classList
+            [ ( "active", config.inList )
+            , ( "is-seated", config.inList )
+            ]
         , attribute "aria-pressed"
             (if config.inList then
                 "true"
@@ -779,7 +782,7 @@ becomes a thing you can bookmark (DS-01 §08).
 cookLink : Config msg -> Html msg
 cookLink config =
     a
-        [ class "cook-enter u"
+        [ class "press-block cook-enter u"
         , href
             (Route.withQuery (Route.Cook config.recipe.slug)
                 [ ( "scale"
@@ -820,8 +823,11 @@ printer config =
             (List.map (formButton config) Print.all)
         , Html.button
             [ Html.Attributes.type_ "button"
-            , class "printer-prep u"
-            , classList [ ( "active", config.prepCard ) ]
+            , class "press-block printer-prep u"
+            , classList
+                [ ( "active", config.prepCard )
+                , ( "is-seated", config.prepCard )
+                ]
             , attribute "aria-pressed"
                 (if config.prepCard then
                     "true"

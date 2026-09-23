@@ -155,6 +155,47 @@
      there; contrast_test.ts resolves it the same way. */
   --accent-heat: var(--shelf-heat);
 
+  /* ---- the extruded slab: a press with a shadow that moved first ----
+     Adopted 2026-09-23 as the machined block; re-cut to DK-06
+     EXTRUDED SLAB 45 on 2026-09-24, which is the dress the source
+     itself promoted the day it tried both. DS-01 §04's amendments of
+     those dates.
+
+     THE DRESS IS A FLAT SLAB AND ONE HARD OFFSET THROWN DOWN THE 45°
+     BEARING in a darker cut of the slab's own colour, with a seat the
+     depth of that offset. Every part of it is flat colour with a hard
+     edge, and the depth is layering and overlap and nothing else,
+     which is §2.1 stated almost word for word. The source throws a
+     second near-ink block behind the first; on its own near-black
+     ground that is invisible, and on the lit bench it is a third band
+     of a third colour that turns a slab into a stack. The machined block it replaces built its
+     body out of a lit side and a shaded side, and a lit side is a
+     light source however carefully it is drawn.
+
+     THE FACE IS THE SAME SLAB IN BOTH THEMES. The first cut gave it a
+     near-frost face on the lit bench and a dark plate after dark, so
+     the control was a different object in each theme and every other
+     token had to bend around that. A slab is a slab: this is the
+     `.tag-accent` argument — a volt block with ink on it reads the
+     same in both lightings — applied to the one object in this design
+     that is explicitly a piece of stock. The shadows carry toward
+     --ink in both themes for the same reason, because a shadow is
+     dark everywhere.
+
+     Controls that already wear an acid (COOK THIS, the four path
+     tiles, a chip that is on, the shelf's way out of a dead end) set
+     the face from their own token instead, and the whole dress —
+     edge, body and seat — is derived from it. The dress never
+     repaints anything; it only gives it a body.
+
+     The slab is 1.19:1 against the lit bench on purpose. What makes
+     it findable there is its EDGE, which is a cut of the face dark
+     enough to clear 1.4.11 against either ground (3.38:1 on light,
+     4.68:1 after dark) — measured in contrast_test.ts, from the
+     face, so a new face cannot quietly ship an invisible control. */
+  --press-face: #fbfbf8; /* --press-tx on it 17.78:1 */
+  --press-tx: #12150e; /* ink, both themes — see the face */
+
   /* ---- type: four voices, strictly cast (DS-01 §05) ----
      A glyph's typeface tells you what KIND of information it is.
 
@@ -176,6 +217,24 @@
   --font-human: 'Instrument Serif', Georgia, 'Times New Roman', serif;
 
   /* ---- measure & chrome ---- */
+  /* The tap floor. DS-01 §12: every control a thumb can land on is at
+     least this on BOTH axes, and it is a rem so it grows with a
+     raised browser default rather than being pinned to a pixel.
+
+     It was a §08 clause for three phases — cook mode, on the
+     reasoning that wet hands at arm's length are the hard case — and
+     was promoted to §12 on 2026-09-24. The hand is the same hand in a
+     shop with a trolley in it, and a filter chip at 22px was the
+     smallest thing in the product.
+
+     Two ways to honour it, and the choice is not free: a control with
+     room GROWS to the floor, and one that cannot — an item in the
+     fixed-height site bar, a link inline in a sentence — keeps its
+     box and lays a transparent `::after` over it. Growing the second
+     kind moves the layout around it; overlaying the first kind hides
+     the fact that it is small from everything except a thumb. */
+  --tap: 2.75rem;
+
   --measure: 44rem;
   --nav-h: 2.4rem; /* the sticky site nav's height — .site-nav sets it as
                       a hard height, so this token and the rendered bar
@@ -226,6 +285,10 @@
     --page-live: #ff4d97; /*  6.27:1 */
 
     --accent: var(--shelf-act);
+
+    /* the extruded slab: NOTHING. The face, its edge and both
+       offsets are the same object in either lighting, and that
+       is the whole of the 2026-09-24 re-cut. */
   }
 }
 
@@ -264,6 +327,10 @@
   --page-live: #ff4d97; /*  6.27:1 */
 
   --accent: var(--shelf-act);
+
+  /* the extruded slab: NOTHING. The face, its edge and both
+     offsets are the same object in either lighting, and that
+     is the whole of the 2026-09-24 re-cut. */
 }
 
 * {

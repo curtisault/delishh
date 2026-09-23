@@ -49,6 +49,49 @@
   flex: none;
   white-space: nowrap;
 }
+/* ---------- the site bar's tap overlays (§12) ----------
+   THESE THREE CANNOT GROW. `--nav-h` is a hard 2.4rem and the whole
+   narrow tier is built on it not changing — the routes panel is
+   positioned absolutely so opening it shifts no layout, and every
+   sticky offset in the product measures from it. A 2.75rem control
+   inside a 2.4rem bar would either burst the bar or be clipped by it.
+
+   So the box stays the size it looks and a transparent `::after` is
+   laid over it at the floor: the hit area grows, the layout does not,
+   and no two items reach into each other. It overhangs the bar above
+   and below, which is what a thumb aiming at a 2.4rem bar does
+   anyway.
+
+   The overlay carries BOTH axes. `min(0px, (100% - var(--tap)) / 2)`
+   is zero while the item is already wide enough and goes negative by
+   exactly the shortfall when it is not, so the hit area is always
+   `max(item, --tap)` wide and never wider. LIST is 34px of word; it
+   gets 5px of reach on each side out of a 22px gap, and DARK, the
+   tightest pair in the bar, takes 3px out of 11. Nothing overlaps its
+   neighbour, which is the failure a blanket negative inset would
+   have.
+
+   This is the SECOND way to honour the floor and it is not the
+   default one — a control with room grows (theme.css). Reaching for
+   the overlay where growing would have worked hides from everything
+   except a thumb the fact that the control is small. */
+.nav-toggle,
+.site-nav a,
+.theme-btn {
+  position: relative;
+}
+.nav-toggle::after,
+.site-nav a::after,
+.theme-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+
 /* the way in, on narrow layouts only */
 .nav-toggle {
   display: none;
@@ -175,7 +218,7 @@
   display: flex;
   gap: 0.55rem;
   align-items: center;
-  min-height: 2.75rem;
+  min-height: var(--tap);
   /* symmetric side padding, because the active row's field has two
      edges and text against either of them reads as a mistake */
   padding: 0.3rem 0.65rem 0.28rem;
@@ -581,6 +624,9 @@ ul.tight li {
   margin-bottom: 0.7rem;
 }
 .doc-search-input {
+  /* The tap floor (§12). A search field is a control you put a thumb
+     in, and it was the one at 41px. */
+  min-height: var(--tap);
   min-width: 0;
   flex: 1;
   font-family: var(--font-data);
@@ -975,4 +1021,134 @@ ul.tight li {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* ==========================================================================
+   THE EXTRUDED SLAB — the one press dress
+   (adopted 2026-09-23 as the machined block; re-cut to DK-06 on
+   2026-09-24)
+   ==========================================================================
+
+   DS-01 §04's amendments of those dates, and §10's. Every control in
+   the product that DOES something — as against one that navigates, or
+   one that unmakes and is deliberately quiet — wears this.
+
+   A FLAT SLAB, ITS OWN EDGE, AND ONE HARD OFFSET thrown down the 45°
+   bearing in a darker cut of the slab's own colour. Pressed, it
+   travels that offset and seats flush in its own corner. That is the
+   whole dress.
+
+   ONE OFFSET, NOT TWO (2026-09-24, the same day this was cut). The
+   source throws a second, near-ink block 4px past the first, and on
+   its own ground that is invisible — a near-black sliver on a
+   near-black card, doing nothing you can see. On the lit bench it is
+   a third band of a third colour behind every control in the
+   product, and the object stops reading as a slab with a shadow and
+   starts reading as a stack. Two fills and a hairline is the whole
+   silhouette; anything past that is counting.
+
+   THE DRESS IS GEOMETRY, NOT COLOUR, and that is the whole reason it
+   can cross the §01 split. It repaints nothing: a control that
+   already carries an acid keeps it and sets `--press-face` from its
+   own token, and every other part of the body is derived from that
+   face. The shelf stays loud and the page stays quiet because the
+   FACES are unchanged — only the body under them is new.
+
+   WHY THIS AND NOT THE MACHINED BLOCK (re-cut 2026-09-24). The block
+   built its body from a lit side and a shaded side, and §2.1 is
+   explicit that depth comes from layering and overlap and never from
+   lighting — two tones on two faces of one solid is an axonometric,
+   which is to say a drawing of how light falls on it. Every part of
+   this dress is a flat fill with a hard edge, offset behind another
+   flat fill. It is also, for free, the version with NO pseudo-element:
+   the block took `::before` and `::after`, and `.chip.f-sweet::before`
+   is a flavour stencil at (0,2,0) against the dress's (0,1,0), so a
+   chip won the `content` and the dress won the `position: absolute`
+   it never meant to donate — the mark floated where the wall should
+   be and the chip had no body at all. A dress worn by nine different
+   components should own no pseudo-element, and this one owns none.
+
+   THE SEAT IS A STATE, NOT A TRANSITION. There is no `transition`
+   here and there must never be one: the slab cuts to its seated
+   position and the offsets cut to nothing, with nothing interpolating
+   in between, so there is no motion for a reduced-motion reader to be
+   spared. That is what lets this dress onto a recipe page at all
+   (§10), and it is why the rules below sit OUTSIDE every motion query
+   rather than inside one — authoring them in the guard would leave a
+   reduced-motion reader with a press that never moved and a toggle
+   whose on-state therefore had no carrier.
+
+   A TOGGLE'S ON-STATE IS SEATED, NEVER A SECOND FILL. `.is-seated`
+   holds the slab down in its own corner with the offsets collapsed —
+   the same filled-against-outlined logic the cook rail uses for a
+   done step, run as depth instead of ink (§04). It costs no new acid,
+   it survives a black-and-white print, and it reads at arm's length.
+   The word changes too; the shape is never the only carrier.
+
+   ONE TRAVEL, SET HERE, AND EVERY ADOPTER TAKES IT. 5px. A control
+   that wanted its own depth would be a control claiming to be a
+   different KIND of press, which is the thing one dress exists to
+   prevent. Sizing stays with the surface: each adopter sets its own
+   padding and type and nothing else. */
+
+.press-block {
+  --press-travel: 5px;
+
+  /* Derived, never authored. No glyph lands on any of them, so this is
+     the one place in the system a `color-mix` is not a ground nobody
+     can measure — except `--press-edge`, which is a control's own
+     boundary and therefore answers 1.4.11; contrast_test.ts recomputes
+     it from the face in both themes.
+
+     THE EDGE IS 42%, NOT THE SOURCE'S 55%, and the difference is the
+     lit bench. On a ground that is always near-black a 55% edge is a
+     seam and the shadow does the finding; delishh has a ground almost
+     exactly as light as the slab, so the edge has to clear 3:1 THERE
+     as well as after dark, and 42% is near the middle of the window
+     where one cut does both (3.73:1 and 4.24:1). The body keeps the
+     source's own interval below it — darker than the edge by about as
+     much as the source's body is darker than its seam — so the two
+     still read as a seam and a body and not as one thick border. */
+  --press-edge: color-mix(in srgb, var(--press-face) 42%, var(--ink));
+  --press-body: color-mix(in srgb, var(--press-face) 30%, var(--ink));
+
+  position: relative;
+  border: 1px solid var(--press-edge);
+  border-radius: 0;
+  cursor: pointer;
+  color: var(--press-tx);
+  background: var(--press-face);
+  /* The tap floor, on both axes, for all nine wearers at once
+     (§12). The filter chips were the smallest control in the product
+     at 22px; everything else that wears the dress already cleared the
+     height and none of them cleared it by accident. */
+  min-height: var(--tap);
+  min-width: var(--tap);
+  box-sizing: border-box;
+  /* A box-shadow takes no layout space, so without this the body
+     prints through whatever is to the right of and below the control.
+     The offset IS the body's whole extent, so the reservation is the
+     travel and nothing more. */
+  margin-right: var(--press-travel);
+  margin-bottom: var(--press-travel);
+  box-shadow: var(--press-travel) var(--press-travel) 0 var(--press-body);
+}
+
+/* Seated — under a finger, or held down because the toggle is on.
+   One rule for both, because they are the same physical fact: the
+   slab has travelled its own offset and is sitting in its own corner,
+   so there is no body left to throw. The edge stays, which is what
+   keeps a seated control findable (1.4.11) once its body is gone. */
+.press-block:active,
+.press-block.is-seated {
+  transform: translate(var(--press-travel), var(--press-travel));
+  box-shadow: 0 0 0 var(--press-body);
+}
+
+/* Focus is unconditional, as everywhere: it is how a keyboard says
+   where it is, not decoration. The offset clears the slab's own edge
+   without reaching the body thrown behind it. */
+.press-block:focus-visible {
+  outline: 3px solid var(--tx);
+  outline-offset: 2px;
 }

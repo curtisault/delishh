@@ -267,7 +267,7 @@ header config =
         [ div [ class "cook-head-row" ]
             [ h1 [ class "cook-title" ] [ text r.title ]
             , a
-                [ class "cook-exit u"
+                [ class "press-block cook-exit u"
                 , href ("/recipe/" ++ r.slug)
                 ]
                 [ text "Exit" ]

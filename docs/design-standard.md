@@ -311,6 +311,67 @@ cold chain, magenta = live culture, volt = the action to take now.
 > last, which is also the tab order — you reach past the quieter one
 > to get to the loud one.
 
+> **Amendment 2026-09-23 — the press has a body**, *re-cut
+> 2026-09-24 to the extruded slab.* Every control in the archive that
+> *does* something now wears one dress: a flat slab, its own edge, and
+> one hard offset thrown down the 45° bearing in a darker cut of the
+> slab's own colour, with a seat the depth of that offset. It is the
+> same object on the shelf and on the page, and that is not a breach of §01; it is §01 held to more
+> carefully than before.
+>
+> **The dress is geometry; colour is left where it was.** A control
+> that already carried an acid keeps it and the slab takes that colour
+> as its face, deriving its edge and its body from it; a control
+> that carried none takes the neutral slab. So the four path tiles are
+> still four full acid fills, ADD TO LIST is still quieter than COOK
+> THIS, and the sheet is still ink. Nothing was repainted. What
+> changed is that all of them now have a body, and a body is not a
+> colour — it is the one property of a control that means the same
+> thing on a loud surface and a quiet one.
+>
+> **A toggle's on-state is SEATED, not filled.** The slab travels its
+> own offset and sits flush in its own corner with the body gone.
+> This supersedes the 2026-09-21 clause above — "the fill is what
+> separates them" — and it supersedes it without spending what that
+> clause was protecting. There is still exactly one filled block on a
+> recipe page and it is still COOK THIS; ADD TO LIST reports itself by
+> depth instead of by a second acid, which is the same
+> filled-against-outlined glance the cook rail uses for a done step
+> (§08) and the cart uses for a bought item, run as shape rather than
+> as ink. It costs nothing on paper, it reads at arm's length, and it
+> is never the only carrier: the word changes, and `aria-pressed` says
+> so too.
+>
+> **What separates the two actions is still the fill.** COOK THIS is a
+> whole orange slab — the colour of where it goes (2026-09-21) — and
+> ADD TO LIST is the neutral one. Outlined first, filled last, and the
+> tab order is unchanged; the body is under both of them and settles
+> nothing between them, which is the point of a dress.
+>
+> **The slab is the same object in both themes, and that is what the
+> re-cut is.** The first version gave it a near-frost face on the lit
+> bench and a dark plate after dark, so every other part had to bend:
+> the body flipped direction, its density became a per-theme number,
+> and the acid rail down its left edge had to be darkened until it was
+> olive. One paper slab, with its shadows carried toward ink in both
+> lightings, needs none of that — a shadow is dark everywhere. What it
+> costs is a face at 1.19:1 on the lit bench, and what answers that is
+> the slab's **edge**, a cut of the face dark enough to clear
+> 1.4.11's 3:1 against either ground. The rail is gone with the
+> version that needed it.
+>
+> **What this does not license.** Decoration is still a shelf
+> property. The slab is not a gradient, not a glow and not a lighting
+> effect — every part of it is a flat fill with a hard edge offset
+> behind another flat fill, which is what §2.1 means by depth coming
+> from layering and overlap. That clause is also why this replaced the
+> machined block it started as: that one built its body from a lit
+> side and a shaded side, and a lit side is a light source however
+> carefully it is drawn. Nothing wearing the dress reaches paper at
+> all: a control is a thing you press and a sheet has nothing to
+> press, so §09 was already hiding every one of them before this dress
+> existed.
+
 ### Themes
 
 Light and dark are the viewer's choice (System/Light/Dark, already
@@ -704,7 +765,8 @@ light is bad, and something is on the heat.
   all. Everything a step needs is printed on the step.
 - **Completed steps stamp; they never grey out.** You will re-read a
   done step to check what you already did. Tagged, not disabled.
-- **Tap targets at 2.75rem minimum, scaling with text.**
+- **Tap targets at 2.75rem minimum, scaling with text** — a §08
+  clause until 2026-09-24, now §12 and binding on every surface.
 - **Hold the screen awake** while cook mode is open, and say so on
   screen.
 - **Scaling is set before you start and displayed permanently** in
@@ -864,6 +926,23 @@ and never ambiently.
 - **Recipe pages hold still.** Reading surfaces get state transitions
   under 150 ms and nothing else. Cook mode is the stillest surface in
   the product.
+- **A cut is not a travel** (amended 2026-09-23). The press dress
+  (§04) seats when you press it: the slab changes position and the
+  body it throws changes to nothing, with no interpolation between the two
+  states and no duration to give one. Nothing moves *through* the
+  space in between, so there is nothing to perceive as movement and
+  nothing a reader who asked for calm is being spared — which is why
+  a press with a body is permitted on a reading surface when a
+  150 ms lift is not. The test is the absence of a `transition`, and
+  it is machine-checked: `recipe.css` and `cook.css` may not contain
+  the property at all.
+- **A state that only exists inside the motion guard is a bug.**
+  The corollary of the clause above, and the reason the block's seat
+  is authored *outside* every query while the shelf's remaining
+  transitions stay inside one. A toggle whose on-state is depth must
+  still be on for a reduced-motion reader; withholding it would
+  leave that reader one carrier short of everyone else, which is
+  §12's never-one-carrier rule broken by a media query.
 - **Sanctioned exception — the step timer.** A running duration is
   functional readout: tabular numerals, zero layout shift.
 - **`prefers-reduced-motion` implies calm.** New motion is authored
@@ -912,6 +991,19 @@ copy is written in a hurry and nobody reviews a tooltip.
   background, in both themes. Bold is not legible; contrast is.
 - **Information is never carried by color alone**, on screen or on
   paper.
+- **Tap targets at 2.75rem minimum on both axes, scaling with text**
+  (promoted from §08, 2026-09-24). It was a cook-mode clause for
+  three phases, on the reasoning that wet hands at arm's length are
+  the hard case. They are not the only one: the same hand holds the
+  same phone in a shop with a trolley in the other, and the smallest
+  control in the archive was a filter chip at 22px, on the surface a
+  reader touches first. There are two ways to meet it and the choice
+  is not free — **a control with room grows to the floor**, and one
+  that cannot, because it sits in the fixed-height site bar or inline
+  in a sentence, keeps its box and takes a transparent overlay at the
+  floor instead. Growing the second kind moves the layout around it;
+  overlaying the first kind hides from everything except a thumb the
+  fact that the control is small.
 - **≤ 3 Hz flashing; `prefers-reduced-motion` respected** (§10).
 - **User text scaling respected** — no px font sizes, breakpoints in
   rem, and the never-broken bar holds at 200% zoom *and* at a raised

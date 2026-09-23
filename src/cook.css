@@ -53,19 +53,6 @@
   line-height: 1;
   margin: 0;
 }
-.cook-exit {
-  flex: none;
-  font-size: 0.7rem;
-  color: var(--tx);
-  text-decoration: none;
-  border: 2px solid var(--rule);
-  padding: 0.5rem 0.8rem;
-  /* 2.75rem minimum, and it scales with the text rather than being
-     pinned to a pixel size (§08). */
-  min-height: 2.75rem;
-  display: inline-flex;
-  align-items: center;
-}
 
 .cook-badges {
   display: flex;
@@ -188,7 +175,7 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  min-height: 2.75rem;
+  min-height: var(--tap);
 }
 .cook-n {
   font-size: 1.6rem;
@@ -258,7 +245,7 @@
   color: var(--tx);
   padding: 0.5rem 0.8rem;
   cursor: pointer;
-  min-height: 2.75rem;
+  min-height: var(--tap);
 }
 .cook-timer.is-running .cook-timer-clock {
   color: var(--acid);
@@ -389,7 +376,7 @@
   .cook-nav-link {
     display: flex;
     align-items: center;
-    min-height: 2.75rem;
+    min-height: var(--tap);
     font-size: 0.66rem;
     letter-spacing: 0.1em;
     color: var(--tx-dim);
@@ -427,8 +414,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
+    min-width: var(--tap);
+    min-height: var(--tap);
     font-size: 0.82rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -457,18 +444,68 @@
   }
 }
 
-/* ---------- the way in, on the recipe page ---------- */
+/* Sizing only — the dress is the extruded slab (`.press-block` in
+   sheet.css, adopted 2026-09-24). It carries no acid of its own, so
+   it takes the neutral slab, exactly as ADD TO LIST does on the
+   document: the two are the same kind of thing, the way out of a
+   screen, and now they look it.
 
-.cook-enter {
+   IT IS THE ONE SLAB ON THE STILLEST SURFACE, and it earns the place
+   the rest of this file denies to everything else. §08's whole
+   argument is arm's length and wet hands: the exit is the control
+   most likely to be pressed by someone not looking straight at it,
+   and a body is the only thing this design gives a control that can
+   be found without reading it. Nothing about it moves — the seat is
+   a cut, not a travel (§10, amended 2026-09-23) — so the surface is
+   exactly as still as it was.
+
+   `#cook-head` is sticky and `Main.stickyChromeHeight` MEASURES it at
+   runtime, so the 8px the header grows is carried into every anchor
+   offset without anything here having to know the number. */
+.cook-exit {
+  flex: none;
+  font-size: 0.7rem;
+  text-decoration: none;
+  /* Wider than its own word needs (2026-09-24). Every other control
+     on this screen is the width of the thing it acts on — a step, a
+     timer — and the exit acts on nothing, so left at its label it was
+     the narrowest target on the surface §08 exists for. The padding
+     is in `em`, so the box grows with the label rather than being
+     pinned to a size the type can outgrow. */
+  padding: 0.5rem 2.2em;
+  /* The floor is on the dress now (`.press-block`), on both axes and
+     for all nine wearers at once. */
   display: inline-flex;
   align-items: center;
-  min-height: 2.75rem;
+}
+
+/* ---------- the way in, on the recipe page ---------- */
+
+/* Sizing and colour only — the dress is the extruded slab
+   (`.press-block` in sheet.css, re-cut 2026-09-24).
+
+   THE WHOLE FACE IS THE ACID. It is the one control on a recipe page
+   that carries a colour of its own, so the dress takes that colour
+   instead of the neutral face and the rail becomes a milled edge of
+   the same orange rather than a second acid — one acid on the
+   control, as §04 has always required. ADD TO LIST beside it is a
+   neutral face with a volt rail, and that contrast is what now
+   separates the page's primary verb from its second action.
+
+   The face is a link, not a button, and does not toggle: it is never
+   seated except under a finger. */
+.cook-enter {
+  --press-face: var(--accent-heat);
+  /* Its own milled edge, not volt. A volt rail on an orange face
+     would put two acids on one control. */
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   margin-top: 0.8rem;
   font-size: 0.66rem;
   /* Orange, not volt: the button names where it goes rather than
      that it is a button, and where it goes is the heat (§04, amended
      2026-09-21). */
-  background: var(--accent-heat);
   color: var(--ink);
   text-decoration: none;
   padding: 0.4rem 0.9rem;

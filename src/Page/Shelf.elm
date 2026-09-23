@@ -162,7 +162,7 @@ tile config p =
     div [ class "path", classList [ ( "open", open ) ] ]
         [ Html.button
             [ type_ "button"
-            , class ("path-tile path-" ++ Shelf.path p)
+            , class ("press-block path-tile path-" ++ Shelf.path p)
             , attribute "aria-expanded"
                 (if open then
                     "true"
@@ -209,8 +209,8 @@ facetChip config p word =
           -- too — same mark, same place, so the association is built
           -- where the words are first met. On any other path the
           -- class matches no mask and draws nothing.
-          class ("chip chip-" ++ Shelf.path p ++ " u f-" ++ word)
-        , classList [ ( "on", on ) ]
+          class ("press-block chip chip-" ++ Shelf.path p ++ " u f-" ++ word)
+        , classList [ ( "on", on ), ( "is-seated", on ) ]
         , attribute "aria-pressed"
             (if on then
                 "true"
@@ -246,7 +246,7 @@ activeBar config =
                     :: List.map activeEntry entries
                     ++ [ Html.button
                             [ type_ "button"
-                            , class "active-clear u"
+                            , class "press-block active-clear u"
                             , onClick config.onClear
                             ]
                             [ text "Clear all" ]
@@ -455,6 +455,6 @@ zeroState config =
             Nothing ->
                 p [ class "zero-lead" ] [ text "The archive is empty." ]
         , Html.button
-            [ type_ "button", class "zero-clear u", onClick config.onClear ]
+            [ type_ "button", class "press-block zero-clear u", onClick config.onClear ]
             [ text "Clear the filters" ]
         ]

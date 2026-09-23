@@ -128,6 +128,14 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   { fg: "shelf-tx", bg: "shelf-heat", min: 4.5 },
   { fg: "shelf-tx", bg: "shelf-live", min: 4.5 },
 
+  // The extruded slab's neutral face — the press dress worn by every
+  // control that carries no acid of its own (sheet.css). Its own
+  // contrast against the lit bench is 1.19:1 by design; what makes it
+  // findable there is its EDGE, and that is checked below against
+  // both grounds rather than as a pair, because the edge is derived
+  // from the face rather than being a token of its own.
+  { fg: "press-tx", bg: "press-face", min: 4.5 },
+
   // The cook-mode button: --ink on the heat fill, not --shelf-tx.
   // Same hex in light and a different one in dark, which is exactly
   // why the role gets its own pair instead of leaning on the shelf
@@ -238,6 +246,89 @@ Deno.test("the acids all carry a measured ratio, in both themes", () => {
     }
   }
   assertEquals(missing, []);
+});
+
+/**
+ * Two flat inks laid over each other, the way a press makes a third
+ * colour. `mix-blend-mode: multiply` is channel-wise multiplication,
+ * so the result is computable from the two tokens.
+ */
+function overprint(a: string, b: string): string {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(i, i + 2), 16);
+  return "#" + [1, 3, 5]
+    .map((i) => Math.round(channel(a, i) * channel(b, i) / 255))
+    .map((v) => v.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+Deno.test("the shelf's overprint carries its ink where the screens cross", () => {
+  // §2.1 builds depth out of layering rather than lighting, so the
+  // shelf title is a volt plate with a cyan screen laid across it —
+  // and the colour where they cross is a colour no PAIR above
+  // describes, because no token holds it. The title's ink sits on it.
+  //
+  // It is also why the second screen is cyan and not a free choice:
+  // orange and magenta both fail AA under the same crossing, on the
+  // lit theme, and the numbers are in shelf.css beside the rule.
+  for (const [name, theme] of [["light", LIGHT], ["dark", DARK]] as const) {
+    const crossed = overprint(token("shelf-act", theme), token("shelf-cold", theme));
+    const ratio = contrast(token("shelf-tx", theme), crossed);
+    assert(
+      ratio >= 4.5,
+      `${name}: --shelf-tx on the volt × cyan overprint (${crossed}) is ${ratio.toFixed(2)}:1`,
+    );
+  }
+});
+
+Deno.test("the second screen is the only acid that survives the crossing", () => {
+  // The rejected two, held so that nobody re-picks one later without
+  // the build saying why it was not chosen the first time.
+  for (const [name, theme] of [["light", LIGHT], ["dark", DARK]] as const) {
+    for (const other of ["shelf-heat", "shelf-live"]) {
+      const crossed = overprint(token("shelf-act", theme), token(other, theme));
+      const ratio = contrast(token("shelf-tx", theme), crossed);
+      if (name === "light") {
+        assert(
+          ratio < 4.5,
+          `${other} now passes the crossing on light at ${ratio.toFixed(2)}:1 — ` +
+            `the comment in shelf.css says it does not, and one of the two is wrong`,
+        );
+      }
+    }
+  }
+});
+
+/** The one `color-mix` in the dress that a reader has to be able to find. */
+function mix(a: string, b: string, pct: number): string {
+  const ch = (h: string, i: number) => parseInt(h.slice(i, i + 2), 16);
+  return "#" + [1, 3, 5]
+    .map((i) => Math.round(ch(a, i) * pct + ch(b, i) * (1 - pct)))
+    .map((v) => v.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+Deno.test("the slab's edge is findable on both grounds", () => {
+  // `--press-edge` is 42% of the face carried toward --ink (sheet.css),
+  // and it is the ONLY thing that identifies a neutral press on the lit
+  // bench: the slab itself is 1.19:1 there, so without an edge the
+  // control is a word and a shadow arranged around a hole.
+  //
+  // A control's own boundary is exactly what 1.4.11 is about, so it
+  // answers the 3:1 non-text bar on whatever ground it lands on — and
+  // it has to clear it in BOTH themes off ONE face, which is the
+  // constraint that a per-theme face was invented to dodge and this
+  // dress does not need.
+  //
+  // Recomputed from the face rather than written down, so a new face
+  // cannot ship a control nobody can find the edge of.
+  for (const [name, theme] of [["light", LIGHT], ["dark", DARK]] as const) {
+    const edge = mix(token("press-face", theme), token("ink", theme), 0.42);
+    const ratio = contrast(edge, token("surface", theme));
+    assert(
+      ratio >= 3,
+      `${name}: the slab's edge ${edge} is ${ratio.toFixed(2)}:1 on the ground`,
+    );
+  }
 });
 
 Deno.test("no token resolves to a colour keyword or a gradient", () => {

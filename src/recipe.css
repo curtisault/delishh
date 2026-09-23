@@ -206,7 +206,9 @@
   gap: 0.6rem;
 }
 /* Both carry their own top margin for the stacked case; inside the
-   band the flex row owns the spacing. */
+   band the flex row owns the spacing. The right and bottom margins
+   are the block's own walls standing in their own space
+   (`.press-block`) and are left alone. */
 .recipe-controls .cook-enter,
 .recipe-actions .lister-btn {
   flex: none;
@@ -231,6 +233,10 @@
   border: 1.5px solid var(--rule);
 }
 .scaler-btn {
+  /* The tap floor (§12). A segmented set is still a row of controls,
+     and the box it shares grows with them. */
+  min-height: var(--tap);
+  min-width: var(--tap);
   font-size: 0.62rem;
   letter-spacing: 0.06em;
   background: none;
@@ -239,10 +245,6 @@
   color: var(--tx);
   padding: 0.34rem 0.6rem;
   cursor: pointer;
-  /* DS-01 §08: tap targets scale with text and never below 2.75rem in
-     cook mode. This is the browse-side control; cook mode gets its own
-     sizing when it lands. */
-  min-height: 2rem;
 }
 .scaler-btn:last-child {
   border-right: 0;
@@ -452,19 +454,24 @@
 /* ---------- motion ---------- DS-01 §10.
 
    The recipe page is the QUIET half. §10: "Recipe pages hold still."
-   No press responses, no hover lifts — the shelf is where a surface
-   answers your hand, and a page you read with a pan on the heat is
-   not.
+   No hover lifts, and nothing on this surface interpolates — there
+   is no `transition` in this file and `motion_test.ts` fails the
+   build if one appears.
 
-   What is here is focus, which is not motion and not decoration: it
-   is how a keyboard says where it is, and it is defined outside any
-   motion query because a reduced-motion reader needs it just as
-   much. */
+   THE ONE THING THAT ANSWERS A HAND is the extruded slab's seat
+   (sheet.css, §10 as amended 2026-09-23), and it is not motion: the
+   face cuts to its seated position with nothing in between, so there
+   is no travel to perceive and nothing a reduced-motion reader is
+   being spared. That is the test the amendment set, and it is why
+   the seat is authored outside every motion query rather than
+   inside one.
+
+   What is also here is focus, which is not motion and not
+   decoration: it is how a keyboard says where it is, and it is
+   defined outside any motion query because a reduced-motion reader
+   needs it just as much. */
 .scaler-btn:focus-visible,
 .printer-btn:focus-visible,
-.printer-prep:focus-visible,
-.lister-btn:focus-visible,
-.cook-enter:focus-visible,
 .recipe-back:focus-visible {
   outline: 3px solid var(--tx);
   outline-offset: 2px;
@@ -572,7 +579,7 @@
   .recipe-nav-link {
     display: flex;
     align-items: center;
-    min-height: 2.75rem;
+    min-height: var(--tap);
     font-size: 0.56rem;
     letter-spacing: 0.12em;
     color: var(--tx-dim);
@@ -606,31 +613,32 @@
 
 /* ---------- the shopping control ---------- */
 
-/* Outlined, never filled. DS-01's COOK THIS amendment stakes itself on
-   nothing else on a recipe page being a filled block, so the pressed
-   state here is a RULE and a weight rather than a second fill — the
-   same filled-against-outlined logic the cook rail uses, run the other
-   way up because this control has to stay quieter than the one it
-   stands beside. The word changes too; the mark is never the only
-   carrier (§04).
+/* Sizing only — the dress is the extruded slab (`.press-block` in
+   sheet.css, re-cut 2026-09-24; the outlined box retired).
+
+   NEUTRAL FACE, VOLT RAIL. It carries no acid of its own, so it takes
+   the neutral face and the rail states what it is: the actionable, as
+   a border, which is what the page layer has always been allowed
+   (§04). COOK THIS beside it takes a whole orange face, and that is
+   now what separates the page's primary verb from its second action —
+   a face against a rail, rather than a fill against an outline.
+
+   ON IS SEATED, not filled. The block is held down with its walls
+   collapsed, so the state is DEPTH and costs no second acid on a
+   quiet surface. The word changes too, and `aria-pressed` says the
+   same thing; the shape is never the only carrier (§04).
 
    Its metrics are COOK THIS's, so the two read as one pair of actions
    rather than a button and a leftover. */
 .lister-btn {
   display: inline-flex;
   align-items: center;
-  min-height: 2.75rem;
+  min-height: var(--tap);
   margin-top: 0.8rem;
   font-size: 0.66rem;
   letter-spacing: 0.06em;
-  background: none;
-  border: 1.5px solid var(--rule);
-  color: var(--tx);
   padding: 0.4rem 0.9rem;
-  cursor: pointer;
 }
 .lister-btn.active {
-  border-color: var(--accent);
-  box-shadow: inset 3px 0 0 var(--accent);
   font-weight: 700;
 }
