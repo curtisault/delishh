@@ -155,8 +155,67 @@ const READING_LINE = 0.3
 let lastSeen = null
 let queued = false
 
+// A CLICKED ROW IS WHERE THE READER IS. The reading line is a guess
+// about scrolling, and after a jump it guesses wrong three ways on the
+// recipe page: Equipment and Ingredients sit in the sticky NEED rail
+// beside Steps, so the DO column's block always wins the line; a short
+// block (Watchpoints) lands with the next one already over the line;
+// and a late one (Rescues, Keeps) cannot be scrolled to the top at
+// all, so the at-bottom rule hands the mark to the Note. Each marked a
+// row the reader did not choose.
+//
+// So a click on an in-page anchor names the section outright, and the
+// guess is held off until the reader moves the page by hand — the
+// scroll Main.jumpTo performs is ours, not theirs, and says nothing
+// about what they are reading.
+let pinned = null
+
+document.addEventListener(
+  'click',
+  (event) => {
+    const link = event.target.closest?.('a[href*="#"]')
+    if (!link || link.pathname !== location.pathname || !link.hash) return
+    const id = decodeURIComponent(link.hash.slice(1))
+    if (!document.getElementById(id)) return
+    pinned = id
+    lastSeen = id
+    app.ports.sectionSeen.send(id)
+  },
+  // capture: Browser.application handles the click on the way down
+  // and the pin must be set before the jump it causes
+  true,
+)
+
+// Releasing reads nothing by itself: the scroll that follows does. A
+// pointerdown that turns out to be another row's click is re-pinned
+// before any scroll arrives.
+const release = () => {
+  pinned = null
+}
+// The reader's own hand. pointerdown precedes the click that may pin
+// a new row, and a scrollbar drag starts with one. Only keys that
+// scroll count — Tab moving focus down the rail is not a new place.
+const SCROLL_KEYS = new Set([
+  ' ', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End',
+])
+for (const type of ['wheel', 'touchmove', 'pointerdown']) {
+  addEventListener(type, release, { passive: true, capture: true })
+}
+addEventListener(
+  'keydown',
+  (event) => {
+    if (SCROLL_KEYS.has(event.key)) release()
+  },
+  { passive: true, capture: true },
+)
+
 function readSection() {
   queued = false
+  if (pinned !== null) {
+    // the pinned section left the page (a navigation): stop holding it
+    if (document.getElementById(pinned)) return
+    pinned = null
+  }
   // The document pages' sections, and the recipe page's blocks — the
   // recipe rail marks the block you are reading the same way the
   // contents rail marks a section.
