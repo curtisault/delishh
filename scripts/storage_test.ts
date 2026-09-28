@@ -73,3 +73,18 @@ Deno.test("DS-01 §12 names as many stored things as boot.js keeps", () => {
     "docs/design-standard.md §12 and src/boot.js disagree on how many keys are stored",
   );
 });
+
+/** The service worker's one cache. Not a `localStorage` key and not
+ * about the reader, but bytes on their device all the same — so it is
+ * named, and held named, the way the keys are. */
+Deno.test("the offline copy is one cache, and both documents name it", async () => {
+  const worker = await Deno.readTextFile("src/sw.js");
+  const names = [...worker.matchAll(/`(delishh-[\w-]+?)-\$\{BUILD\}`/g)].map((m) => m[1]);
+  assertEquals(names, ["delishh-archive"], "src/sw.js keeps a cache the documents do not name");
+  for (const [name, doc] of [["docs/about.md", about], ["docs/design-standard.md", standard]]) {
+    assert(
+      /\bcopy of the archive\b/i.test(doc.replace(/\s+/g, " ")),
+      `${name} no longer says a copy of the archive is kept`,
+    );
+  }
+});

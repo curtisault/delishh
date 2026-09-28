@@ -52,8 +52,29 @@ try {
   // storage unavailable: start with an empty week
 }
 
+// What this browser can do about a home-screen install, read off its
+// capabilities and never its name (docs/installable.md, Install.elm).
+// Already running installed: nothing to offer. Otherwise
+// `navigator.standalone` exists only in Safari on iPhone and iPad —
+// false in a tab — and that browser adds to a home screen through its
+// share sheet with no API for it. Everyone else starts at none, and a
+// browser with its own dialog says so later, with beforeinstallprompt.
+const runningInstalled =
+  matchMedia('(display-mode: standalone)').matches || navigator.standalone === true
+// In dev the browser never offers (it needs the worker, which is
+// production-only), so the press is drawn anyway to be looked at. It
+// does nothing there: installApp finds no event and returns.
+const installAtBoot = runningInstalled
+  ? 'none'
+  : navigator.standalone === false
+    ? 'share'
+    : import.meta.env.DEV
+      ? 'prompt'
+      : 'none'
+
 const app = Elm.Main.init({
   flags: {
+    install: installAtBoot,
     theme: storedTheme,
     list: storedList,
     plan: storedPlan,
@@ -114,12 +135,42 @@ document.addEventListener('visibilitychange', () => {
   }
 })
 
+// The system bar of an installed app (and of Chrome on Android) takes
+// its colour from the theme-color metas in index.html, which follow
+// the OS lighting through their media queries. A lighting chosen on
+// the page has to reach them too, or a dark page sits under a light
+// bar. So an explicit choice paints both metas with the computed
+// --stencil-bg — read, never written here, like every colour in this
+// file — and "system" puts back the media and content index.html
+// shipped.
+const statusBars = [...document.querySelectorAll('meta[name="theme-color"]')].map(
+  (meta) => ({ meta, media: meta.getAttribute('media'), content: meta.content }),
+)
+
+function paintStatusBar() {
+  const chosen = document.documentElement.dataset.theme
+  const bar = getComputedStyle(document.documentElement)
+    .getPropertyValue('--stencil-bg')
+    .trim()
+  for (const { meta, media, content } of statusBars) {
+    if (chosen && bar) {
+      meta.removeAttribute('media')
+      meta.content = bar
+    } else {
+      if (media) meta.setAttribute('media', media)
+      meta.content = content
+    }
+  }
+}
+paintStatusBar()
+
 app.ports.saveTheme.subscribe((theme) => {
   if (theme === 'light' || theme === 'dark') {
     document.documentElement.dataset.theme = theme
   } else {
     delete document.documentElement.dataset.theme
   }
+  paintStatusBar()
   try {
     if (theme === 'light' || theme === 'dark') {
       localStorage.setItem(THEME_KEY, theme)
@@ -607,3 +658,48 @@ app.ports.sharePlan.subscribe(async (req) => {
       break
   }
 })
+
+// The browser's install dialog. Chrome, Edge and Android hand it over
+// as an event after load, if the site qualifies — which needs the
+// worker below, so it never fires in dev. The event is kept, the
+// browser's own mini-infobar is suppressed in favour of the shelf's
+// press, and prompt() is called with nothing awaited before it, or the
+// browser refuses it outside the press. One prompt spends the event:
+// accepted or dismissed, the press goes, and returns only if the
+// browser offers again.
+let installEvent = null
+
+addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault()
+  installEvent = event
+  app.ports.installOffered.send('prompt')
+})
+
+addEventListener('appinstalled', () => {
+  installEvent = null
+  app.ports.installOffered.send('none')
+})
+
+app.ports.installApp.subscribe(async () => {
+  const event = installEvent
+  if (!event) return
+  installEvent = null
+  event.prompt()
+  try {
+    await event.userChoice
+  } catch (_) {
+    // spent either way
+  }
+  app.ports.installOffered.send('none')
+})
+
+// The service worker (docs/installable.md). Registered last, after
+// everything the page needs is running, and only in a production
+// build: in dev it would cache Vite's unhashed modules and fight HMR.
+// A browser without the API boots exactly as it did before there was
+// one. src/sw.js is the policy; public/sw.js is generated from it.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {
+    // not installed: the site is fetched, as it always was
+  })
+}

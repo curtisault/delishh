@@ -103,6 +103,52 @@
   margin: 0 0 0.9rem;
   color: var(--tx-dim);
 }
+
+/* ---------- the install press ----------
+   Top right of the masthead, and only when pressing it will do
+   something (Install.elm). Volt, because it is the actionable thing
+   on the plate and volt is the actionable acid; the press dress
+   supplies the body, the tap floor and the seat.
+
+   On screen it is the mark alone, at the tap floor and no larger;
+   its name rides in a `.vh` span for a screen reader.
+
+   The head is a row so the press takes its own room beside the title
+   rather than floating over it: a narrow screen shrinks the title
+   (it is sized in vw), never the press, which is `flex: none`.
+
+   The mark is a MASK, not an image: the tray and arrow cut out of
+   `currentColor`, so it takes the press's ink in both lightings and
+   there is no colour in the drawing to drift from theme.css. */
+.shelf-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.shelf-install {
+  --press-face: var(--shelf-act);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.shelf-install-mark {
+  width: 1.2rem;
+  height: 1.2rem;
+  background: currentColor;
+  -webkit-mask: var(--install-mark) center / contain no-repeat;
+  mask: var(--install-mark) center / contain no-repeat;
+  --install-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10.5 2h3v10.4l3.4-3.4 2.1 2.1-7 7-7-7 2.1-2.1 3.4 3.4z'/%3E%3Cpath d='M2 15h3v4h14v-4h3v7H2z'/%3E%3C/svg%3E");
+}
+/* The one sentence Safari needs. In the procedure voice, because it
+   is an instruction; at the standfirst's measure, because it sits in
+   the standfirst's place for as long as it is open. */
+.shelf-install-help {
+  margin: 0.2rem 0 0.9rem;
+  max-width: 34rem;
+}
 /* ---------- the query line ----------
    An instrument with a label on it, not a box with a magnifier in
    it. One field the whole way across: the label, its marker and the

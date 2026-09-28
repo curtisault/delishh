@@ -21,10 +21,12 @@ prose document and has no sections to number.
 
 -}
 
-import Html exposing (Html, a, div, h1, h2, input, li, mark, p, section, span, text, ul)
+import Html exposing (Html, a, button, div, h1, h2, input, li, mark, p, section, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, for, href, id, placeholder, type_, value)
 import Flavor
+import Install
 import Html.Events exposing (onClick, onInput)
+import Reach
 import Shelf exposing (Filters, Path, Summary, Verdict(..))
 
 
@@ -36,6 +38,9 @@ type alias Config msg =
     , onToggle : Path -> String -> msg
     , onQuery : String -> msg
     , onClear : msg
+    , install : Install.Offer
+    , installHelp : Bool
+    , onInstall : msg
     }
 
 
@@ -48,12 +53,26 @@ viewLoading =
     shell [ p [ class "shelf-state" ] [ text "Opening the archive…" ] ]
 
 
-viewFailed : Html msg
-viewFailed =
+{-| "A reload usually settles it" is false with no signal, and a
+sentence that is sometimes false is one the reader learns to ignore —
+so it is said only when the archive answered and a reload might help.
+-}
+viewFailed : Reach.Failure -> Html msg
+viewFailed failure =
     shell
         [ h1 [ class "shelf-title" ] [ text "The archive did not open" ]
         , p [ class "shelf-state" ]
-            [ text "The index could not be fetched. A reload usually settles it." ]
+            [ text <|
+                case failure of
+                    Reach.Unkept ->
+                        "There is no connection, and no copy of the archive has been kept on this device yet. It opens once there is a signal."
+
+                    Reach.Unreachable ->
+                        "There is no connection, so the index could not be fetched. It opens once there is a signal."
+
+                    _ ->
+                        "The index could not be fetched. A reload usually settles it."
+            ]
         ]
 
 
@@ -88,7 +107,11 @@ view config =
 masthead : Config msg -> Html msg
 masthead config =
     div [ class "shelf-plate" ]
-        [ h1 [ class "shelf-title" ] [ text "delishh" ]
+        [ div [ class "shelf-head" ]
+            [ h1 [ class "shelf-title" ] [ text "delishh" ]
+            , installPress config
+            ]
+        , installHelp config
         , p [ class "shelf-standfirst" ]
             [ text "A recipe archive. "
             , span [ class "mono" ]
@@ -103,6 +126,68 @@ masthead config =
             ]
         , searchLine config
         ]
+
+
+{-| The home-screen install, top right of the masthead
+(`docs/installable.md`).
+
+Drawn only when pressing it will do something: the browser's own
+dialog where the browser offers one, the one sentence Safari needs
+where it does not, and nothing at all when the archive is already
+installed or the browser cannot install. The mark is a tray and an
+arrow, and on screen it is only the mark: a word beside it made the
+press a second slab competing with the title plate. The word is still
+there for a screen reader (`.vh`), and the share-sheet path spells out
+what the press means the moment it is pressed.
+
+On the share-sheet path the press is a toggle — seated while its
+sentence shows, and saying so to a screen reader.
+
+-}
+installPress : Config msg -> Html msg
+installPress config =
+    let
+        dress extra =
+            button
+                ([ type_ "button"
+                 , class "press-block shelf-install"
+                 , onClick config.onInstall
+                 ]
+                    ++ extra
+                )
+                [ span [ class "shelf-install-mark", attribute "aria-hidden" "true" ] []
+                , span [ class "vh" ] [ text "Install on this device" ]
+                ]
+    in
+    case config.install of
+        Install.Prompt ->
+            dress []
+
+        Install.ShareSheet ->
+            dress
+                [ classList [ ( "is-seated", config.installHelp ) ]
+                , attribute "aria-expanded"
+                    (if config.installHelp then
+                        "true"
+
+                     else
+                        "false"
+                    )
+                , attribute "aria-controls" "shelf-install-help"
+                ]
+
+        Install.NoOffer ->
+            text ""
+
+
+installHelp : Config msg -> Html msg
+installHelp config =
+    if config.install == Install.ShareSheet && config.installHelp then
+        p [ id "shelf-install-help", class "shelf-install-help" ]
+            [ text "Press Share, then Add to Home Screen. It opens from there without the browser, and without a signal." ]
+
+    else
+        text ""
 
 
 {-| The query line — a labelled instrument, not a box with a

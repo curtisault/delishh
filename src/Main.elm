@@ -40,6 +40,7 @@ import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
 import Html.Keyed as Keyed
 import Http
+import Install
 import Liner
 import Json.Decode as D
 import Json.Encode as E
@@ -52,6 +53,7 @@ import Page.Recipe
 import Page.Shelf
 import Plan exposing (Plan)
 import Print
+import Reach
 import Recipe exposing (Recipe)
 import Route exposing (Route)
 import Scale
@@ -146,6 +148,19 @@ port setWakeLock : Bool -> Cmd msg
 port wakeLockChanged : (String -> msg) -> Sub msg
 
 
+{-| The home-screen install (`docs/installable.md`). `boot.js` holds
+the browser's deferred install event and says what it can offer —
+`prompt`, `share`, or `none` — whenever that changes: the event
+arrives after load, and an install or a dismissal spends it.
+`installApp` asks it to open the browser's dialog, from inside the
+press, because the dialog is refused outside one.
+-}
+port installApp : () -> Cmd msg
+
+
+port installOffered : (String -> msg) -> Sub msg
+
+
 main : Program Flags Model Msg
 main =
     Browser.application
@@ -225,6 +240,11 @@ type alias Flags =
     -- the meal plan as it was stored, still a string. The same rule:
     -- what will not decode becomes an empty week
     , plan : Maybe String
+
+    -- what this browser offers for a home-screen install at boot:
+    -- "share" (Safari on iPhone and iPad) or "none". A prompt arrives
+    -- later, on the installOffered port, if at all
+    , install : String
     }
 
 
@@ -340,6 +360,12 @@ type alias Model =
     , timer : Maybe Cook.Timer
     , now : Time.Posix
     , wake : Cook.Wake
+
+    -- the home-screen install: what the browser offers, and whether
+    -- the share-sheet sentence is showing. The sentence closes on any
+    -- real navigation, like the menu
+    , install : Install.Offer
+    , installHelp : Bool
     }
 
 
@@ -351,7 +377,7 @@ does not.
 type Fetch a
     = Fetching
     | Fetched a
-    | FetchFailed
+    | FetchFailed Reach.Failure
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -397,6 +423,8 @@ init flags url key =
       , timer = Nothing
       , now = Time.millisToPosix 0
       , wake = Cook.Off
+      , install = Install.fromString flags.install
+      , installHelp = False
       }
     , Cmd.batch
         [ routeCmd (Route.fromUrl url)
@@ -620,6 +648,8 @@ type Msg
     | StopTimer
     | Tick Time.Posix
     | WakeChanged String
+    | InstallOffered String
+    | PressInstall
     | NoOp
 
 
@@ -657,6 +687,7 @@ update msg model =
 
                         -- and the menu shuts behind them
                         , menuOpen = model.mirroring && model.menuOpen
+                        , installHelp = model.mirroring && model.installHelp
                         , active =
                             if arrived then
                                 Nothing
@@ -865,11 +896,11 @@ update msg model =
             , Cmd.none
             )
 
-        GotRecipe (Err _) ->
-            -- The error is not shown. A reader who asked for a recipe
-            -- cannot act on a 404 versus a timeout, and the page says
-            -- the useful thing instead: this is not in the archive.
-            ( { model | recipe = FetchFailed }, Cmd.none )
+        GotRecipe (Err error) ->
+            -- The raw error is not shown, but its reason is: "not in
+            -- the archive" and "no signal" ask different things of a
+            -- reader, and saying the first for both is a guess.
+            ( { model | recipe = FetchFailed (Reach.fromHttp error) }, Cmd.none )
 
         SetFactor factor ->
             ( { model | factor = factor }, Cmd.none )
@@ -1136,8 +1167,8 @@ update msg model =
         GotIndex (Ok index) ->
             ( { model | index = Fetched index }, Cmd.none )
 
-        GotIndex (Err _) ->
-            ( { model | index = FetchFailed }, Cmd.none )
+        GotIndex (Err error) ->
+            ( { model | index = FetchFailed (Reach.fromHttp error) }, Cmd.none )
 
         OpenPath p ->
             ( { model | openPath = p }, Cmd.none )
@@ -1180,6 +1211,20 @@ update msg model =
 
         WakeChanged flag ->
             ( { model | wake = Cook.wakeFromFlag flag }, Cmd.none )
+
+        InstallOffered word ->
+            ( { model | install = Install.fromString word }, Cmd.none )
+
+        PressInstall ->
+            case model.install of
+                Install.Prompt ->
+                    ( model, installApp () )
+
+                Install.ShareSheet ->
+                    ( { model | installHelp = not model.installHelp }, Cmd.none )
+
+                Install.NoOffer ->
+                    ( model, Cmd.none )
 
         ClearFilters ->
             ( { model | filters = Shelf.clear model.filters, openPath = Nothing }
@@ -1225,6 +1270,10 @@ subscriptions model =
     Sub.batch
         [ sectionSeen SectionSeen
         , wakeLockChanged WakeChanged
+
+        -- The browser's install event arrives after load, on its own
+        -- time, and an install or a dismissal spends it.
+        , installOffered InstallOffered
 
         -- Both answer a press the reader made, and both arrive on
         -- their own time: a canvas encodes asynchronously, and a
@@ -1427,8 +1476,8 @@ page model =
                     Fetching ->
                         Page.Shelf.viewLoading
 
-                    FetchFailed ->
-                        Page.Shelf.viewFailed
+                    FetchFailed failure ->
+                        Page.Shelf.viewFailed failure
 
                     Fetched index ->
                         Page.Shelf.view
@@ -1439,6 +1488,9 @@ page model =
                             , onToggle = ToggleFacet
                             , onQuery = ShelfQuery
                             , onClear = ClearFilters
+                            , install = model.install
+                            , installHelp = model.installHelp
+                            , onInstall = PressInstall
                             }
 
             Route.ShoppingList ->
@@ -1461,7 +1513,7 @@ page model =
                             Fetched index ->
                                 Page.Plan.Searchable index.recipes
 
-                            FetchFailed ->
+                            FetchFailed _ ->
                                 Page.Plan.Unsearchable
                     , lifted = model.lifted
                     , labelOpen = model.planLabelOpen
@@ -1496,8 +1548,8 @@ page model =
                     Fetching ->
                         Page.Recipe.viewLoading
 
-                    FetchFailed ->
-                        Page.Recipe.viewFailed slug
+                    FetchFailed failure ->
+                        Page.Recipe.viewFailed failure slug
 
                     Fetched recipe ->
                         Page.Cook.view
@@ -1522,8 +1574,8 @@ page model =
                     Fetching ->
                         Page.Recipe.viewLoading
 
-                    FetchFailed ->
-                        Page.Recipe.viewFailed slug
+                    FetchFailed failure ->
+                        Page.Recipe.viewFailed failure slug
 
                     Fetched recipe ->
                         Page.Recipe.view
