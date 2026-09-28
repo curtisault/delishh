@@ -61,8 +61,16 @@ try {
 // browser with its own dialog says so later, with beforeinstallprompt.
 const runningInstalled =
   matchMedia('(display-mode: standalone)').matches || navigator.standalone === true
-const installAtBoot =
-  !runningInstalled && navigator.standalone === false ? 'share' : 'none'
+// In dev the browser never offers (it needs the worker, which is
+// production-only), so the press is drawn anyway to be looked at. It
+// does nothing there: installApp finds no event and returns.
+const installAtBoot = runningInstalled
+  ? 'none'
+  : navigator.standalone === false
+    ? 'share'
+    : import.meta.env.DEV
+      ? 'prompt'
+      : 'none'
 
 const app = Elm.Main.init({
   flags: {
