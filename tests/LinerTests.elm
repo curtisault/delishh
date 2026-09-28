@@ -20,7 +20,7 @@ import Test.Html.Selector as Selector
 
 everyRoute : List Route
 everyRoute =
-    [ Home, About, DesignStandard, Recipe "bench", Cook "bench", ShoppingList ]
+    [ Home, About, DesignStandard, Recipe "bench", Cook "bench", ShoppingList, Plan ]
 
 
 suite : Test

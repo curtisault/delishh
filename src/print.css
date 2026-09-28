@@ -234,6 +234,8 @@
   .scaler,
   .printer,
   .lister-btn,
+  .planner-btn,
+  .plan-picker,
   .recipe-back,
   .cook-enter {
     display: none !important;

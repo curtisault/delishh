@@ -13,6 +13,8 @@ the authority on how this looks and why.
 | `docs/about.md` | The colophon — what this is, what it is built from, what is never kept about a reader. Rendered at `/about` |
 | `docs/design-standard.md` | DS-01 — look, feel, voice, type, colour, the recipe document, browse, cook mode, print, the word rules, hard constraints. **The prose of record.** |
 | `docs/delishh-redesign.md` | The DS-01 Revision 2 implementation plan and its dated decision log. Owns *sequence and scope*; DS-01 owns everything else |
+| `docs/meal-planner.md` | The meal planner's plan and decision log — the week, the two kinds of meal, pick-and-place, the shared picture |
+| `docs/meal-planner-expansion.md` | Several meals a day. **Unscheduled** until the first planner has been used; says what that use must show first |
 | `src/Prose.elm` | Markdown blocks → the house chrome. **Every styling decision for generated prose lives here**, in hand-written Elm; the generator emits data and knows no class name |
 | `src/Page/DesignStandard.elm` | Four lines of wiring: `Generated.DesignStandard` through `Prose` through `Doc`. There is no second copy of the standard anywhere |
 | `src/Scale.elm` | The measurement ladder (DS-01 §05) as a pure module. **Where a recipe archive would otherwise lie to you** — see below |
@@ -20,6 +22,7 @@ the authority on how this looks and why.
 | `src/print.css` | **All of DS-01 §09.** The four printed forms, the ink discipline, the break law, the traceability footer |
 | `src/Shelf.elm` | The four browse paths and the filter logic (DS-01 §07), pure. `judge` returns a verdict **with its reasons** |
 | `src/Cook.elm` | The step timer and the wake state (DS-01 §08, §10). The timer counts to an **absolute end**, never down a counter |
+| `src/Plan.elm` | The week, pure. **The shape is private**: pages go through its API so the expansion lands here, not in the shell |
 | `src/Liner.elm` | The backing paper and the leaf (DS-01 §04 as amended 2026-09-23). `on` is the one place that says which routes get the liner (every one but cook mode); `leafKey` is what makes a navigation a new sheet |
 
 ## Commands
@@ -148,6 +151,13 @@ whose only job is to be read.
   `prefers-reduced-motion: no-preference`, on shelf motion over
   200 ms, on a negative bezier control point (an overshoot), and on a
   focus outline hidden behind a motion query.
+- `scripts/storage_test.ts` — counts the `localStorage` keys
+  `boot.js` declares and holds the colophon's and DS-01 §12's "N
+  things are stored" to it. A fourth key cannot arrive unnamed.
+- `scripts/share_test.ts` — the meal plan's picture, which is the
+  one place colour and type are drawn from JavaScript: no raw hex, no
+  family spelled, every token it reads declared, every pair it draws
+  checked, and share and copy kept inside the press.
 - `scripts/fonts_test.ts` — the font wiring. Misspell a family between
   `@font-face` and its `--font-*` token and nothing breaks: the stack
   falls through to a system face, the page renders, and DS-01's type
@@ -354,6 +364,25 @@ fixture must never drift under the suite. Keep it parsing.
   sections. `Doc` takes a `Chrome` (active section +
   query + handler); a non-empty query replaces the sheet's sections
   with results.
+- `src/Plan.elm` / `src/Page/Plan.elm` — the week at `/plan`.
+  Three things that are easy to undo:
+  - **`savePlan` needs a caller the compiler can see.** Elm drops an
+    unused port, and `boot.js` subscribing to a port that is not
+    there throws at boot — the whole site. `Main.readPlan` discarding
+    an unreadable store is a real caller; do not remove it without
+    another.
+  - **Enter never picks a match.** The entry field is a form so
+    Enter keeps the typed words; a match is always its own press.
+    Typing a recipe's name never becomes that recipe by itself.
+  - **The picker's rule is `Plan.placeRecipe`**, tested there: a day
+    with this recipe toggles it off, an empty day takes it, another
+    meal arms and the second press replaces.
+  - **The shared picture is drawn by `boot.js`, from tokens.** No hex
+    and no font family is written there; `share_test.ts` holds it,
+    and holds every text pair it draws to `contrast_test.ts`. A draw
+    carries a generation number, and `boot.js` discards any draw that
+    is not the one wanted. Share and copy must be called before
+    anything is awaited, or Safari refuses them outside the press.
 - Two ports exist: `saveTheme` (out) and `sectionSeen` (in). The
   second is a port because `elm/browser` has no scroll subscription;
   boot.js reads the active section on scroll, resize and DOM

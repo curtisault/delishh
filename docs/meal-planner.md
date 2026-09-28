@@ -163,52 +163,144 @@ so it is crisp on the phone it is read on.
 
 ## Phases
 
-### Phase 1 — the data and the store
+### Phase 1 — the data and the store ✅ done 2026-09-27
 
-- [ ] `src/Plan.elm` — days, meals, set / clear / move / clearAll,
-      encode / decoder, `toShare`.
-- [ ] `tests/PlanTests.elm` — the move table (empty, full, same day),
-      the blank-own rule, the encode round trip, the malformed-store
-      rule.
-- [ ] `savePlan` port, `PLAN_KEY` in `boot.js`, the `plan` flag; the
-      shell holds `plan : Plan.Model` as page state navigation does
-      not reset, beside `list`.
-- [ ] `docs/about.md` §01 and DS-01 §12: two → three, and the
-      payload clarification. `scripts/storage_test.ts` holds the
-      colophon's and the standard's count to the keys `boot.js`
-      declares, so a fourth key cannot arrive unnamed.
+- [x] `src/Plan.elm` — days, meals, set / clear / move / clearAll,
+      encode / decoder, `toShare`. `Meal` is **opaque**: `recipe` and
+      `own` build one, `describe` reads one back as a name and a
+      `Source`, and `own` answers `Nothing` for a blank — so a blank
+      own meal cannot exist rather than being checked for.
+- [x] `tests/PlanTests.elm` — 24 tests: the move table (empty, full,
+      same day, and lifting an empty day, which clears nothing), the
+      blank-own rule, the encode round trip, a first-planner stored
+      value kept verbatim for the expansion, the malformed-store
+      refusals, and a `toShare` that never carries a slug.
+- [x] `savePlan` port, `PLAN_KEY` in `boot.js`, the `plan` flag; the
+      shell holds `plan : Plan` beside `list`, reset by nothing.
+- [x] `docs/about.md` §01 and DS-01 §12: two → three, and the
+      payload clarification. `scripts/storage_test.ts` holds both
+      documents' count to the keys `boot.js` declares, and forbids a
+      literal key passed straight to `localStorage`.
 
-### Phase 2 — the page
+**The port needed a caller before it had a page.** Elm drops an
+unused port from the compiled output, and `boot.js` subscribing to a
+`savePlan` that is not there throws at boot — the whole site, not
+the planner. Phase 1 has no press that writes a plan, so the first
+caller is DS-01 §12's own rule, made literal: a stored week that
+will not decode is **discarded**, and discarded means the key goes
+(`Main.readPlan`), not only that this load ignores it. A value that
+fails once fails on every load, and a key nobody can read is a thing
+kept about the reader that does nothing for them. Verified in the
+production bundle.
 
-- [ ] `Route.Plan`, `_redirects`, `RouteTests`, the nav link with its
-      count.
-- [ ] `src/Page/Plan.elm` + `src/plan.css` — the seven rows, the
+**A consequence to know before the expansion ships.** The first
+planner's decoder refuses a day stored as an array, so a browser that
+rolls back from the expansion to this build loses its week. Deploys
+only move forward, so this is accepted, not fixed.
+
+### Phase 2 — the page ✅ done 2026-09-27
+
+- [x] `Route.Plan`, `_redirects`, `RouteTests`, the nav link with its
+      count. The list's link and the plan's are now one function,
+      `Main.countedLink`; the plan counts **days**, not meals.
+- [x] `src/Page/Plan.elm` + `src/plan.css` — the seven rows, the
       entry field with the shelf's matching, the day presses, REMOVE,
-      the armed CLEAR THE WEEK.
-- [ ] Pick up and place, seated while lifted, dropped by navigation.
-- [ ] ADD TO PLAN on the recipe page with its day picker and its
+      the armed CLEAR THE WEEK. The plan route fetches the shelf's
+      index; a failed fetch leaves the field keeping words.
+- [x] Pick up and place, seated while lifted, dropped by navigation.
+- [x] ADD TO PLAN on the recipe page with its day picker and its
       PLANNED · DAY state.
-- [ ] `tests/PlanPageTests.elm` — rendered-view tests: an empty week
-      draws no placeholder, a lifted row says ", lifted", a match
-      press sets a recipe and Enter sets an own meal, the recipe
-      page's press reads the planned day.
-- [ ] `CLAUDE.md` doc map: `src/Plan.elm` and `docs/meal-planner.md`.
+- [x] `tests/PlanPageTests.elm` — 30 rendered-view tests, and 10 more
+      for the plan control in `RecipePageTests`.
+- [x] `CLAUDE.md` doc map: `src/Plan.elm`, both planner docs,
+      `storage_test.ts`, and the three easy-to-undo rules.
+- [x] DS-01 §04 amendment 2026-09-27: the fourth surface.
 
-### Phase 3 — the picture
+**The picker toggles; it does not "offer to move or remove".** The
+plan above said a planned recipe's press would offer a move or a
+removal. Built, that is two menus for one fact. Each day press is a
+toggle instead (`Plan.placeRecipe`): a day with this recipe takes it
+off, an empty day takes it, another meal asks once and then
+replaces. Moving is off one day and onto another, and a recipe may be
+on two days, which the label shows (`PLANNED · SUN, WED`).
 
-- [ ] `sharePlan` / `planPicture` / `planShared` ports; the drawing
-      in `boot.js`, tokens and faces resolved at draw time, fonts
-      awaited.
-- [ ] The preview and the three conditional presses; the honest
-      badge; URL revocation.
-- [ ] `scripts/share_test.ts` — reads `boot.js` and fails on a raw
-      hex, on a font family named as a literal rather than a
-      `--font-*` token, and on any `beforeprint` (print_test.ts's rule
-      restated for the file that now has more reasons to grow).
-- [ ] A real-device pass: the share sheet on iOS Safari and Android
-      Chrome, copy on desktop, save everywhere. Recorded here with
-      what each browser actually did, as Phase 7 recorded the wake
-      lock.
+**While a meal is lifted, every row is one press.** REMOVE and CLEAR
+THE WEEK are gone until it is set down, because a row that was both a
+place to land and a destructive button puts the latter under a thumb
+aiming for the former.
+
+**KEEP is sentence case.** Every other press is uppercase. KEEP
+quotes the reader's words back, and "KEEP “SPAGHETTI”" misquoted
+them — found in the browser, not by a test.
+
+**The day column is held by hand on held rows.** An empty day is a
+slab with a 1px edge and inner padding; a held day is not a press, so
+its name sat 12px left of every empty day's. `.plan-row` now gives
+both the slab's width and inset. Measured after the fix: every day
+name starts at the same pixel.
+
+**Verified in a real browser** against `deno task build` at 1280 and
+375 wide: an empty week, a match picked, a typed meal kept with
+Enter, a lift and swap, a reload that kept the week, the recipe
+page's arm, replace, and toggle, and no sideways scroll at 375.
+**Not verified:** a screen reader in use (the accessible names were
+read off the accessibility tree), and touch on a real phone.
+
+### Phase 3 — the picture ✅ built 2026-09-27 · real-device pass outstanding
+
+- [x] `sharePlan` (out) / `planPicture` / `planShared` (in); the
+      drawing in `boot.js`, tokens and faces resolved at draw time,
+      fonts awaited with the text they will draw.
+- [x] The preview and the conditional presses; the honest outcome
+      sentence; object URLs revoked when replaced or dropped.
+- [x] `scripts/share_test.ts` — no raw hex and no family spelled in
+      `boot.js`, every token the picture reads declared in
+      `theme.css`, every text pair it draws checked in
+      `contrast_test.ts`, share and copy called before anything is
+      awaited, and no `beforeprint`. A misspelled token was tried and
+      fails two of them.
+- [x] `tests/PlanPageTests.elm` — 14 more: when the picture is and is
+      not offered, the preview as the file, the alt text naming empty
+      days, SAVE always, SHARE and COPY only where the browser can,
+      and each outcome's sentence.
+- [ ] **A real-device pass.** Not done, and it needs a human with a
+      phone: the share sheet on iOS Safari and Android Chrome, and
+      whether a share still counts as inside the press once it has
+      gone through Elm's update and a port.
+
+**Where the build differs from the plan above, and why:**
+
+- **The wordmark is the stencil's pair, not volt on the ground.**
+  Volt on the lit ground is 1.06:1; the wordmark would have been the
+  one thing on the picture nobody could read. The masthead is the
+  site bar instead — `--stencil-mark` on `--stencil-bg`, checked in
+  both themes. It *is* volt in the lit theme; after dark it inverts
+  to frost and the darkened cut, as the bar does.
+- **1080 device pixels, not 1080 × `devicePixelRatio`.** 1080 is
+  already a phone screen's width in device pixels. Multiplying again
+  drew a 3240-pixel file for a 390-point screen.
+- **Rows are ruled in `--rule-soft`**, the hairline the page uses
+  between days, not `--rule`. The picture is a view of the page.
+- **One port out, four verbs** (`draw`, `share`, `copy`, `forget`),
+  because all four act on the one blob `boot.js` holds.
+- **SAVE reports nothing.** It is a plain download link. The page
+  cannot know whether the file landed, and "Saved" would be a guess.
+- **A draw is numbered.** The shell sends a generation with every
+  draw and moves it on every change to the week, the theme, or the
+  route. `boot.js` discards any draw that is not the one wanted, so a
+  late answer can never replace or release the picture on screen.
+  The first version had the shell send `forget` on a stale answer,
+  which would have released the newer picture the page was showing.
+- **Hidden while a day is open**, as well as while a meal is lifted,
+  so MAKE THE PICTURE never stands beside KEEP as a second volt.
+
+**Verified in a real browser** against `deno task build`: a six-day
+week with a three-line meal drew at 1080 × 1273, all three voices
+loaded, the long meal stepped down and wrapped with nothing cut, the
+empty day drawn open. Switching to dark dropped the preview and
+released its blob; the redraw came out in the dark palette. This
+desktop browser offered COPY and SAVE and no SHARE, which is right
+for it, and a real click on COPY reported "Copied."
 
 ## Built with the expansion in mind
 

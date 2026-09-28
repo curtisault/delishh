@@ -670,3 +670,95 @@
 .lister-btn.active {
   font-weight: 700;
 }
+
+/* ---------- the plan control ---------- */
+
+/* ADD TO PLAN. THE NEUTRAL FACE: ADD TO LIST is magenta and COOK THIS
+   is orange, so a third acid here would be the "never three" of §04.
+   It takes the dress with no colour of its own (theme.css sets the
+   face), and COOK THIS's metrics, so the three read as one row of
+   actions. Planned is seated, like ADD TO LIST when added. */
+.planner-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  margin-top: 0.8rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  padding: 0.4rem 0.9rem;
+}
+.recipe-actions .planner-btn {
+  flex: none;
+  margin-top: 0;
+}
+.planner-btn.is-seated {
+  font-weight: 700;
+}
+
+/* The day picker, under the whole band. Seven presses in one wrapping
+   row; each carries its day and, when full, what it holds — the words
+   that make "replace" a decision rather than a surprise. --page-*
+   marks only: a recipe surface. */
+.plan-picker {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1.5px solid var(--rule-soft);
+}
+.plan-picker-set {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.35rem;
+}
+.plan-picker-day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 5.5rem;
+  max-width: 12rem;
+  padding: 0.35rem 0.6rem;
+  font: inherit;
+  text-align: left;
+}
+.plan-picker-dayname {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+}
+.plan-picker-holds {
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+/* ARMED IS A WORD ("Replace Spaghetti?"), and the weight says the word
+   changed. Never a colour on its own (§12). */
+.plan-picker-day.is-armed .plan-picker-holds {
+  font-weight: 700;
+}
+.plan-picker-link {
+  display: inline-block;
+  position: relative;
+  margin-top: 0.7rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--tx);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--rule);
+}
+.plan-picker-link::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+.plan-picker-link:focus-visible {
+  outline: 2px solid var(--here);
+  outline-offset: 2px;
+}

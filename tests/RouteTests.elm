@@ -68,6 +68,7 @@ suite =
                 , About
                 , DesignStandard
                 , ShoppingList
+                , Plan
                 , Recipe "salted-caramel"
                 , Cook "salted-caramel"
                 ]

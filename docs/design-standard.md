@@ -311,6 +311,36 @@ cold chain, magenta = live culture, volt = the action to take now.
 > last, which is also the tab order — you reach past the quieter one
 > to get to the loud one.
 
+> **Amendment 2026-09-27 — a fourth surface: the meal plan.** The
+> week at `/plan` is the list's sibling rather than the shelf's: read
+> on a Sunday evening deciding and on a Tuesday remembering, and
+> neither of those is browsing. **It runs page-quiet on the list's
+> terms** — `--page-*` marks, no `--shelf-*` fill, presses in the
+> neutral face — and volt lands on one thing, KEEP, when a day is
+> open and there is something typed to keep. A disabled KEEP wears
+> no acid at all: the actionable colour on a press that does nothing
+> would be the colour lying.
+>
+> **Lifted is a shape.** A meal picked up to move is seated, the
+> press dress's held-down state, against the raised slabs of every
+> day it could go to; it says ", lifted" to a screen reader, and each
+> other day names what a press there will do. Nothing slides to make
+> room — the register is zero here for the list's reason.
+>
+> **Two more controls ask twice, and they pass the list's test.**
+> Clearing the week is irreversible in exactly the way clearing the
+> list is. Replacing a day from a recipe page loses whatever was
+> there, and a meal you typed exists nowhere else to go back and get.
+> Both arm on the first press and say what the second will do. Every
+> other press on the plan does what it says, because every other
+> press is one press away from being undone.
+>
+> **ADD TO PLAN takes no acid.** It stands between ADD TO LIST's
+> magenta and COOK THIS's orange, and a third face there would be
+> the "never three" above. It is also the one of the three with no
+> physical process to name. Planned is seated, and the label says
+> which days.
+
 > **Amendment 2026-09-23 — the press has a body**, *re-cut
 > 2026-09-24 to the extruded slab.* Every control in the archive that
 > *does* something now wears one dress: a flat slab, its own edge, and
@@ -1114,12 +1144,15 @@ copy is written in a hurry and nobody reviews a tooltip.
   JavaScript, no server round-trip to produce a sheet.
 - **Fast on a phone in a kitchen.** The acid layer is CSS and SVG,
   never image payloads; at most one photograph per recipe, lazily
-  loaded.
+  loaded. An image the reader *makes* — the meal plan's picture,
+  drawn on request (amended 2026-09-27) — is not a payload the site
+  *ships*: it is output, never fetched.
 - **Self-hosted assets only.** No font CDNs, no third-party analytics
   on a document you may want to read in ten years.
-- **Nothing about a reader leaves their browser.** Two things are
-  stored, both local and both named in the colophon: the lighting
-  they chose, and the shopping list they built. Either may fail to
+- **Nothing about a reader leaves their browser.** Three things are
+  stored, all local and all named in the colophon: the lighting
+  they chose, the shopping list they built, and the week they
+  planned (the third added 2026-09-27). Any may fail to
   save — a full or blocked store degrades to the choice holding for
   the session, never to a surface that will not render. State that
   cannot be read back is discarded and the reader starts empty.

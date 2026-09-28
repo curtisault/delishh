@@ -12,11 +12,13 @@ import './shelf.css'
 import './recipe.css'
 import './cook.css'
 import './list.css'
+import './plan.css'
 import './print.css'
 import { Elm } from './Main.elm'
 
 const THEME_KEY = 'delishh-theme'
 const LIST_KEY = 'delishh-list'
+const PLAN_KEY = 'delishh-plan'
 
 // Apply the stored preference BEFORE Elm boots — the page must never
 // flash the wrong theme. "system" is represented by absence: no
@@ -42,10 +44,19 @@ try {
   // storage unavailable: start empty, and say nothing
 }
 
+// The meal plan, read raw for the same reason the list is.
+let storedPlan = null
+try {
+  storedPlan = localStorage.getItem(PLAN_KEY)
+} catch (_) {
+  // storage unavailable: start with an empty week
+}
+
 const app = Elm.Main.init({
   flags: {
     theme: storedTheme,
     list: storedList,
+    plan: storedPlan,
     // The date a printed sheet says it was pulled (DS-01 §09). Elm
     // cannot read a clock without a subscription, and a document does
     // not need one ticking — this is the load date, which for a page
@@ -135,6 +146,22 @@ app.ports.saveList.subscribe((list) => {
     // storage full or unavailable: the list holds for this session,
     // the same degradation the theme takes. A shop is not the moment
     // to learn that storage is full.
+  }
+})
+
+app.ports.savePlan.subscribe((plan) => {
+  try {
+    // An empty week clears the key, as an empty list does: the
+    // colophon says clearing the plan removes it, and `{}` stored
+    // would make that a lie. This is also how the shell discards a
+    // stored week it could not read.
+    if (plan && Object.keys(plan).length > 0) {
+      localStorage.setItem(PLAN_KEY, JSON.stringify(plan))
+    } else {
+      localStorage.removeItem(PLAN_KEY)
+    }
+  } catch (_) {
+    // storage full or unavailable: the week holds for this session
   }
 })
 
@@ -279,3 +306,263 @@ new MutationObserver(scheduleRead).observe(document.body, {
 })
 
 scheduleRead()
+
+// The meal plan's picture — docs/meal-planner.md, Phase 3.
+//
+// Elm hands over words and where they came from (Plan.toShare); this
+// draws them onto a canvas and holds the one PNG that SHARE, COPY and
+// SAVE all hand on. The page previews that same blob, so what the
+// reader sees is what the receiver gets.
+//
+// NO COLOUR AND NO FAMILY IS WRITTEN HERE. Every colour is a theme.css
+// token read off <html> at draw time, and every face is a --font-*
+// stack, so theme.css stays the only place a hex lives and fonts.css
+// the only place a family is spelled. `share_test.ts` holds both, and
+// holds every token named below to theme.css: a misspelled token
+// resolves to an empty string, and the canvas would silently draw it
+// black. That is also why `token` throws on an empty answer — a
+// picture that cannot be drawn honestly is reported as not drawn.
+
+const PICTURE = {
+  width: 1080, // a phone screen's width in device pixels
+  pad: 72,
+  band: 176, // the stencil masthead
+  wordmark: 64,
+  day: 30,
+  meal: [46, 38, 32], // stepped down, never cut
+  mark: 22, // ARCHIVE, the data voice
+  rowPad: 40,
+  lead: 1.2,
+  gap: 48, // between the day column and the meal
+}
+
+let picture = null // { url, blob, file }
+// The draw the page is waiting for. A draw that finishes after the
+// week changed (or after a newer draw began) is revoked on arrival and
+// never reported, so a late answer can never replace, or release, the
+// picture the page is showing.
+let wantedDraw = null
+
+function token(style, name) {
+  const value = style.getPropertyValue(name).replace(/\s+/g, ' ').trim()
+  if (!value) throw new Error(`theme token ${name} did not resolve`)
+  return value
+}
+
+function forgetPicture() {
+  if (picture) URL.revokeObjectURL(picture.url)
+  picture = null
+}
+
+// Words onto lines no wider than `max`. A single word wider than the
+// column breaks by character: a meal is never clipped and never
+// ellipsised (§12, dense but never broken).
+function wrap(ctx, text, max) {
+  const lines = []
+  let line = ''
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    const next = line ? `${line} ${word}` : word
+    if (!line || ctx.measureText(next).width <= max) {
+      line = next
+    } else {
+      lines.push(line)
+      line = word
+    }
+  }
+  if (line) lines.push(line)
+  return lines.flatMap((l) => {
+    if (ctx.measureText(l).width <= max) return [l]
+    const broken = []
+    let part = ''
+    for (const ch of l) {
+      if (part && ctx.measureText(part + ch).width > max) {
+        broken.push(part)
+        part = ch
+      } else {
+        part += ch
+      }
+    }
+    if (part) broken.push(part)
+    return broken
+  })
+}
+
+async function drawPicture(rows) {
+  const style = getComputedStyle(document.documentElement)
+  const ink = {
+    ground: token(style, '--surface'),
+    tx: token(style, '--tx'),
+    dim: token(style, '--tx-dim'),
+    rule: token(style, '--rule-soft'),
+    band: token(style, '--stencil-bg'),
+    mark: token(style, '--stencil-mark'),
+  }
+  const face = {
+    display: `700 ${token(style, '--font-display')}`,
+    body: `500 ${token(style, '--font-body')}`,
+    data: `400 ${token(style, '--font-data')}`,
+  }
+  const font = (voice, size) => {
+    const [weight, ...stack] = face[voice].split(' ')
+    return `${weight} ${size}px ${stack.join(' ')}`
+  }
+
+  // Every face at every size used, with the text it will draw, awaited
+  // before the first stroke — so the latin-ext cut loads when a meal
+  // needs it. A face that will not load falls to its stack, which is
+  // what the page would do too.
+  const words = rows.map((r) => r.meal || '').join(' ')
+  try {
+    await Promise.all([
+      document.fonts.load(font('display', PICTURE.wordmark), 'DELISHH'),
+      document.fonts.load(font('display', PICTURE.day), rows.map((r) => r.day.toUpperCase()).join('')),
+      ...PICTURE.meal.map((size) => document.fonts.load(font('body', size), words || 'a')),
+      document.fonts.load(font('data', PICTURE.mark), 'ARCHIVE'),
+    ])
+  } catch (_) {
+    // fall through to the stack
+  }
+
+  const canvas = document.createElement('canvas')
+  canvas.width = PICTURE.width
+  const ctx = canvas.getContext('2d')
+
+  // The day column is as wide as its longest name, so WEDNESDAY never
+  // pushes a meal out of line with Monday's.
+  ctx.font = font('display', PICTURE.day)
+  const dayWidth = Math.max(...rows.map((r) => ctx.measureText(r.day.toUpperCase()).width))
+  const mealX = PICTURE.pad + dayWidth + PICTURE.gap
+  ctx.font = font('data', PICTURE.mark)
+  const markWidth = ctx.measureText('ARCHIVE').width
+
+  // Lay out before drawing: the canvas's height is the sum of its rows,
+  // and setting a canvas's height clears it.
+  const laid = rows.map((row) => {
+    const room =
+      PICTURE.width - PICTURE.pad - mealX - (row.source === 'archive' ? markWidth + 32 : 0)
+    let size = PICTURE.meal[0]
+    let lines = []
+    if (row.meal) {
+      for (size of PICTURE.meal) {
+        ctx.font = font('body', size)
+        lines = wrap(ctx, row.meal, room)
+        if (lines.length <= 2) break
+      }
+    }
+    const height = PICTURE.rowPad * 2 + Math.max(1, lines.length) * size * PICTURE.lead
+    return { ...row, size, lines, height }
+  })
+  canvas.height = PICTURE.band + laid.reduce((sum, r) => sum + r.height, 0) + PICTURE.pad / 2
+
+  ctx.fillStyle = ink.ground
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  // The masthead: the wordmark in the stencil's mark colour on the
+  // stencil field — the site bar's pair, checked in both themes by
+  // contrast_test.ts. Volt on the bare ground would be 1.06:1.
+  ctx.fillStyle = ink.band
+  ctx.fillRect(0, 0, canvas.width, PICTURE.band)
+  ctx.fillStyle = ink.mark
+  ctx.font = font('display', PICTURE.wordmark)
+  ctx.textBaseline = 'middle'
+  ctx.fillText('DELISHH', PICTURE.pad, PICTURE.band / 2)
+
+  ctx.textBaseline = 'alphabetic'
+  let y = PICTURE.band
+  laid.forEach((row, i) => {
+    if (i > 0) {
+      ctx.fillStyle = ink.rule
+      ctx.fillRect(PICTURE.pad, y, canvas.width - PICTURE.pad * 2, 2)
+    }
+    const baseline = y + PICTURE.rowPad + row.size * 0.95
+
+    ctx.fillStyle = ink.tx
+    ctx.font = font('display', PICTURE.day)
+    ctx.fillText(row.day.toUpperCase(), PICTURE.pad, baseline)
+
+    ctx.font = font('body', row.size)
+    row.lines.forEach((line, n) => {
+      ctx.fillText(line, mealX, baseline + n * row.size * PICTURE.lead)
+    })
+
+    if (row.source === 'archive') {
+      ctx.fillStyle = ink.dim
+      ctx.font = font('data', PICTURE.mark)
+      ctx.textAlign = 'right'
+      ctx.fillText('ARCHIVE', canvas.width - PICTURE.pad, baseline)
+      ctx.textAlign = 'left'
+    }
+    y += row.height
+  })
+
+  const blob = await new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('no blob'))), 'image/png'),
+  )
+  const file = new File([blob], 'delishh-week.png', { type: 'image/png' })
+  return { url: URL.createObjectURL(blob), blob, file }
+}
+
+async function sharePicture() {
+  if (!picture) return 'failed'
+  if (!navigator.canShare || !navigator.canShare({ files: [picture.file] })) return 'unsupported'
+  try {
+    await navigator.share({ files: [picture.file], title: 'The week' })
+    return 'shared'
+  } catch (err) {
+    // AbortError is the reader closing the sheet; NotAllowedError is
+    // the browser deciding the press was too long ago. Neither is a
+    // share, and both are the reader's to know.
+    return err && (err.name === 'AbortError' || err.name === 'NotAllowedError') ? 'refused' : 'failed'
+  }
+}
+
+async function copyPicture() {
+  if (!picture) return 'failed'
+  if (!navigator.clipboard || !navigator.clipboard.write || !window.ClipboardItem) return 'unsupported'
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': picture.blob })])
+    return 'copied'
+  } catch (err) {
+    return err && err.name === 'NotAllowedError' ? 'refused' : 'failed'
+  }
+}
+
+app.ports.sharePlan.subscribe(async (req) => {
+  switch (req.do) {
+    case 'draw': {
+      wantedDraw = req.gen
+      try {
+        const made = await drawPicture(req.rows)
+        if (req.gen !== wantedDraw) {
+          URL.revokeObjectURL(made.url)
+          break
+        }
+        forgetPicture()
+        picture = made
+        app.ports.planPicture.send({
+          gen: req.gen,
+          url: picture.url,
+          canShare: !!(navigator.canShare && navigator.canShare({ files: [picture.file] })),
+          canCopy: !!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem),
+        })
+      } catch (_) {
+        if (req.gen === wantedDraw) app.ports.planPicture.send({ gen: req.gen, failed: true })
+      }
+      break
+    }
+    // Share and copy are called with no await before them, so they
+    // stay inside the press that asked for them — Safari refuses both
+    // outside a user gesture, and that is why the picture is made on
+    // one press and sent on another.
+    case 'share':
+      app.ports.planShared.send(await sharePicture())
+      break
+    case 'copy':
+      app.ports.planShared.send(await copyPicture())
+      break
+    case 'forget':
+      wantedDraw = null
+      forgetPicture()
+      break
+  }
+})

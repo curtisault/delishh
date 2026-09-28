@@ -24,6 +24,7 @@ show where you are is a list of links.
 import Expect
 import Html.Attributes as Attr
 import Page.Recipe
+import Plan exposing (Day(..))
 import Print
 import Recipe
 import Scale
@@ -91,6 +92,7 @@ rendered recipe active =
             , onPrepCard = ()
             , inList = False
             , onToggleList = ()
+            , planner = noPlanner Plan.empty
             , origin = "https://delishh.test"
             , today = "2026-09-20"
             , active = active
@@ -118,11 +120,60 @@ listed =
             , onPrepCard = ()
             , inList = True
             , onToggleList = ()
+            , planner = noPlanner Plan.empty
             , origin = "https://delishh.test"
             , today = "2026-09-20"
             , active = Nothing
             }
         )
+
+
+{-| The day picker, closed, over the given week. -}
+noPlanner : Plan.Plan -> Page.Recipe.Planner ()
+noPlanner plan =
+    { plan = plan, open = False, armed = Nothing, onOpen = (), onDay = always () }
+
+
+{-| The page with a given planner, everything else plain.
+-}
+planned : Page.Recipe.Planner () -> Query.Single ()
+planned planner =
+    Query.fromHtml
+        (Page.Recipe.view
+            { recipe = full
+            , factor = Scale.one
+            , onScale = always ()
+            , form = Print.Sheet
+            , onForm = always ()
+            , prepCard = False
+            , onPrepCard = ()
+            , inList = False
+            , onToggleList = ()
+            , planner = planner
+            , origin = "https://delishh.test"
+            , today = "2026-09-20"
+            , active = Nothing
+            }
+        )
+
+
+{-| A week with this recipe on Wednesday and Friday, and someone
+else's spaghetti on Sunday.
+-}
+aWeek : Plan.Plan
+aWeek =
+    Plan.empty
+        |> Plan.set Wed (Plan.recipe full.slug full.title)
+        |> Plan.set Fri (Plan.recipe full.slug full.title)
+        |> Plan.set Sun (Plan.own "Spaghetti" |> Maybe.withDefault (Plan.recipe "x" "x"))
+
+
+pickerDay : Int -> Query.Single () -> Query.Single ()
+pickerDay i page =
+    page
+        |> Query.find [ Selector.class "plan-picker-set" ]
+        |> Query.findAll [ Selector.class "plan-picker-day" ]
+        |> Query.index i
 
 
 {-| The nav's rows, in order, as their anchors. -}
@@ -138,6 +189,7 @@ navAnchors recipe =
         , onPrepCard = ()
         , inList = False
         , onToggleList = ()
+        , planner = noPlanner Plan.empty
         , origin = "https://delishh.test"
         , today = "2026-09-20"
         , active = Nothing
@@ -242,6 +294,66 @@ suite =
                         |> Query.children []
                         |> Query.index -1
                         |> Query.has [ Selector.class "cook-enter" ]
+            ]
+        , describe "the plan control — docs/meal-planner.md"
+            [ test "stands with the actions, before COOK THIS" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "recipe-actions" ]
+                        |> Query.children []
+                        |> Query.index 1
+                        |> Query.has [ Selector.class "planner-btn" ]
+            , test "says what it does when the recipe is not planned" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "planner-btn" ]
+                        |> Query.has [ Selector.text "Add to plan" ]
+            , test "says which days once it is, and is seated" <|
+                \_ ->
+                    planned (noPlanner aWeek)
+                        |> Query.find [ Selector.class "planner-btn" ]
+                        |> Query.has
+                            [ Selector.text "Planned · Wed, Fri"
+                            , Selector.class "is-seated"
+                            ]
+            , test "takes no acid of its own" <|
+                \_ ->
+                    -- ADD TO LIST is magenta and COOK THIS orange: a
+                    -- third face beside them is "never three" (§04).
+                    plain
+                        |> Query.find [ Selector.class "planner-btn" ]
+                        |> Query.hasNot [ Selector.class "lister-btn" ]
+            , test "the picker is absent until asked for" <|
+                \_ ->
+                    plain |> Query.hasNot [ Selector.id "plan-picker" ]
+            , test "and says so to a screen reader" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "planner-btn" ]
+                        |> Query.has [ Selector.attribute (Attr.attribute "aria-expanded" "false") ]
+            , test "open, it offers every day, Sunday first" <|
+                \_ ->
+                    planned (let p = noPlanner aWeek in { p | open = True })
+                        |> Query.findAll [ Selector.class "plan-picker-day" ]
+                        |> Query.count (Expect.equal 7)
+            , test "a day holding this recipe is seated and pressed" <|
+                \_ ->
+                    planned (let p = noPlanner aWeek in { p | open = True })
+                        |> pickerDay 3
+                        |> Query.has
+                            [ Selector.class "is-seated"
+                            , Selector.attribute (Attr.attribute "aria-pressed" "true")
+                            ]
+            , test "a day holding another meal names it, so replacing is a choice" <|
+                \_ ->
+                    planned (let p = noPlanner aWeek in { p | open = True })
+                        |> pickerDay 0
+                        |> Query.has [ Selector.text "Spaghetti" ]
+            , test "armed, that day asks before it replaces" <|
+                \_ ->
+                    planned (let p = noPlanner aWeek in { p | open = True, armed = Just Sun })
+                        |> pickerDay 0
+                        |> Query.has [ Selector.text "Replace Spaghetti?" ]
             ]
         , describe "the split"
             [ test "what you need and what you do are separate columns" <|

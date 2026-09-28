@@ -22,7 +22,7 @@
 
 import { assert, assertEquals } from "@std/assert";
 
-const SHEETS = ["theme", "sheet", "shelf", "recipe", "cook", "list", "print"];
+const SHEETS = ["theme", "sheet", "shelf", "recipe", "cook", "list", "plan", "print"];
 
 const sources = new Map<string, string>();
 for (const name of SHEETS) {
@@ -79,6 +79,8 @@ Deno.test("every control names the floor, one way or the other", () => {
     ["recipe", ".scaler-btn"],
     ["print", ".printer-btn"],
     ["list", ".list-tick"],
+    ["plan", ".plan-entry-input"],
+    ["recipe", ".planner-btn"],
     ["cook", ".cook-stamp"],
     ["cook", ".cook-timer-btn"],
     ["cook", ".cook-nav-step"],
@@ -93,6 +95,11 @@ Deno.test("every control names the floor, one way or the other", () => {
     ["list", ".list-source-link"],
     ["list", ".list-drop"],
     ["list", ".list-clear"],
+    ["plan", ".plan-recipe-link"],
+    ["plan", ".plan-drop"],
+    ["plan", ".plan-clear"],
+    ["plan", ".plan-cancel"],
+    ["recipe", ".plan-picker-link"],
   ];
 
   const missing: string[] = [];

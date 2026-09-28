@@ -23,7 +23,7 @@
 
 import { assert, assertEquals } from "@std/assert";
 
-const SHEETS = ["theme", "sheet", "shelf", "recipe", "cook", "list", "print"];
+const SHEETS = ["theme", "sheet", "shelf", "recipe", "cook", "list", "plan", "print"];
 
 const sources = new Map<string, string>();
 for (const name of SHEETS) {
