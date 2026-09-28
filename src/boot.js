@@ -114,12 +114,42 @@ document.addEventListener('visibilitychange', () => {
   }
 })
 
+// The system bar of an installed app (and of Chrome on Android) takes
+// its colour from the theme-color metas in index.html, which follow
+// the OS lighting through their media queries. A lighting chosen on
+// the page has to reach them too, or a dark page sits under a light
+// bar. So an explicit choice paints both metas with the computed
+// --stencil-bg — read, never written here, like every colour in this
+// file — and "system" puts back the media and content index.html
+// shipped.
+const statusBars = [...document.querySelectorAll('meta[name="theme-color"]')].map(
+  (meta) => ({ meta, media: meta.getAttribute('media'), content: meta.content }),
+)
+
+function paintStatusBar() {
+  const chosen = document.documentElement.dataset.theme
+  const bar = getComputedStyle(document.documentElement)
+    .getPropertyValue('--stencil-bg')
+    .trim()
+  for (const { meta, media, content } of statusBars) {
+    if (chosen && bar) {
+      meta.removeAttribute('media')
+      meta.content = bar
+    } else {
+      if (media) meta.setAttribute('media', media)
+      meta.content = content
+    }
+  }
+}
+paintStatusBar()
+
 app.ports.saveTheme.subscribe((theme) => {
   if (theme === 'light' || theme === 'dark') {
     document.documentElement.dataset.theme = theme
   } else {
     delete document.documentElement.dataset.theme
   }
+  paintStatusBar()
   try {
     if (theme === 'light' || theme === 'dark') {
       localStorage.setItem(THEME_KEY, theme)

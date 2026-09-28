@@ -8,9 +8,11 @@
     "wrangler": "npm:wrangler@^4.122.0"
   },
   "tasks": {
-    "content": "deno task content:recipes && deno task content:docs",
+    "content": "deno task content:recipes && deno task content:docs && deno task content:manifest",
     "content:recipes": "deno run --allow-read=content,public --allow-write=public/content scripts/build-content.ts",
     "content:docs": "deno run --allow-read=docs --allow-write=src/Generated scripts/build-docs.ts",
+    "content:manifest": "deno run --allow-read=src --allow-write=public/manifest.webmanifest scripts/build-manifest.ts",
+    "icons": "deno run --allow-read=public/icons --allow-write=public/icons --allow-run=resvg scripts/build-icons.ts",
     "dev": "deno task content && vite",
     "build": "deno task content && vite build",
     "preview": "vite preview",

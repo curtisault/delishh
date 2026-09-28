@@ -37,6 +37,16 @@
 /content/*
   Cache-Control: public, max-age=0, must-revalidate
 
+# The install's identity: the manifest is generated and changes when
+# theme.css does; the icons are redrawn under the same names. Neither
+# is hashed, so both revalidate. (A redrawn icon under a new filename
+# could be immutable, like /fonts/*; nothing is gained for four small
+# files a launcher fetches once.)
+/manifest.webmanifest
+  Cache-Control: public, max-age=0, must-revalidate
+/icons/*
+  Cache-Control: public, max-age=0, must-revalidate
+
 # NOTE: if this project ever ships generated artifacts under
 # /downloads (a PDF regenerated under the same filename), give them
 # their own SHORT rule here. Folding them into the /assets block above

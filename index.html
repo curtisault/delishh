@@ -4,6 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    <!-- The install. The manifest is generated from theme.css by
+         `deno task content`; iOS ignores its icons and reads
+         apple-touch-icon instead. The two theme-color metas are the
+         site bar's --stencil-bg in each lighting, so the system bar
+         above it reads as the bar's continuation; they are the one
+         place a hex sits outside theme.css, and scripts/pwa_test.ts
+         holds both to it. boot.js repaints them from the computed
+         token when the reader picks a lighting explicitly. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#12150e"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#e4e9e6"
+    />
     <!-- The three faces on screen before anything is scrolled: the
          masthead and labels (display), the prose under them (body),
          and the § marks and numerals (data). Served from public/fonts,

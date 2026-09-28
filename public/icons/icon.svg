@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The home-screen mark: the wordmark's "d", outlined from the
+       shipped Archivo Expanded 700 cut (a font never reaches an OS
+       launcher), in volt on the stencil field — the site bar's own
+       pairing, one acid (DS-01 §04). Full bleed with the glyph inside
+       the maskable safe circle (radius 40%), so one drawing serves
+       every purpose. Colours are theme.css's light stencil-bg and
+       shelf-act tokens, held there by scripts/pwa_test.ts. The PNGs
+       beside this are rendered from it by `deno task icons`; never
+       edited by hand. -->
+  <rect width="512" height="512" fill="#12150e"/>
+  <path fill="#b9ee00" transform="translate(256 256) scale(0.4 -0.4) translate(-361 -356)" d="M320 -12Q238 -12 177.0 18.0Q116 48 81.5 109.5Q47 171 47 263Q47 357 81.0 418.0Q115 479 175.0 509.0Q235 539 313 539Q352 539 389.0 530.5Q426 522 457.5 505.0Q489 488 511 462H518V724H675V0H548L535 83H527Q489 31 435.5 9.5Q382 -12 320 -12ZM362 113Q412 113 447.0 130.5Q482 148 500.5 181.0Q519 214 519 259V267Q519 302 508.5 329.0Q498 356 477.5 375.0Q457 394 427.5 404.5Q398 415 361 415Q312 415 277.5 397.5Q243 380 225.0 348.0Q207 316 207 271V256Q207 211 225.5 179.0Q244 147 278.5 130.0Q313 113 362 113Z"/>
+</svg>
