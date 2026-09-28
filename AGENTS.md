@@ -16,6 +16,8 @@ the authority on how this looks and why.
 | `docs/meal-planner.md` | The meal planner's plan and decision log — the week, the two kinds of meal, pick-and-place, the shared picture |
 | `docs/meal-planner-expansion.md` | Several meals a day. **Unscheduled** until the first planner has been used; says what that use must show first |
 | `docs/installable.md` | The home-screen install — manifest, service worker, offline archive — and its dated decision log. Built 2026-09-28; the by-hand pass on a phone is outstanding |
+| `docs/facet-constraints.md` | The **digest** of the facet doctrine — how a flavour level, an effort tier, a dietary flag and a cuisine are *decided*, as numbered requirements a review cites. The meal path has none: the only requirement for a meal is food |
+| `agents/refs/{flavour,effort,needs}.md` | The **verbose** copies of that doctrine, one per judged facet group: every threshold, false friend, hidden carrier and worked case. Read the one for the facet you are setting. **Machine-held**: `doctrine_test.ts` holds their lists to `vocabulary.ts` and the corpus to their mechanical rules |
 | `src/sw.js` | The service worker: **`public/_headers`' cache policy, carried onto the device.** Cache-first exactly where `_headers` says immutable; `/content/*` never |
 | `src/Prose.elm` | Markdown blocks → the house chrome. **Every styling decision for generated prose lives here**, in hand-written Elm; the generator emits data and knows no class name |
 | `src/Page/DesignStandard.elm` | Four lines of wiring: `Generated.DesignStandard` through `Prose` through `Doc`. There is no second copy of the standard anywhere |
@@ -177,6 +179,17 @@ whose only job is to be read.
   `@font-face` and its `--font-*` token and nothing breaks: the stack
   falls through to a system face, the page renders, and DS-01's type
   casting is silently void.
+- `scripts/doctrine_test.ts` — the facet constraints
+  (`docs/facet-constraints.md` and `agents/refs/*.md`) held to
+  `vocabulary.ts`, the same way `agents_test.ts` holds the authoring
+  contract, and the corpus held to the doctrine's *mechanical* rules:
+  every flavour carries a level, at most four words and two at `3`,
+  the three effort anchors carry the tiers they anchor, at most two
+  cuisines. The judgements themselves — a level, a window count, a
+  verified flag — are a person's, at the tested cook, and are not
+  here. One rule is named and deliberately not enforced yet: needs
+  N3 (a `vegetarian` recipe also carries `pescatarian`), which the
+  corpus fails today and the review rules on first.
 
 Five rules that are easy to break without noticing:
 

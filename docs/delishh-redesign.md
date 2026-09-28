@@ -105,6 +105,12 @@ Ruled 2026-09-23, at the backing paper:
 | The canvas | **`body` carries no background**; `html` is the canvas and the liner sits at z-index −1 between the canvas and every in-flow block. A body fill paints over a negative z-index child, which is the one way this ground silently vanishes | A positioned page wrapper above the liner (a new stacking context under every sticky thing in the product, to avoid deleting one line) |
 | On paper | **Neither prints.** A fixed element prints on every page (the debugger badge, 2026-09-21), so the liner is `display: none`, and the leaf's edge, fill and seat go too — `print_test.ts` holds all four | Dimming the liner for print (still on every page, in grey) |
 
+Ruled 2026-09-28, at the facet constraints:
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| How a judged facet is decided | **A doctrine, in two copies.** Three verbose references under `agents/refs/` — `flavour.md`, `effort.md`, `needs.md` — one per facet group that carries a judgement, and one digest at `docs/facet-constraints.md` with the numbered requirements a review cites. The meal path gets none: the only requirement for a meal is food. `scripts/doctrine_test.ts` holds every list in all four to `vocabulary.ts` and the corpus to the mechanical rules; the judgements stay a person's. The digest carries its own dated decision log | Folding it into `content/recipes/AGENTS.md` (the contract says *what* to write; this says *how to decide*, and it is longer than the contract); inferring any of it in the build (§12) |
+
 ## What exists today
 
 - Elm + Vite + Deno shell with working chrome: `Doc.elm` (document
