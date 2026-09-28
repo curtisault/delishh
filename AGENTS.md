@@ -15,6 +15,7 @@ the authority on how this looks and why.
 | `docs/delishh-redesign.md` | The DS-01 Revision 2 implementation plan and its dated decision log. Owns *sequence and scope*; DS-01 owns everything else |
 | `docs/meal-planner.md` | The meal planner's plan and decision log — the week, the two kinds of meal, pick-and-place, the shared picture |
 | `docs/meal-planner-expansion.md` | Several meals a day. **Unscheduled** until the first planner has been used; says what that use must show first |
+| `docs/installable.md` | The home-screen install — manifest, service worker, offline archive. **Nothing ruled yet**: its decision log holds five open questions with recommendations, and no phase starts until they are dated |
 | `src/Prose.elm` | Markdown blocks → the house chrome. **Every styling decision for generated prose lives here**, in hand-written Elm; the generator emits data and knows no class name |
 | `src/Page/DesignStandard.elm` | Four lines of wiring: `Generated.DesignStandard` through `Prose` through `Doc`. There is no second copy of the standard anywhere |
 | `src/Scale.elm` | The measurement ladder (DS-01 §05) as a pure module. **Where a recipe archive would otherwise lie to you** — see below |
