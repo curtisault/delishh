@@ -94,7 +94,7 @@ Verbose copy: `agents/refs/effort.md`.
 |---|-------------|
 | E0 | Effort measures **attention**, not time and not skill. Time is its own field and the shelf shows it; skill belongs in Watchpoints and Rescues |
 | E1 | `relaxed`: no step a minute's inattention costs; you can leave the room. `focused`: at least one bounded **window** you must watch; you can talk, not read. `project`: the day, or more than one session, or a long window, or several components each with a window |
-| E2 | Count the windows. None → `relaxed`. One or two under ~15 min → `focused`. Three or more, or one over ~30 min, or more than one session, or components each with a window → `project`. On a line, take the higher |
+| E2 | Count the windows. None → `relaxed`. One or two under ~15 min, or no window but a session break the recipe makes you respect → `focused`. Three or more, or one over ~30 min, or more than one session with a window, or components each with a window → `project`. On a line, take the higher |
 | E3 | Three corpus anchors define the tiers by example — `brown-sugar-banana-bread` (relaxed), `southern-white-gravy` (focused), `blueberry-cake-donuts` (project) — and every recipe is placed relative to them |
 | E4 | `active` is the minutes you are doing something, including waits you cannot leave; `total` is first step to plate with **every hold included**, an overnight at least twelve hours, a minimum counted at the minimum. Round as coarsely as honesty allows. Reheating is in neither |
 | E5 | `method` is the dominant physical process; where two share the time, the one that carries the risk wins, then the one the reader would name. Stew tenderises, simmer does not; roast browns a whole thing, bake cooks an assembled one; blend is not no-cook |
@@ -154,11 +154,10 @@ carriers, which is where the verification actually happens:
   carries a level (F2); at most four words and two at `3` (F4);
   the three effort anchors exist and carry their tiers (E3); at
   most two cuisines (C2);
-- holds the implication table in N3 to the vocabulary, but does
-  **not yet** hold the corpus to it — the recipes flagged
-  `vegetarian` today carry no `pescatarian`, and enforcing that
-  before the review has ruled on those files would fail the build on
-  a decision nobody has taken.
+- holds the implication table in N3 to the vocabulary, and the
+  corpus to it (a `vegetarian` recipe without `pescatarian` fails the
+  build) — held back until the first recipe review had ruled on the
+  three files that failed it, and switched on the same day.
 
 Everything else — the level, the window count, the verification —
 is a person, at the tested cook, citing the requirement by number.

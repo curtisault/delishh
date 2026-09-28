@@ -357,13 +357,12 @@ flags are the only suitability claims the archive makes.
 
 - `scripts/doctrine_test.ts` holds the two lists above to
   `vocabulary.ts`, holds the implication table in N3 as data (every
-  flag it names is in the vocabulary), and holds the corpus to C2
-  (at most two cuisines).
-- The implication rule itself (N3) is **not yet enforced over the
-  corpus**: the recipes flagged `vegetarian` today do not carry
-  `pescatarian`, and adding that test before the review has ruled
-  on those files would fail the build on a decision nobody has
-  taken. The review takes it first.
+  flag it names is in the vocabulary) **and holds the corpus to it**
+  — a `vegetarian` recipe without `pescatarian` fails the build —
+  and holds the corpus to C2 (at most two cuisines). The corpus
+  check was held back until the first recipe review had ruled on
+  the three files that failed it, and switched on the same day
+  (2026-09-28).
 - Everything else is a person reading every ingredient line
   against the carrier lists, at `tested:`, and again whenever
   Ingredients changes.

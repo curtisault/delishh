@@ -184,9 +184,12 @@ and says almost nothing on one — nearly every main in the archive is
 information is in where it is *absent* (a dessert) and where it
 appears *unexpectedly* (a cheese scone, a savoury oatmeal).
 
-- `3` — a main, a side, a sauce for a main.
-- `2` — a dish that is not a meal but leans that way: a savoury
-  snack, a bread with cheese or herbs in it.
+- `3` — a main, a side, a sauce for a main, where the savoury
+  register is what leads — which is nearly every main.
+- `2` — a main whose *defining* quality is something else, so that
+  savoury is present under it (a belly taco led by its sweet glaze);
+  or a dish that is not a meal but leans that way: a savoury snack,
+  a bread with cheese or herbs in it.
 - `1` — a sweet thing with a deliberate savoury edge: brown butter,
   a miso caramel, a bacon in a dessert.
 

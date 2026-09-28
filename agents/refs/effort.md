@@ -62,26 +62,32 @@ cold, a soak reaching four hours).
 
 Walk the Steps block and count the windows. Then:
 
-1. **No windows** → `relaxed`. Mix and bake, blend and pour, stew
-   that simmers with a lid on, a soak, an overnight.
-2. **One or two windows, each under about fifteen minutes, and the
-   rest can be left** → `focused`.
+1. **No windows, one session** → `relaxed`. Mix and bake, blend and
+   pour, stew that simmers with a lid on.
+2. **Either of the following** → `focused`:
+   - one or two windows, each under about fifteen minutes, and the
+     rest can be left;
+   - no window, but a **session** break the recipe makes you respect
+     — a hold on the order of hours or a night between two active
+     stretches (assemble, soak four hours, bake). You must come back,
+     which is more than `relaxed` asks, and it is all it asks.
 3. **Any of the following** → `project`:
    - three or more windows;
    - any single window longer than about thirty minutes of
      continuous attention (holding a frying temperature through
      four batches; forty-five minutes at a pan of onions);
-   - more than one **session** — a hold the recipe makes you respect
-     between two active stretches, on the order of hours or a night
-     (chill two hours minimum, then fry; bath eight hours, then chill
-     overnight, then sear);
+   - more than one session **and** at least one window (chill two
+     hours minimum, then fry at a held temperature; brown a chili,
+     freeze it, bake it under a fresh batter);
    - more than one component that each carries its own window (a
-     ragù *and* a béchamel *and* an assembly; a chili *and* a
-     batter).
+     ragù *and* a béchamel *and* an assembly).
 
 Components alone do not make a project; components each with a
 window do. A casserole with a sauce, a filling and an assembly, where
-only the sauce has a window, is `focused`.
+only the sauce has a window, is `focused`. A session break alone
+does not either: a strata is not a project because it soaks
+overnight, and the rule that said so was corrected at the first
+recipe review (2026-09-28).
 
 The thresholds are stated in minutes so that two authors land on the
 same side of them, and they are approximate because a kitchen is.
@@ -213,11 +219,11 @@ kitchen is tiered the same way; washing up is nobody's window.
 | A milkshake, blended | 0 | 1 | `relaxed` | Five minutes, none of them a window |
 | A roux gravy with a stirred simmer | 1 (the roux and the simmer, continuous) | 1 | `focused` | One window, the whole recipe; still one window |
 | A casserole: a roux-based sauce, then assembly, then a bake | 1 | 1 | `focused` | The sauce has the window; the assembly and the bake do not |
-| A strata: assemble, soak four hours, bake | 0 | 2 | `focused` | No window, but the soak is a session break the recipe makes you respect; the higher value on a line (E2) |
+| A strata: assemble, soak four hours, bake | 0 | 2 | `focused` | No window, but the soak is a session break the recipe makes you respect (E2, rule 2) |
 | Cake donuts: mix, chill two hours, fry at a held temperature in batches | 1 long | 2 | `project` | A window over thirty minutes *and* a session break |
 | A lasagna: ragù, béchamel, assembly, bake | 2 (the ragù's browning, the béchamel) | 1 | `project` | Two components each with a window, plus the assembly; and the ragù's simmer is long enough to make it a day |
 | A belly: bath eight hours, ice bath, chill overnight, sear, glaze | 2 (the sear, the glaze) | 3 | `project` | Three sessions across two days. The bath itself is `relaxed`; the recipe is not |
-| A chili with a cornbread top: stew ninety minutes, then batter and bake | 1 (the browning) | 1 | `project` or `focused` | On the line: one window, one session, but two components and two and a half hours. E2 says take the higher when on the line — and the review should say which it was, in the note or in this table |
+| A chili with a cornbread top: brown and simmer, cool and freeze, then batter and bake | 1 (the browning) | 2 | `project` | A window *and* a session break — the chili is made, cooled completely and wrapped, and the batter is mixed on the baking day (E2, rule 3) |
 
 ## How this is checked
 

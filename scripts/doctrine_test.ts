@@ -17,12 +17,12 @@
  *    script can read off the frontmatter. The judgements (a level, a
  *    window count, a verification) are a person's, and are not here.
  *
- * One rule is deliberately not enforced yet: needs N3, that a
- * `vegetarian` recipe also carries `pescatarian`. The corpus does not
- * meet it today, and a red build over a ruling the review has not
- * taken teaches nobody anything. It is named in every document and
- * in the test below that holds the implication *table* to the
- * vocabulary; the corpus check is the review's to switch on.
+ * Needs N3 — that a `vegetarian` recipe also carries `pescatarian`,
+ * and a `vegan` one the four flags it implies — was held back until
+ * the first recipe review had ruled on the files that failed it, and
+ * switched on the same day (2026-09-28). The implication table itself
+ * is held to the vocabulary below, so the rule can never instruct an
+ * author to write a flag the build rejects.
  */
 
 import { assert, assertEquals } from "@std/assert";
@@ -204,6 +204,28 @@ Deno.test("effort E3: the three anchors exist and carry the tier they anchor", a
       tier,
       `${slug} anchors \`${tier}\` in effort.md but is \`${r.effort}\` in its frontmatter`,
     );
+  }
+});
+
+Deno.test("needs N3: every flag another flag implies is stated", async () => {
+  // The shelf ORs selections within a path and infers nothing, so a
+  // reader who selects `pescatarian` finds a vegetarian dish only if
+  // the word is on it. Switched on at the first recipe review
+  // (2026-09-28), once the corpus met it.
+  const implies: Record<string, string[]> = {
+    vegan: ["vegetarian", "pescatarian", "dairy-free", "egg-free"],
+    vegetarian: ["pescatarian"],
+  };
+  for (const r of await corpus()) {
+    for (const [flag, implied] of Object.entries(implies)) {
+      if (!r.dietary.includes(flag)) continue;
+      for (const want of implied) {
+        assert(
+          r.dietary.includes(want),
+          `${r.slug}: \`${flag}\` implies \`${want}\`, and the shelf will not infer it (needs.md, N3)`,
+        );
+      }
+    }
   }
 });
 
