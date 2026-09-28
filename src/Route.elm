@@ -34,6 +34,8 @@ type Route
     | Cook String
       -- what to buy, gathered from the recipes you added
     | ShoppingList
+      -- the week, Sunday to Saturday
+    | Plan
 
 
 {-| The address of a page. Lowercase, hyphenated.
@@ -58,6 +60,9 @@ toPath route =
 
         ShoppingList ->
             "/list"
+
+        Plan ->
+            "/plan"
 
 
 {-| The document title. `Browser.application` owns the title, so
@@ -89,6 +94,9 @@ title route =
         ShoppingList ->
             "DELISHH — SHOPPING LIST"
 
+        Plan ->
+            "DELISHH — MEAL PLAN"
+
 
 parser : Parser (Route -> a) a
 parser =
@@ -97,6 +105,7 @@ parser =
         , Parser.map About (s "about")
         , Parser.map DesignStandard (s "design-standard")
         , Parser.map ShoppingList (s "list")
+        , Parser.map Plan (s "plan")
         , Parser.map Cook (s "recipe" </> string </> s "cook")
         , Parser.map Recipe (s "recipe" </> string)
         ]

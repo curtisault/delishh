@@ -77,18 +77,21 @@ CDN, and nothing is fetched from anywhere else either.
 Nothing. There is no analytics, no tracking, no error reporting and
 no third-party script of any kind on this site.
 
-**Two things are stored in this browser**, each under a single key.
+**Three things are stored in this browser**, each under a single key.
 The first is which lighting you chose, so the page does not flash the
 wrong theme before it loads; choosing "System" clears it. The second
 is your shopping list — the recipes you added to it and the items you
 have ticked off — so it is still there when you get to the shop.
 Clearing the list, or taking the last recipe back off it, removes
-that key too.
+that key too. The third is the week you planned — which meal is on
+which day, and for a recipe its name and address — and clearing the
+week, or taking the last meal off it, removes that key as well.
 
 Nothing is sent anywhere, and there is no server to send it to — the
-whole site is static files. Both keys are local to this browser, so
-the list does not follow you to another device, and clearing your
-site data ends both.
+whole site is static files. The picture of your week is drawn
+in this browser, and goes only where you send it. All three keys are local to this browser,
+so neither the list nor the plan follows you to another device, and
+clearing your site data ends all three.
 
 ### Checks that run on every build
 

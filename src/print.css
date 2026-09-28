@@ -209,6 +209,9 @@
     --page-heat: #000 !important;
     --page-cold: #000 !important;
     --page-live: #000 !important;
+    --page-time: #000 !important;
+    --page-soft: #000 !important;
+    --page-work: #000 !important;
     --page-act: #000 !important;
   }
 
@@ -234,6 +237,8 @@
   .scaler,
   .printer,
   .lister-btn,
+  .planner-btn,
+  .plan-picker,
   .recipe-back,
   .cook-enter {
     display: none !important;

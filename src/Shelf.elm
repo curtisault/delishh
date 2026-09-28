@@ -12,7 +12,9 @@ module Shelf exposing
     , facetsOf
     , judge
     , marks
+    , matchesQuery
     , nearestByTime
+    , needles
     , noFilters
     , path
     , pathLabel

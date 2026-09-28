@@ -8,6 +8,7 @@
 /about /index.html 200
 /design-standard /index.html 200
 /list /index.html 200
+/plan /index.html 200
 
 # The one wildcard, and the one route that cannot be named: a recipe's
 # slug is CONTENT, and adding a recipe must not mean editing this file.

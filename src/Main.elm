@@ -47,8 +47,10 @@ import Page.About
 import Page.Cook
 import Page.DesignStandard
 import Page.GroceryList
+import Page.Plan
 import Page.Recipe
 import Page.Shelf
+import Plan exposing (Plan)
 import Print
 import Recipe exposing (Recipe)
 import Route exposing (Route)
@@ -77,6 +79,41 @@ full.
 
 -}
 port saveList : E.Value -> Cmd msg
+
+
+{-| Write the meal plan back to this browser — the third thing stored
+(DS-01 §12), under its own key. The same shape of port as `saveList`,
+for the same reason: the schema lives in `Plan.encode`, and boot.js
+only stringifies. An empty week clears the key.
+-}
+port savePlan : E.Value -> Cmd msg
+
+
+{-| The shared picture, out: `{ do: "draw", gen, rows }` to draw the
+week, `{ do: "share" }` or `{ do: "copy" }` to send what was drawn,
+`{ do: "forget" }` to release it. One port for four verbs because all
+four act on the one blob boot.js holds, and a port per verb would be
+four places to keep in agreement about which blob that is.
+
+boot.js draws, because a canvas has no Elm binding. It draws from
+`Plan.toShare` alone — words and where they came from — so the
+drawing never learns the plan's shape.
+-}
+port sharePlan : E.Value -> Cmd msg
+
+
+{-| The picture, back: `{ gen, url, canShare, canCopy }` or
+`{ gen, failed: true }`. `gen` is the draw it answers, so a picture
+of a week that changed while it was drawing is dropped, not shown.
+-}
+port planPicture : (D.Value -> msg) -> Sub msg
+
+
+{-| What a share or a copy actually did: shared, copied, refused,
+unsupported, failed. Reported, never assumed (DS-01 §08's wake badge
+rule).
+-}
+port planShared : (String -> msg) -> Sub msg
 
 
 {-| Which section the reader is currently inside, reported by boot.js.
@@ -184,6 +221,10 @@ type alias Flags =
     -- `init`, where anything that will not decode becomes an empty
     -- list rather than a shell that does not boot
     , list : Maybe String
+
+    -- the meal plan as it was stored, still a string. The same rule:
+    -- what will not decode becomes an empty week
+    , plan : Maybe String
     }
 
 
@@ -266,6 +307,33 @@ type alias Model =
     -- one-handed in a shop — so the second press is the confirmation
     , clearArmed : Bool
 
+    -- the week. Like the list, it is the reader's rather than the
+    -- page's, and no navigation resets it
+    , plan : Plan
+
+    -- the plan page's hand: the day a meal was lifted from, the day
+    -- whose entry field is open and what is typed in it, and whether
+    -- CLEAR THE WEEK is armed. Page state, so any navigation drops
+    -- all three — a meal still held after you left the page would be
+    -- set down by a press you made somewhere else
+    , lifted : Maybe Plan.Day
+    , planEntry : Maybe Page.Plan.Entry
+    , planClearArmed : Bool
+
+    -- the recipe page's day picker: whether it is open, and the day a
+    -- first press asked to replace. Reset by navigation for the same
+    -- reason the print form is
+    , pickerOpen : Bool
+    , pickerArmed : Maybe Plan.Day
+
+    -- the shared picture, which draw it is waiting for, and what the
+    -- last share or copy did. Dropped by any change to the week, the
+    -- theme, or the route: a picture of last minute's week is a
+    -- picture that lies
+    , picture : Page.Plan.Picture
+    , pictureGen : Int
+    , pictureOutcome : Maybe Page.Plan.Outcome
+
     , done : Set Int
     , timer : Maybe Cook.Timer
     , now : Time.Posix
@@ -286,6 +354,10 @@ type Fetch a
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
+    let
+        ( storedPlan, discardPlan ) =
+            readPlan flags.plan
+    in
     ( { key = key
       , route = Route.fromUrl url
       , theme = themeFromFlag flags.theme
@@ -308,6 +380,15 @@ init flags url key =
                 |> Maybe.andThen (D.decodeString GroceryList.decoder >> Result.toMaybe)
                 |> Maybe.withDefault GroceryList.empty
       , clearArmed = False
+      , plan = storedPlan
+      , lifted = Nothing
+      , planEntry = Nothing
+      , planClearArmed = False
+      , pickerOpen = False
+      , pickerArmed = Nothing
+      , picture = Page.Plan.NotMade
+      , pictureGen = 0
+      , pictureOutcome = Nothing
       , done = Set.empty
       , timer = Nothing
       , now = Time.millisToPosix 0
@@ -316,6 +397,7 @@ init flags url key =
     , Cmd.batch
         [ routeCmd (Route.fromUrl url)
         , setWakeLock (isCooking (Route.fromUrl url))
+        , discardPlan
 
         -- a cold load with a fragment (a shared deep link) still owes
         -- a jump — the browser cannot do it, because Elm renders
@@ -337,6 +419,90 @@ reader does with a shopping list is close the tab and walk to a shop.
 store : Model -> ( Model, Cmd Msg )
 store model =
     ( model, saveList (GroceryList.encode model.list) )
+
+
+{-| Keep a changed plan, and write it through, as `store` does the list.
+-}
+storePlan : Model -> ( Model, Cmd Msg )
+storePlan model =
+    let
+        ( dropped, forget ) =
+            dropPicture model
+    in
+    ( dropped, Cmd.batch [ savePlan (Plan.encode model.plan), forget ] )
+
+
+{-| Let go of the picture. Every change to the week comes through
+`storePlan`, which calls this, so the preview can never show a week
+the plan no longer holds. The generation moves even when nothing was
+made, so a draw still in flight is ignored when it lands.
+-}
+dropPicture : Model -> ( Model, Cmd Msg )
+dropPicture model =
+    ( { model
+        | picture = Page.Plan.NotMade
+        , pictureGen = model.pictureGen + 1
+        , pictureOutcome = Nothing
+      }
+    , case model.picture of
+        Page.Plan.NotMade ->
+            Cmd.none
+
+        _ ->
+            sharePlan (E.object [ ( "do", E.string "forget" ) ])
+    )
+
+
+{-| The stored week, and what to do about it.
+
+DS-01 §12: _state that cannot be read back is discarded and the reader
+starts empty._ Discarded means the key goes, not only that this load
+ignores it — a value that fails once fails on every load, and a key
+nobody can read is a thing kept about the reader that does nothing
+for them. Writing the empty week clears it (boot.js removes the key
+rather than storing `{}`).
+
+Nothing stored, or a clean read, writes nothing.
+
+-}
+readPlan : Maybe String -> ( Plan, Cmd msg )
+readPlan stored =
+    case stored of
+        Nothing ->
+            ( Plan.empty, Cmd.none )
+
+        Just raw ->
+            case D.decodeString Plan.decoder raw of
+                Ok plan ->
+                    ( plan, Cmd.none )
+
+                Err _ ->
+                    ( Plan.empty, savePlan (Plan.encode Plan.empty) )
+
+
+{-| boot.js's answer to a draw: which draw, and the picture or the
+failure.
+-}
+pictureDecoder : D.Decoder ( Int, Page.Plan.Picture )
+pictureDecoder =
+    D.map2 Tuple.pair
+        (D.field "gen" D.int)
+        (D.oneOf
+            [ D.field "failed" D.bool
+                |> D.andThen
+                    (\failed ->
+                        if failed then
+                            D.succeed Page.Plan.Unmade
+
+                        else
+                            D.fail "not a failure"
+                    )
+            , D.map3 (\url canShare canCopy -> Page.Plan.Made { url = url, canShare = canShare, canCopy = canCopy })
+                (D.field "url" D.string)
+                (D.field "canShare" D.bool)
+                (D.field "canCopy" D.bool)
+            ]
+        )
 
 
 {-| What arriving at a route costs in requests.
@@ -367,13 +533,24 @@ routeCmd route =
                 }
 
         Route.Home ->
-            Http.get
-                { url = "/content/index.json"
-                , expect = Http.expectJson GotIndex Shelf.decoder
-                }
+            fetchIndex
+
+        -- The entry field searches the archive the shelf lists, so the
+        -- plan asks for the same index. A failed fetch leaves the
+        -- field working: a meal of your own needs nothing from it.
+        Route.Plan ->
+            fetchIndex
 
         _ ->
             Cmd.none
+
+
+fetchIndex : Cmd Msg
+fetchIndex =
+    Http.get
+        { url = "/content/index.json"
+        , expect = Http.expectJson GotIndex Shelf.decoder
+        }
 
 
 
@@ -396,6 +573,22 @@ type Msg
     | CheckItem String
     | RemoveFromList String
     | ClearList
+    | PlanOpen Plan.Day
+    | PlanInput String
+    | PlanCancel
+    | PlanKeep
+    | PlanPick String String
+    | PlanLift Plan.Day
+    | PlanPlace Plan.Day
+    | PlanRemove Plan.Day
+    | PlanClear
+    | PickerToggle
+    | PickerDay Plan.Day
+    | MakePicture
+    | GotPicture D.Value
+    | SharePicture
+    | CopyPicture
+    | PictureShared String
     | OpenPath (Maybe Shelf.Path)
     | ToggleFacet Shelf.Path String
     | ShelfQuery String
@@ -509,6 +702,36 @@ update msg model =
 
                             else
                                 model.clearArmed
+                        , lifted =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.lifted
+                        , planEntry =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.planEntry
+                        , planClearArmed =
+                            if arrived then
+                                False
+
+                            else
+                                model.planClearArmed
+                        , pickerOpen =
+                            if arrived then
+                                False
+
+                            else
+                                model.pickerOpen
+                        , pickerArmed =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.pickerArmed
                         , done =
                             if arrived then
                                 Set.empty
@@ -522,13 +745,23 @@ update msg model =
                             else
                                 model.timer
                     }
+
+                -- The picture is page state like the rest, and boot.js
+                -- is told to let go of the blob behind it.
+                ( settled, forget ) =
+                    if arrived then
+                        dropPicture updated
+
+                    else
+                        ( updated, Cmd.none )
             in
             ( -- an arrival on a mirroring route writes the URL back in
               -- the same batch, so the *next* UrlChanged is this
               -- shell's echo; anything else clears the flag
-              { updated | mirroring = arrived && arrivalMirrors route }
+              { settled | mirroring = arrived && arrivalMirrors route }
             , Cmd.batch
-                [ if arrived then
+                [ forget
+                , if arrived then
                     routeCmd route
 
                   else
@@ -574,7 +807,15 @@ update msg model =
             ( model, Nav.load href_ )
 
         SetTheme theme ->
-            ( { model | theme = theme }, saveTheme (themeToString theme) )
+            -- The picture is drawn in the theme's colours, so a new
+            -- theme is a new picture.
+            let
+                ( dropped, forget ) =
+                    dropPicture model
+            in
+            ( { dropped | theme = theme }
+            , Cmd.batch [ saveTheme (themeToString theme), forget ]
+            )
 
         QueryChanged query ->
             ( { model | query = query }, Cmd.none )
@@ -654,6 +895,170 @@ update msg model =
 
             else
                 store updated
+
+        PlanOpen day ->
+            -- Opening a day drops anything held and disarms the clear:
+            -- the reader has moved on to something else.
+            ( { model
+                | planEntry = Just { day = day, text = "" }
+                , lifted = Nothing
+                , planClearArmed = False
+              }
+            , Task.attempt (\_ -> NoOp) (Dom.focus "plan-entry")
+            )
+
+        PlanInput typed ->
+            ( { model | planEntry = Maybe.map (\e -> { e | text = typed }) model.planEntry }
+            , Cmd.none
+            )
+
+        PlanCancel ->
+            ( { model | planEntry = Nothing }, Cmd.none )
+
+        PlanKeep ->
+            -- Enter on a blank field does nothing, rather than closing:
+            -- an own meal cannot be blank (`Plan.own`), and a field
+            -- that vanished on Enter would look like it had kept
+            -- something.
+            case model.planEntry of
+                Just entry ->
+                    case Plan.own entry.text of
+                        Just meal ->
+                            storePlan
+                                { model
+                                    | plan = Plan.set entry.day meal model.plan
+                                    , planEntry = Nothing
+                                }
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        PlanPick slug title ->
+            case model.planEntry of
+                Just entry ->
+                    storePlan
+                        { model
+                            | plan = Plan.set entry.day (Plan.recipe slug title) model.plan
+                            , planEntry = Nothing
+                        }
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        PlanLift day ->
+            ( { model | lifted = Just day, planEntry = Nothing, planClearArmed = False }
+            , Cmd.none
+            )
+
+        PlanPlace day ->
+            -- The move table (empty takes, full swaps, home is
+            -- identity) lives in `Plan.move`, where it is tested.
+            case model.lifted of
+                Just from ->
+                    storePlan
+                        { model
+                            | plan = Plan.move from day model.plan
+                            , lifted = Nothing
+                        }
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        PlanRemove day ->
+            storePlan
+                { model
+                    | plan = Plan.clear day model.plan
+                    , planClearArmed = False
+                }
+
+        PlanClear ->
+            let
+                ( plan, armed ) =
+                    Plan.clearPress model.planClearArmed model.plan
+
+                updated =
+                    { model | plan = plan, planClearArmed = armed }
+            in
+            if armed then
+                ( updated, Cmd.none )
+
+            else
+                storePlan updated
+
+        PickerToggle ->
+            ( { model | pickerOpen = not model.pickerOpen, pickerArmed = Nothing }
+            , Cmd.none
+            )
+
+        PickerDay day ->
+            -- The recipe has to be in hand, as it does for the list:
+            -- the plan keeps a snapshot of its title.
+            case model.recipe of
+                Fetched recipe ->
+                    let
+                        ( plan, armed ) =
+                            Plan.placeRecipe
+                                (Plan.recipe recipe.slug recipe.title)
+                                model.pickerArmed
+                                day
+                                model.plan
+                    in
+                    if armed /= Nothing then
+                        ( { model | pickerArmed = armed }, Cmd.none )
+
+                    else
+                        storePlan { model | plan = plan, pickerArmed = Nothing }
+
+                _ ->
+                    ( model, Cmd.none )
+
+        MakePicture ->
+            let
+                gen =
+                    model.pictureGen + 1
+            in
+            ( { model | picture = Page.Plan.Making, pictureGen = gen, pictureOutcome = Nothing }
+            , sharePlan
+                (E.object
+                    [ ( "do", E.string "draw" )
+                    , ( "gen", E.int gen )
+                    , ( "rows", Plan.toShare model.plan )
+                    ]
+                )
+            )
+
+        GotPicture value ->
+            case D.decodeValue pictureDecoder value of
+                Ok ( gen, picture ) ->
+                    if gen == model.pictureGen && model.picture == Page.Plan.Making then
+                        ( { model | picture = picture }, Cmd.none )
+
+                    else
+                        -- An answer to a draw nobody is waiting for.
+                        -- boot.js already drops these itself; this is
+                        -- the second lock on the same door, and it
+                        -- sends nothing, because a "forget" here could
+                        -- release the picture the page IS showing.
+                        ( model, Cmd.none )
+
+                Err _ ->
+                    ( { model | picture = Page.Plan.Unmade }, Cmd.none )
+
+        SharePicture ->
+            ( { model | pictureOutcome = Nothing }
+            , sharePlan (E.object [ ( "do", E.string "share" ) ])
+            )
+
+        CopyPicture ->
+            ( { model | pictureOutcome = Nothing }
+            , sharePlan (E.object [ ( "do", E.string "copy" ) ])
+            )
+
+        PictureShared word ->
+            ( { model | pictureOutcome = Just (Page.Plan.outcomeFromString word) }, Cmd.none )
 
         GotIndex (Ok index) ->
             ( { model | index = Fetched index }, Cmd.none )
@@ -747,6 +1152,12 @@ subscriptions model =
     Sub.batch
         [ sectionSeen SectionSeen
         , wakeLockChanged WakeChanged
+
+        -- Both answer a press the reader made, and both arrive on
+        -- their own time: a canvas encodes asynchronously, and a
+        -- share sheet stays open as long as the reader leaves it.
+        , planPicture GotPicture
+        , planShared PictureShared
         , case model.timer of
             Just _ ->
                 Time.every 1000 Tick
@@ -966,6 +1377,38 @@ page model =
                     , clearArmed = model.clearArmed
                     }
 
+            Route.Plan ->
+                Page.Plan.view
+                    { plan = model.plan
+                    , archive =
+                        case model.index of
+                            Fetching ->
+                                Page.Plan.Opening
+
+                            Fetched index ->
+                                Page.Plan.Searchable index.recipes
+
+                            FetchFailed ->
+                                Page.Plan.Unsearchable
+                    , lifted = model.lifted
+                    , entry = model.planEntry
+                    , clearArmed = model.planClearArmed
+                    , onOpen = PlanOpen
+                    , onInput = PlanInput
+                    , onCancel = PlanCancel
+                    , onKeep = PlanKeep
+                    , onPick = PlanPick
+                    , onLift = PlanLift
+                    , onPlace = PlanPlace
+                    , onRemove = PlanRemove
+                    , onClear = PlanClear
+                    , picture = model.picture
+                    , outcome = model.pictureOutcome
+                    , onMake = MakePicture
+                    , onShare = SharePicture
+                    , onCopy = CopyPicture
+                    }
+
             Route.About ->
                 Page.About.view (chrome model)
 
@@ -1017,6 +1460,13 @@ page model =
                             , onPrepCard = TogglePrepCard
                             , inList = GroceryList.member slug model.list
                             , onToggleList = ToggleInList
+                            , planner =
+                                { plan = model.plan
+                                , open = model.pickerOpen
+                                , armed = model.pickerArmed
+                                , onOpen = PickerToggle
+                                , onDay = PickerDay
+                                }
                             , origin = model.origin
                             , today = model.today
 
@@ -1047,7 +1497,8 @@ siteNav model =
         , div [ id "nav-menu", class "nav-menu" ]
             [ div [ class "nav-links u" ]
                 [ navLink model.route Route.Home "Home"
-                , listLink model.route (GroceryList.count model.list)
+                , countedLink model.route Route.ShoppingList "Shopping List" ( "recipe", "recipes" ) (GroceryList.count model.list)
+                , countedLink model.route Route.Plan "Meal Plan" ( "day", "days" ) (Plan.count model.plan)
                 , navLink model.route Route.DesignStandard "Standard"
                 , navLink model.route Route.About "About"
                 ]
@@ -1100,39 +1551,49 @@ navLink current target label =
         [ text label ]
 
 
-{-| The shopping list's route, wearing how much is on it.
+{-| A route wearing how much is on it: the shopping list's recipes,
+the plan's days.
 
 Three things the figure is not. It is **not an acid** — a count is a
 quantity, and DS-01 §04 keeps acid off quantities wherever they fall,
 including here. It is **not colour-only** — it is a number, and it
 reads as one in the black-and-white bar of a printed page. And it is
 **not a zero**: an empty list has nothing to report, and a badge
-reading "0" is a heading over blank space (§06). Absent means the
-list is empty, which is the only thing it can mean.
+reading "0" is a heading over blank space (§06). Absent means empty,
+which is the only thing it can mean.
 
 The accessible name carries the word the figure stands for, because
 "Shopping List 3" is not a sentence and a screen reader has no bar to
 see it in. `Doc`'s rule that nothing is inferred applies to the ear
-as much as the eye.
+as much as the eye. The plan counts **days**, not meals: the figure
+says how much of the week is covered.
 
 -}
-listLink : Route -> Int -> Html msg
-listLink current n =
-    let
-        target =
-            Route.ShoppingList
-    in
+countedLink : Route -> Route -> String -> ( String, String ) -> Int -> Html msg
+countedLink current target label ( one, many ) n =
     a
         (href (Route.toPath target)
             :: classList [ ( "active", current == target ) ]
             :: (if n > 0 then
-                    [ attribute "aria-label" (listLabel n) ]
+                    [ attribute "aria-label"
+                        (label
+                            ++ ", "
+                            ++ String.fromInt n
+                            ++ " "
+                            ++ (if n == 1 then
+                                    one
+
+                                else
+                                    many
+                               )
+                        )
+                    ]
 
                 else
                     []
                )
         )
-        (text "Shopping List"
+        (text label
             :: (if n > 0 then
                     [ span [ class "nav-count mono" ] [ text (String.fromInt n) ] ]
 
@@ -1140,18 +1601,6 @@ listLink current n =
                     []
                )
         )
-
-
-listLabel : Int -> String
-listLabel n =
-    "Shopping List, "
-        ++ String.fromInt n
-        ++ (if n == 1 then
-                " recipe"
-
-            else
-                " recipes"
-           )
 
 
 themeControl : Theme -> Html Msg

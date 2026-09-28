@@ -1,0 +1,358 @@
+/* The meal plan — docs/meal-planner.md, DS-01 §04's quiet layer.
+ *
+ * A FOURTH SURFACE, IN THE LIST'S REGISTER. Read on a Sunday evening
+ * deciding and on a Tuesday remembering; neither is choosing, so no
+ * --shelf-* fill lands here. Presses wear the neutral face. Volt goes
+ * to the one actionable thing in view — KEEP, when a day is open —
+ * and nowhere else. One acid, no cameo.
+ *
+ * LIFTED IS A SHAPE. The day a meal was lifted from is seated (the
+ * press dress's held-down state, sheet.css) against the raised slabs
+ * of every day it could go to, and it says ", lifted" to a screen
+ * reader. The hint word on each row is the third carrier.
+ *
+ * NOTHING MOVES. No transition and no keyframe in this file, guarded
+ * or otherwise: a meal set down on Thursday is on Thursday the same
+ * frame, and a week rearranging itself under a thumb is hostile
+ * (§10). `motion_test.ts` has this sheet in its SHEETS list.
+ */
+
+.plan-layout {
+  padding: 1.6rem 1.2rem 4rem;
+  display: flex;
+  justify-content: center;
+}
+.meal-plan {
+  width: 100%;
+  /* 40rem plus the leaf's margin either side (sheet.css). */
+  max-width: calc(40rem + 4.4rem);
+}
+
+/* ---------- the plate ---------- */
+
+.plan-plate {
+  border-bottom: 3px solid var(--rule);
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+.plan-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 6vw, 2.6rem);
+  line-height: 0.95;
+  margin: 0;
+  text-transform: uppercase;
+}
+.plan-standfirst {
+  font-size: 0.82rem;
+  color: var(--tx-dim);
+  margin: 0.5rem 0 0;
+}
+
+/* ---------- the week ---------- */
+
+.plan-week {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.plan-day + .plan-day {
+  border-top: 1px solid var(--rule-soft);
+}
+.plan-day {
+  padding: 0.45rem 0;
+}
+
+/* ONE GRID FOR EVERY STATE. An empty day is a press, a held day is a
+   row of three controls, an open day is a form, and a lifted week is
+   seven presses — four shapes, one column line. The day's name holds
+   the first track in all of them, so the meals read down one edge
+   whichever state each row is in. */
+.plan-row {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.8rem;
+  text-align: left;
+  font: inherit;
+}
+/* EVERY ROW IS THE SLAB'S WIDTH, AND ITS NAME SITS WHERE THE SLAB'S
+   DOES. A row that is itself a press gives the slab's travel back as
+   margin (`.press-block`); a held row is not a press, so it matches
+   by hand — the same width, and padding that puts its day's name
+   where a slab's 1px edge and inner padding put the others'. Without
+   it the held days' names stood 12px left of the empty days' and the
+   column the whole grid exists for broke on every other row. */
+.plan-row {
+  box-sizing: border-box;
+  width: calc(100% - 5px);
+  padding: 0 calc(0.7rem + 1px);
+}
+button.plan-row {
+  padding: 0.5rem 0.7rem;
+}
+.plan-dayname {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--tx);
+}
+button.plan-row .plan-dayname {
+  color: inherit;
+}
+.plan-meal-name {
+  font-size: 0.92rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- a held day ---------- */
+
+.plan-held {
+  grid-column: 2 / 4;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  min-width: 0;
+}
+/* The meal is the thing you pick up, so it is the slab. */
+.plan-meal {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 0.45rem 0.8rem;
+  text-align: left;
+  font: inherit;
+}
+/* The small word that says a meal is the archive's, and takes you to
+   it. An OVERLAY target, for the list's reason: the rule under the
+   word is the whole treatment, and growing the box would carry the
+   rule to the bottom of a 2.75rem box. */
+.plan-recipe-link {
+  position: relative;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--tx);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--rule);
+  padding-bottom: 0.1rem;
+}
+.plan-recipe-link::after,
+.plan-drop::after,
+.plan-clear::after,
+.plan-cancel::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+
+/* Quieter than anything that plans something, like the list's. */
+.plan-drop,
+.plan-clear,
+.plan-cancel {
+  flex: none;
+  position: relative;
+  background: none;
+  border: 0;
+  border-bottom: 1.5px solid var(--rule-soft);
+  color: var(--tx-dim);
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.2rem;
+  cursor: pointer;
+}
+.plan-drop {
+  margin-left: auto;
+}
+
+/* ARMED IS A WORD — the list's rule, verbatim. */
+.plan-clear.is-armed {
+  color: var(--tx);
+  font-weight: 700;
+  border-bottom-color: var(--tx);
+}
+.plan-foot {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1.5px solid var(--rule);
+  margin-top: 0.6rem;
+  padding-top: 0.9rem;
+}
+
+/* ---------- a lifted week ---------- */
+
+.plan-hint {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  justify-self: end;
+}
+
+/* ---------- an open day ---------- */
+
+.plan-entry-row {
+  align-items: start;
+}
+.plan-entry-row .plan-dayname {
+  padding-top: 0.85rem;
+}
+.plan-entry {
+  grid-column: 2 / 4;
+  min-width: 0;
+}
+.plan-entry-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: var(--tap);
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.6rem;
+  background: transparent;
+  border: 1.5px solid var(--rule);
+  border-radius: 0;
+  color: var(--tx);
+  caret-color: var(--tx);
+}
+.plan-entry-help {
+  font-size: 0.74rem;
+  color: var(--tx-dim);
+  margin: 0.45rem 0 0.3rem;
+}
+.plan-matches {
+  list-style: none;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+.plan-match {
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-size: 0.86rem;
+  text-align: left;
+}
+.plan-entry-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  margin-top: 0.7rem;
+}
+/* Sentence case, unlike every other press here: it quotes the
+   reader's own words back to them, and shouting "SPAGHETTI" is a
+   misquote. */
+.plan-keep {
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.8rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+/* Volt only while there is something to keep. A disabled KEEP in the
+   actionable acid would be the colour promising a press that does
+   nothing. */
+.plan-keep:not(:disabled) {
+  --press-face: var(--accent);
+}
+.plan-keep:disabled {
+  cursor: default;
+  color: var(--tx-dim);
+}
+
+/* ---------- the picture ---------- */
+
+.plan-share {
+  margin-top: 2.2rem;
+}
+.plan-h {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  border-bottom: 1.5px solid var(--rule);
+  padding-bottom: 0.3rem;
+  margin: 0 0 0.9rem;
+}
+/* MAKE THE PICTURE is volt: once the week is set, it is the one
+   actionable thing in view. It is absent while a day is open, so it
+   never stands beside KEEP as a second volt. */
+.plan-make {
+  --press-face: var(--accent);
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+}
+/* The preview IS the file, at a size that shows it is a picture
+   rather than the page: bounded, and ruled so a picture drawn on the
+   same ground as the leaf still reads as an object laid on it. */
+.plan-picture {
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  height: auto;
+  border: 1.5px solid var(--rule-soft);
+}
+.plan-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
+  margin-top: 1rem;
+}
+/* SHARE, COPY and SAVE: neutral, and a link and two buttons that must
+   read as one set. */
+.plan-send {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--press-tx);
+  text-decoration: none;
+}
+.plan-share-state {
+  font-size: 0.8rem;
+  color: var(--tx-dim);
+  margin: 0.6rem 0 0;
+  min-height: 1.2em;
+}
+
+/* ---------- narrow ---------- */
+
+/* Below 30rem the day's name goes above its meal rather than beside
+   it: "WEDNESDAY" in the display voice and a two-word meal will not
+   share a phone's width without one of them breaking mid-word. */
+@media (max-width: 30rem) {
+  .plan-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.35rem;
+  }
+  .plan-row > .plan-dayname {
+    grid-column: 1 / -1;
+  }
+  .plan-held,
+  .plan-entry {
+    grid-column: 1 / -1;
+  }
+  .plan-entry-row .plan-dayname {
+    padding-top: 0;
+  }
+}
+
+/* Focus is unconditional — it is not decoration, and it is never
+   inside a motion query. */
+.plan-recipe-link:focus-visible,
+.plan-drop:focus-visible,
+.plan-clear:focus-visible,
+.plan-cancel:focus-visible,
+.plan-entry-input:focus-visible {
+  outline: 2px solid var(--here);
+  outline-offset: 2px;
+}

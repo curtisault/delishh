@@ -122,6 +122,9 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   { fg: "page-cold", bg: "surface", min: 4.5 },
   { fg: "page-heat", bg: "surface", min: 4.5 },
   { fg: "page-live", bg: "surface", min: 4.5 },
+  { fg: "page-time", bg: "surface", min: 4.5 },
+  { fg: "page-soft", bg: "surface", min: 4.5 },
+  { fg: "page-work", bg: "surface", min: 4.5 },
 
   // The shelf layer: acid as a fill, with ink on it. The chip's word
   // is what carries the meaning (information is never colour-only),
@@ -130,6 +133,9 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   { fg: "shelf-tx", bg: "shelf-cold", min: 4.5 },
   { fg: "shelf-tx", bg: "shelf-heat", min: 4.5 },
   { fg: "shelf-tx", bg: "shelf-live", min: 4.5 },
+  { fg: "shelf-tx", bg: "shelf-time", min: 4.5 },
+  { fg: "shelf-tx", bg: "shelf-soft", min: 4.5 },
+  { fg: "shelf-tx", bg: "shelf-work", min: 4.5 },
 
   // The extruded slab's neutral face — the press dress worn by every
   // control that carries no acid of its own (sheet.css). Its own
@@ -150,7 +156,10 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   // `.cook-enter` is a link and sets --ink by hand. The two hexes are
   // the same today; the pair names the one that actually paints, so a
   // re-cut of either cannot pass here and fail on the bench.
-  { fg: "press-tx", bg: "accent-live", min: 4.5 },
+  { fg: "press-tx", bg: "accent-work", min: 4.5 },
+
+  // ADD TO PLAN's face (2026-09-27), a <button> like the lister.
+  { fg: "press-tx", bg: "accent-time", min: 4.5 },
 
   // Structural rules are lines, not glyphs: AA's non-text bar.
   { fg: "rule", bg: "surface", min: 3 },
@@ -338,6 +347,24 @@ Deno.test("the slab's edge is findable on both grounds", () => {
       ratio >= 3,
       `${name}: the slab's edge ${edge} is ${ratio.toFixed(2)}:1 on the ground`,
     );
+  }
+});
+
+Deno.test("every acid-faced press is findable on both grounds", () => {
+  // The neutral slab above is found by its edge alone. An acid face
+  // has two chances: the face itself against the ground, or the edge
+  // the dress derives from it. Blue on the lit bench is 2.60:1, so
+  // there it is the edge that does the work (7.58:1); after dark the
+  // edge sinks toward the ground and the brighter face does. Either answering 3:1 is a
+  // boundary; neither is a control nobody can find the edge of.
+  for (const face of ["accent-heat", "accent-work", "accent-time"]) {
+    for (const [name, theme] of [["light", LIGHT], ["dark", DARK]] as const) {
+      const fill = token(face, theme);
+      const ground = token("surface", theme);
+      const edge = mix(fill, token("ink", theme), 0.42);
+      const best = Math.max(contrast(fill, ground), contrast(edge, ground));
+      assert(best >= 3, `${name}: --${face} is ${best.toFixed(2)}:1 at best against the ground`);
+    }
   }
 });
 

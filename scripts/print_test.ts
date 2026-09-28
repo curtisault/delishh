@@ -97,7 +97,13 @@ Deno.test("every acid token is overridden to ink for print", () => {
   // number black without touching a single component rule. Miss one
   // and exactly one element prints in colour.
   const root = blockAfter(PRINT, ":root,");
-  for (const token of ["acid", "page-heat", "page-cold", "page-live", "page-act", "accent"]) {
+  // The page acids are read out of theme.css rather than listed here,
+  // so an acid added to the palette cannot reach paper in colour by
+  // being missed from this list as well as from print.css.
+  const theme = Deno.readTextFileSync("src/theme.css");
+  const pageAcids = [...new Set([...theme.matchAll(/--(page-[a-z]+):/g)].map((m) => m[1]))];
+  assert(pageAcids.length >= 5, "found no --page-* acids in theme.css");
+  for (const token of ["acid", ...pageAcids, "accent"]) {
     const value = root.match(new RegExp(`--${token}:\\s*([^;]+)`))?.[1].trim();
     assert(value, `--${token} is not overridden for print`);
     const hex = value.replace(/\s*!important$/, "");

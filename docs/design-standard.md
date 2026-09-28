@@ -168,8 +168,9 @@ does — in your kitchen, honestly, and then you reprint it.
 ## 04. Color — two layers, one honesty rule
 <!-- doc anchor=sec-color toc="Colour" intent="Where acid runs loud, and where it narrows" body=clauses -->
 
-The palette is four acids on a cold-neutral field, in light and dark
-themes. What changed in Revision 2 is *where* acid is allowed, split
+The palette is seven acids on a cold-neutral field, in light and dark
+themes — four since Revision 2, three more since 2026-09-27 (the
+palette amendment below). What changed in Revision 2 is *where* acid is allowed, split
 by the two layers from §01.
 
 | Token | Hex | Reads as |
@@ -178,6 +179,9 @@ by the two layers from §01.
 | `--acid-cyan` | `#00C8DC` | Cold — chill, freeze, set, raw, fresh |
 | `--acid-orange` | `#FF6A00` | Heat — fry, sear, sugar work, anything that burns |
 | `--acid-mag` | `#FF2E88` | Live & sweet — ferment, proof, culture; the dessert end of the shelf |
+| `--acid-blue` | `#4D8DFF` | Time — made ahead, rested, held overnight, planned |
+| `--acid-lilac` | `#B18CFF` | Gentle heat — steam, poach, water bath; below the boil |
+| `--acid-yellow` | `#FFE600` | Work — blend, whip, knead, emulsify; the hand, not the heat |
 
 ### The browse layer — decoration allowed
 
@@ -191,14 +195,18 @@ category plates all take full color. Rules that still hold:
 - **Contrast is measured, not assumed.** Acid fills take ink text;
   colored text uses the darkened text variants (`--volt-tx` `#3E5200`,
   `--cyan-tx` `#05555F`, `--orange-tx` `#8C3200`, `--mag-tx`
-  `#9C0B4A`), every pair verified at 4.5:1 in both themes.
+  `#9C0B4A`, and since 2026-09-27 `--blue-tx` `#2A4C8A`,
+  `--lilac-tx` `#55437A`, `--yellow-tx` `#574E00`), every pair
+  verified at 4.5:1 in both themes.
 
 ### The procedure layer — color means physical state
 
 Inside a recipe's ingredients, steps, watchpoints, and storage
 blocks, color narrows to function. An acid appearing in procedure
 marks a **physical state of the food**: orange = heat/hazard, cyan =
-cold chain, magenta = live culture, volt = the action to take now.
+cold chain, magenta = live culture, volt = the action to take now —
+and since 2026-09-27 blue = time, lilac = gentle heat, yellow =
+work.
 
 - **Acid never lands on a quantity.** Amounts, temperatures, and
   times are set in ink — the color lives in labels and structure,
@@ -310,6 +318,94 @@ cold chain, magenta = live culture, volt = the action to take now.
 > the page's primary verb and one is not. Outlined first, filled
 > last, which is also the tab order — you reach past the quieter one
 > to get to the loud one.
+
+> **Amendment 2026-09-27 — a fourth surface: the meal plan.** The
+> week at `/plan` is the list's sibling rather than the shelf's: read
+> on a Sunday evening deciding and on a Tuesday remembering, and
+> neither of those is browsing. **It runs page-quiet on the list's
+> terms** — `--page-*` marks, no `--shelf-*` fill, presses in the
+> neutral face — and volt lands on one thing, KEEP, when a day is
+> open and there is something typed to keep. A disabled KEEP wears
+> no acid at all: the actionable colour on a press that does nothing
+> would be the colour lying.
+>
+> **Lifted is a shape.** A meal picked up to move is seated, the
+> press dress's held-down state, against the raised slabs of every
+> day it could go to; it says ", lifted" to a screen reader, and each
+> other day names what a press there will do. Nothing slides to make
+> room — the register is zero here for the list's reason.
+>
+> **Two more controls ask twice, and they pass the list's test.**
+> Clearing the week is irreversible in exactly the way clearing the
+> list is. Replacing a day from a recipe page loses whatever was
+> there, and a meal you typed exists nowhere else to go back and get.
+> Both arm on the first press and say what the second will do. Every
+> other press on the plan does what it says, because every other
+> press is one press away from being undone.
+>
+> **ADD TO PLAN takes no acid** — *re-cut the same day: it is
+> electric blue, by the palette amendment that follows.* The first ruling
+> kept the action row to two acids and said the plan had no physical
+> process to name. The palette amendment gives it one. Planned is
+> seated, and the label says which days.
+
+> **Amendment 2026-09-27 — three more acids.** The palette was four
+> for two revisions, and every acid named a process the food goes
+> through. It still does. Three processes had no colour:
+>
+> - **Electric blue `#4D8DFF` is time** — made ahead, rested, held
+>   overnight, planned. The hours doing the work while the cook does
+>   something else. The meal plan is the week made ahead, so ADD TO
+>   PLAN wears it, the way COOK THIS wears the heat it leads to.
+> - **Lilac `#B18CFF` is gentle heat** — steam, poach, the water
+>   bath; heat held below the boil. Orange stays for heat that can
+>   burn, which is what orange was always warning about.
+> - **Yellow `#FFE600` is work** — blend, whip, knead, emulsify. The
+>   hand and the machine, not the flame.
+>
+> Each has a shelf fill with ink on it, a darkened cut for marks on
+> the page, and brighter cuts after dark, every pair checked at AA in
+> both themes by `contrast_test.ts`. Print sends all three to ink
+> with the rest, and `print_test.ts` now reads the page acids out of
+> the theme, so an eighth cannot reach paper in colour by being
+> forgotten twice.
+>
+> **Time was violet for an afternoon.** `#9D6BFF` carried ink only
+> at 71% lightness, where magenta sits at 59% and orange at 50%, so
+> between them it read pastel; and at 74° from magenta the list and
+> the plan read as one family. Electric blue carries ink at 65%, sits
+> 116° from magenta and 167° from orange, and makes the action row
+> warm, cool, warm. It also ends violet's closeness to lilac.
+>
+> **Blue is not cyan.** They sit 31° apart and read as different side
+> by side, but they are different processes: cyan is cold, blue is
+> time. A blue mark never means chilled.
+>
+> **Not yet mapped to methods.** No recipe changes colour today.
+> Steam, poach and sous-vide still read as heat, blend still reads
+> as the actionable, and no method is blue. Remapping a method
+> repaints recipes that are already printed, so it is its own
+> decision, made one method at a time.
+>
+> **ADD TO LIST takes acid yellow**, superseding 2026-09-24's
+> magenta. Beside a violet, then a blue, plan press, magenta made
+> the row read as pink-and-purple rather than three destinations.
+> Yellow, blue, orange separates all three: yellow and orange are
+> neighbours on the colour wheel but far apart in lightness, and
+> blue is the only cool face. The role is `--accent-work`;
+> `--accent-live` is retired. The
+> same cost the magenta amendment stated plainly applies here too —
+> yellow is work in the table above, and a shopping list is not
+> work in that sense. The colour is chosen for separation, and it is
+> a named role so it stays one countable exception. On the lit bench
+> the yellow face is nearly the ground's own value, so it is found by
+> its edge; `contrast_test.ts` holds that edge.
+>
+> **The action row may hold three faces.** "One acid dominates; a
+> second may cameo; never three" governs the page's *marks*. The row
+> of actions is three presses to three destinations — the shop, the
+> week, the heat — each wearing where it goes. That row is the one
+> place a recipe page holds three acids, and it holds no more.
 
 > **Amendment 2026-09-23 — the press has a body**, *re-cut
 > 2026-09-24 to the extruded slab.* Every control in the archive that
@@ -1114,12 +1210,15 @@ copy is written in a hurry and nobody reviews a tooltip.
   JavaScript, no server round-trip to produce a sheet.
 - **Fast on a phone in a kitchen.** The acid layer is CSS and SVG,
   never image payloads; at most one photograph per recipe, lazily
-  loaded.
+  loaded. An image the reader *makes* — the meal plan's picture,
+  drawn on request (amended 2026-09-27) — is not a payload the site
+  *ships*: it is output, never fetched.
 - **Self-hosted assets only.** No font CDNs, no third-party analytics
   on a document you may want to read in ten years.
-- **Nothing about a reader leaves their browser.** Two things are
-  stored, both local and both named in the colophon: the lighting
-  they chose, and the shopping list they built. Either may fail to
+- **Nothing about a reader leaves their browser.** Three things are
+  stored, all local and all named in the colophon: the lighting
+  they chose, the shopping list they built, and the week they
+  planned (the third added 2026-09-27). Any may fail to
   save — a full or blocked store degrades to the choice holding for
   the session, never to a surface that will not render. State that
   cannot be read back is discarded and the reader starts empty.

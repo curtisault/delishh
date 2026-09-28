@@ -1,4 +1,4 @@
-module Page.Recipe exposing (Config, view, viewFailed, viewLoading)
+module Page.Recipe exposing (Config, Planner, view, viewFailed, viewLoading)
 
 {-| A recipe, rendered — DS-01 §06.
 
@@ -28,6 +28,7 @@ import Html exposing (Html, a, div, h1, h2, li, ol, p, section, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id)
 import Flavor
 import Html.Events exposing (onClick)
+import Plan exposing (Plan)
 import Print
 import Recipe exposing (Recipe)
 import Route
@@ -49,6 +50,9 @@ type alias Config msg =
     -- control you press twice.
     , inList : Bool
     , onToggleList : msg
+
+    -- The week, and this recipe's place in it. See `Planner`.
+    , planner : Planner msg
     , origin : String
     , today : String
 
@@ -57,6 +61,24 @@ type alias Config msg =
     -- documents' contents rail uses — a recipe's blocks are marked
     -- the way a document's sections are.
     , active : Maybe String
+    }
+
+
+
+{-| ADD TO PLAN and its day picker.
+
+The press opens seven day presses and says where the recipe already
+is; the picker is where it is put, taken off, and moved. `armed` is
+the day a first press has asked to replace, held by the shell so any
+navigation drops it.
+
+-}
+type alias Planner msg =
+    { plan : Plan
+    , open : Bool
+    , armed : Maybe Plan.Day
+    , onOpen : msg
+    , onDay : Plan.Day -> msg
     }
 
 
@@ -294,13 +316,18 @@ plate config =
                  --
                  -- Within the actions, outlined before filled: the
                  -- primary is last, which is also the tab order.
-                 -- DOM order runs scale → form → list → go.
+                 -- DOM order runs scale → form → list → plan → go.
+                 -- The picker opens BELOW the band, full width, rather
+                 -- than inside the actions: seven presses in a
+                 -- wrapping flex row beside COOK THIS would push the
+                 -- primary verb somewhere different on every width.
                  div [ class "recipe-controls" ]
                     [ div [ class "recipe-settings" ]
                         [ scaler config, printer config ]
                     , div [ class "recipe-actions" ]
-                        [ lister config, cookLink config ]
+                        [ lister config, planButton config, cookLink config ]
                     ]
+                 , dayPicker config
                ]
         )
 
@@ -769,6 +796,140 @@ lister config =
              else
                 "Add to list"
             )
+        ]
+
+
+{-| Put this recipe on the week, or see where it already is.
+
+**An electric blue face** (DS-01 §04, amended 2026-09-27). Blue is time —
+made ahead, rested, planned — and the plan is the week made ahead,
+the way COOK THIS wears the heat it leads to. The action row is the
+one place a recipe page holds three acids: the shop, the week, the
+heat.
+
+It opens the picker rather than acting, because "add to plan" is not
+yet an instruction — it needs a day. **Planned is seated**, like ADD
+TO LIST when added, and the label says which days: the press reads
+its own state, so it is never a control you press to find out.
+
+-}
+planButton : Config msg -> Html msg
+planButton config =
+    let
+        planned =
+            Plan.plannedOn config.recipe.slug config.planner.plan
+    in
+    Html.button
+        [ Html.Attributes.type_ "button"
+        , class "press-block planner-btn u"
+        , classList [ ( "is-seated", not (List.isEmpty planned) ) ]
+        , attribute "aria-expanded"
+            (if config.planner.open then
+                "true"
+
+             else
+                "false"
+            )
+        , attribute "aria-controls" "plan-picker"
+        , onClick config.planner.onOpen
+        ]
+        [ text
+            (case planned of
+                [] ->
+                    "Add to plan"
+
+                days ->
+                    "Planned · " ++ String.join ", " (List.map shortDay days)
+            )
+        ]
+
+
+shortDay : Plan.Day -> String
+shortDay d =
+    String.left 3 (Plan.dayName d)
+
+
+{-| The seven days, each a press saying what it holds and what it will
+do. The rule is `Plan.placeRecipe`, where it is tested:
+
+  - a day with **this** recipe is seated and takes it off
+  - an **empty** day takes it
+  - a day with **another** meal says what is there, and asks once
+    before replacing it — the only press in the first planner that
+    loses something
+
+Absent when closed. Never printed.
+
+-}
+dayPicker : Config msg -> Html msg
+dayPicker config =
+    if not config.planner.open then
+        text ""
+
+    else
+        div
+            [ id "plan-picker"
+            , class "plan-picker"
+            , attribute "role" "group"
+            , attribute "aria-label" "Plan it on a day"
+            ]
+            [ ul [ class "plan-picker-set" ]
+                (List.map (dayPress config) Plan.days)
+            , a [ class "plan-picker-link u", href (Route.toPath Route.Plan) ]
+                [ text "The whole week" ]
+            ]
+
+
+dayPress : Config msg -> Plan.Day -> Html msg
+dayPress config d =
+    let
+        held =
+            Plan.get d config.planner.plan |> Maybe.map Plan.describe
+
+        mine =
+            case held of
+                Just { source } ->
+                    source == Plan.Archive config.recipe.slug
+
+                Nothing ->
+                    False
+
+        armed =
+            config.planner.armed == Just d
+
+        ( word, spoken ) =
+            case held of
+                Nothing ->
+                    ( "", ", plan it here" )
+
+                Just m ->
+                    if mine then
+                        ( "Planned", ", planned. Press to take it off" )
+
+                    else if armed then
+                        ( "Replace " ++ m.name ++ "?", ", press again to replace " ++ m.name )
+
+                    else
+                        ( m.name, ", holds " ++ m.name ++ ". Press to replace it" )
+    in
+    li []
+        [ Html.button
+            [ Html.Attributes.type_ "button"
+            , class "press-block plan-picker-day"
+            , classList [ ( "is-seated", mine ), ( "is-armed", armed ) ]
+            , attribute "aria-pressed"
+                (if mine then
+                    "true"
+
+                 else
+                    "false"
+                )
+            , onClick (config.planner.onDay d)
+            ]
+            [ span [ class "plan-picker-dayname u", attribute "aria-hidden" "true" ] [ text (shortDay d) ]
+            , span [ class "plan-picker-holds", attribute "aria-hidden" "true" ] [ text word ]
+            , span [ class "vh" ] [ text (Plan.dayName d ++ spoken) ]
+            ]
         ]
 
 

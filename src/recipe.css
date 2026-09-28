@@ -637,17 +637,21 @@
 /* Sizing and face — the dress is the extruded slab (`.press-block` in
    sheet.css, re-cut 2026-09-24).
 
-   A MAGENTA FACE (§04, amended 2026-09-23; the neutral face and volt
-   rail retired). COOK THIS beside it is a whole orange face, and two
-   filled slabs one gap apart have to be told apart before either is
-   read: colour does that at arm's length and a rail against a fill
-   does not. The rail is a milled edge of the same magenta, derived by
-   the dress — a volt rail on a magenta face would be two acids on one
-   control, which is the error `.cook-enter` avoids the same way.
+   AN ACID YELLOW FACE (§04, amended 2026-09-27; magenta retired the
+   same day). The row is three slabs one gap apart — yellow, blue,
+   orange — and each has to separate before it is read. Magenta did
+   that against orange, but beside a violet and then a blue plan
+   press the row read pink-and-purple. Yellow is the lightest face in
+   the row by far, which separates it from the orange beside COOK
+   THIS by lightness where the hues are near.
 
-   The face is `--accent-live`, a named role, NOT `--shelf-live`: a
+   The face is `--accent-work`, a named role, NOT `--shelf-work`: a
    --shelf-* token on a recipe surface is a bug and naming the
    exception is what stops it becoming a licence (theme.css).
+
+   On the lit bench the yellow face is 1.03:1 against the ground, so
+   what finds it there is the dress's edge (4.31:1); after dark the
+   face itself does. contrast_test.ts checks both.
 
    ON IS SEATED, not filled. The block is held down with its walls
    collapsed, so the state is DEPTH and costs nothing in ink on top of
@@ -658,7 +662,7 @@
    Its metrics are COOK THIS's, so the two read as one pair of actions
    rather than a button and a leftover. */
 .lister-btn {
-  --press-face: var(--accent-live);
+  --press-face: var(--accent-work);
   display: inline-flex;
   align-items: center;
   min-height: var(--tap);
@@ -669,4 +673,105 @@
 }
 .lister-btn.active {
   font-weight: 700;
+}
+
+/* ---------- the plan control ---------- */
+
+/* ADD TO PLAN. AN ELECTRIC BLUE FACE (§04, amended 2026-09-27):
+   blue is time doing the work — made ahead, rested, planned — and
+   the plan is the week made ahead. It re-cuts the same day's first
+   ruling, which gave this press the neutral face to keep the action
+   row to two acids, and then the violet that followed it: violet sat
+   at 71% lightness to carry ink and read pastel between two neon
+   faces, 74° from magenta. Blue carries ink at 65%, 116° away. The row now carries three faces, one per destination
+   (the shop, the week, the heat), and the amendment names that as
+   the one place a recipe page may hold three.
+
+   `--accent-time`, a named role, never `--shelf-time` directly.
+   COOK THIS's metrics, so the three read as one row of actions.
+   Planned is seated, like ADD TO LIST when added. */
+.planner-btn {
+  --press-face: var(--accent-time);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  margin-top: 0.8rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  padding: 0.4rem 0.9rem;
+}
+.recipe-actions .planner-btn {
+  flex: none;
+  margin-top: 0;
+}
+.planner-btn.is-seated {
+  font-weight: 700;
+}
+
+/* The day picker, under the whole band. Seven presses in one wrapping
+   row; each carries its day and, when full, what it holds — the words
+   that make "replace" a decision rather than a surprise. --page-*
+   marks only: a recipe surface. */
+.plan-picker {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1.5px solid var(--rule-soft);
+}
+.plan-picker-set {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.35rem;
+}
+.plan-picker-day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 5.5rem;
+  max-width: 12rem;
+  padding: 0.35rem 0.6rem;
+  font: inherit;
+  text-align: left;
+}
+.plan-picker-dayname {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+}
+.plan-picker-holds {
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+/* ARMED IS A WORD ("Replace Spaghetti?"), and the weight says the word
+   changed. Never a colour on its own (§12). */
+.plan-picker-day.is-armed .plan-picker-holds {
+  font-weight: 700;
+}
+.plan-picker-link {
+  display: inline-block;
+  position: relative;
+  margin-top: 0.7rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--tx);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--rule);
+}
+.plan-picker-link::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+.plan-picker-link:focus-visible {
+  outline: 2px solid var(--here);
+  outline-offset: 2px;
 }

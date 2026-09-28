@@ -161,6 +161,11 @@
   --shelf-live: #ff2e88; /* magenta · --shelf-tx on it 5.26:1 — the
                             tightest pair in the system, and the reason
                             no fill goes darker than this one */
+  /* Added 2026-09-27 (DS-01 §04's palette amendment): three more
+     processes, three more fills. Same law — ink on every one. */
+  --shelf-time: #4d8dff; /* electric blue · --shelf-tx on it 5.77:1 */
+  --shelf-soft: #b18cff; /* lilac · --shelf-tx on it 7.08:1 */
+  --shelf-work: #ffe600; /* acid yellow · --shelf-tx on it 14.54:1 */
   --shelf-tx: #12150e; /* the ink that sits on all four */
 
   /* ---- the page layer: acid as a MARK, never a fill ----
@@ -169,6 +174,9 @@
   --page-cold: #05555f; /* 6.90:1 */
   --page-heat: #8c3200; /* 6.63:1 */
   --page-live: #9c0b4a; /* 6.66:1 */
+  --page-time: #2a4c8a; /* 6.83:1 */
+  --page-soft: #55437a; /* 6.91:1 */
+  --page-work: #574e00; /* 6.84:1 */
 
   /* --accent is the actionable, as the existing chrome consumes it:
      a fill, with --ink on it. It is the shelf cut, because every
@@ -187,17 +195,21 @@
      there; contrast_test.ts resolves it the same way. */
   --accent-heat: var(--shelf-heat);
 
-  /* The page's SECOND action, by the same amendment's mechanism and
-     not by its argument (§04, amended 2026-09-23). COOK THIS names
-     where it goes; ADD TO LIST is magenta because the pair has to be
-     told apart at arm's length, and a face against a rail was doing
-     that job with the weaker of the two carriers.
+  /* The page's SECOND action: ADD TO LIST, in acid yellow (§04,
+     amended 2026-09-27, superseding 2026-09-24's magenta). The row
+     is list, plan, cook — yellow, blue, orange — and a named role
+     rather than `--shelf-work` for the reason all three are named: a
+     --shelf-* token on a recipe surface is a bug, and naming each
+     exception keeps the count readable. */
+  --accent-work: var(--shelf-work);
 
-     A named role, not `--shelf-live` used directly. The rule that a
-     --shelf-* token on a recipe surface is a bug is what keeps the
-     page layer honest, and naming each exception is what keeps the
-     count of them readable — there are two, and they are these. */
-  --accent-live: var(--shelf-live);
+  /* The page's THIRD action: ADD TO PLAN, in electric blue, the
+     colour of time doing the work (§04, amended 2026-09-27; re-cut
+     from violet the same day). Named for the same
+     reason the other two are — a --shelf-* token on a recipe surface
+     is a bug, and naming each exception keeps the count readable.
+     There are three now, and they are these. */
+  --accent-time: var(--shelf-time);
 
   /* ---- the extruded slab: a press with a shadow that moved first ----
      Adopted 2026-09-23 as the machined block; re-cut to DK-06
@@ -319,6 +331,9 @@
     --shelf-cold: #4de3f2; /* --shelf-tx on it 12.60:1 */
     --shelf-heat: #ff8a3d; /* --shelf-tx on it 8.31:1 */
     --shelf-live: #ff4d97; /* --shelf-tx on it 6.27:1 */
+    --shelf-time: #82afff; /* --shelf-tx on it 8.84:1 */
+    --shelf-soft: #c8afff; /* --shelf-tx on it 10.23:1 */
+    --shelf-work: #ffee4d; /* --shelf-tx on it 16.32:1 */
     --shelf-tx: #0a0d10;
 
     /* the page layer — no darkening needed down here: the acids
@@ -328,6 +343,9 @@
     --page-cold: #4de3f2; /* 12.60:1 */
     --page-heat: #ff8a3d; /*  8.31:1 */
     --page-live: #ff4d97; /*  6.27:1 */
+    --page-time: #82afff; /*  8.84:1 */
+    --page-soft: #c8afff; /* 10.23:1 */
+    --page-work: #ffee4d; /* 16.32:1 */
 
     --accent: var(--shelf-act);
 
@@ -362,6 +380,9 @@
   --shelf-cold: #4de3f2; /* --shelf-tx on it 12.60:1 */
   --shelf-heat: #ff8a3d; /* --shelf-tx on it 8.31:1 */
   --shelf-live: #ff4d97; /* --shelf-tx on it 6.27:1 */
+  --shelf-time: #82afff; /* --shelf-tx on it 8.84:1 */
+  --shelf-soft: #c8afff; /* --shelf-tx on it 10.23:1 */
+  --shelf-work: #ffee4d; /* --shelf-tx on it 16.32:1 */
   --shelf-tx: #0a0d10;
 
   /* the page layer — no darkening needed down here: the acids
@@ -371,6 +392,9 @@
   --page-cold: #4de3f2; /* 12.60:1 */
   --page-heat: #ff8a3d; /*  8.31:1 */
   --page-live: #ff4d97; /*  6.27:1 */
+  --page-time: #82afff; /*  8.84:1 */
+  --page-soft: #c8afff; /* 10.23:1 */
+  --page-work: #ffee4d; /* 16.32:1 */
 
   --accent: var(--shelf-act);
 
