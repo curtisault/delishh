@@ -278,6 +278,14 @@ Three things that trip people:
   because nothing here knows how much of the 200 g is the cheddar and
   a list that split it would be making the number up.
 
+- **The table also refuses a dietary flag it knows is wrong.** An
+  item may carry `breaks`, the flags it defeats on every shelf
+  (`"ground beef": { aisle: "meat", breaks: FLESH }`), and the build
+  fails a recipe that sets one of them. It never adds a flag, and it
+  says nothing about a carrier that varies by brand — that is what
+  the note on your ingredient line is for (`agents/refs/needs.md`,
+  N2).
+
 - `aisle` — exactly one of: `produce` · `meat` · `dairy` · `bakery` · `dry-goods` · `canned` · `spices` · `baking` · `condiments` · `frozen`
 
 The order of that list is the order the shopping list renders in, and

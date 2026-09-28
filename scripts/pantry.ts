@@ -39,13 +39,34 @@
  * deliberately not bought must never look the same to the build.
  */
 
-import { type Aisle, AISLES } from "./vocabulary.ts";
+import { type Aisle, AISLES, type Dietary } from "./vocabulary.ts";
 
 /** What the table says about one item. Either where to buy it, or
- * that it is not bought. */
+ * that it is not bought.
+ *
+ * `breaks` is the dietary flags this item **defeats on every shelf**:
+ * beef is never vegetarian, flour is never gluten-free. The build
+ * refuses a recipe that sets a flag one of its items breaks — the one
+ * direction of dietary error a machine can catch without guessing
+ * (agents/refs/needs.md, N0). Absent means *says nothing*, the same
+ * contract as an absent flag; it is never "safe for". The bar for
+ * listing a flag here is that it is true of every bottle, so a brand
+ * that varies — the gelatin in an ice cream, the wheat in a hoisin,
+ * the rennet in a Gruyère — stays off, and the ingredient line's own
+ * note (N2) remains the only way that flag is set. The table never
+ * adds a flag. */
 export type Purchase =
-  | { aisle: Aisle; buyAs?: string }
+  | { aisle: Aisle; buyAs?: string; breaks?: readonly Dietary[] }
   | { omit: true };
+
+/** The sets a `breaks` draws from, named so a row reads as a fact
+ * ("this is flesh") rather than a list someone typed. */
+export const FLESH: readonly Dietary[] = ["vegetarian", "vegan", "pescatarian"];
+export const DAIRY: readonly Dietary[] = ["vegan", "dairy-free"];
+export const EGG: readonly Dietary[] = ["vegan", "egg-free"];
+export const GLUTEN: readonly Dietary[] = ["gluten-free"];
+export const NUT: readonly Dietary[] = ["nut-free"];
+export const ANIMAL: readonly Dietary[] = ["vegan"];
 
 /** What the build attaches to an ingredient it could place. */
 export type Shop = { aisle: Aisle; buyAs: string };
@@ -89,93 +110,98 @@ export const PANTRY: Record<string, Purchase> = {
   "yellow onions": { aisle: "produce" },
 
   // --- meat ----------------------------------------------------------------
-  "beef chuck": { aisle: "meat" },
-  "skin-on pork belly": { aisle: "meat" },
-  "ground beef": { aisle: "meat" },
-  "boneless chicken thighs": { aisle: "meat" },
-  "chicken thighs": { aisle: "meat" },
+  "beef chuck": { aisle: "meat", breaks: FLESH },
+  "skin-on pork belly": { aisle: "meat", breaks: FLESH },
+  "ground beef": { aisle: "meat", breaks: FLESH },
+  "boneless chicken thighs": { aisle: "meat", breaks: FLESH },
+  "chicken thighs": { aisle: "meat", breaks: FLESH },
   // One bird answers all four. What differs between them is how it is
   // torn up after it is cooked, which is not a thing you buy.
-  "cooked chicken": { aisle: "meat" },
-  "shredded chicken": { aisle: "meat", buyAs: "cooked chicken" },
-  "shredded chicken thigh": { aisle: "meat", buyAs: "cooked chicken" },
-  "shredded rotisserie chicken": { aisle: "meat", buyAs: "cooked chicken" },
-  "breakfast sausage": { aisle: "meat", buyAs: "bulk breakfast sausage" },
-  "bulk breakfast sausage": { aisle: "meat" },
-  "bulk Italian sausage": { aisle: "meat" },
-  "sausage or bacon drippings": { aisle: "meat" },
+  "cooked chicken": { aisle: "meat", breaks: FLESH },
+  "shredded chicken": { aisle: "meat", buyAs: "cooked chicken", breaks: FLESH },
+  "shredded chicken thigh": { aisle: "meat", buyAs: "cooked chicken", breaks: FLESH },
+  "shredded rotisserie chicken": { aisle: "meat", buyAs: "cooked chicken", breaks: FLESH },
+  "breakfast sausage": { aisle: "meat", buyAs: "bulk breakfast sausage", breaks: FLESH },
+  "bulk breakfast sausage": { aisle: "meat", breaks: FLESH },
+  "bulk Italian sausage": { aisle: "meat", breaks: FLESH },
+  "sausage or bacon drippings": { aisle: "meat", breaks: FLESH },
 
   // --- dairy & eggs --------------------------------------------------------
-  "butter": { aisle: "dairy", buyAs: "unsalted butter" },
-  "melted butter": { aisle: "dairy", buyAs: "unsalted butter" },
-  "unsalted butter": { aisle: "dairy" },
-  "buttermilk": { aisle: "dairy" },
-  "heavy cream": { aisle: "dairy" },
-  "milk": { aisle: "dairy", buyAs: "whole milk" },
-  "whole milk": { aisle: "dairy" },
-  "whole milk or cream": { aisle: "dairy", buyAs: "whole milk" },
-  "cream cheese": { aisle: "dairy" },
-  "sour cream": { aisle: "dairy", buyAs: "full-fat sour cream" },
+  "butter": { aisle: "dairy", buyAs: "unsalted butter", breaks: DAIRY },
+  "melted butter": { aisle: "dairy", buyAs: "unsalted butter", breaks: DAIRY },
+  "unsalted butter": { aisle: "dairy", breaks: DAIRY },
+  "buttermilk": { aisle: "dairy", breaks: DAIRY },
+  "heavy cream": { aisle: "dairy", breaks: DAIRY },
+  "milk": { aisle: "dairy", buyAs: "whole milk", breaks: DAIRY },
+  "whole milk": { aisle: "dairy", breaks: DAIRY },
+  "whole milk or cream": { aisle: "dairy", buyAs: "whole milk", breaks: DAIRY },
+  "cream cheese": { aisle: "dairy", breaks: DAIRY },
+  "sour cream": { aisle: "dairy", buyAs: "full-fat sour cream", breaks: DAIRY },
   "full-fat sour cream — no substitutes": {
     aisle: "dairy",
     buyAs: "full-fat sour cream",
+    breaks: DAIRY,
   },
   "sour cream or full-fat Greek yogurt": {
     aisle: "dairy",
     buyAs: "full-fat sour cream",
+    breaks: DAIRY,
   },
-  "crema and lime wedges": { aisle: "dairy" },
-  "eggs": { aisle: "dairy", buyAs: "large eggs" },
-  "large egg": { aisle: "dairy", buyAs: "large eggs" },
-  "large eggs": { aisle: "dairy" },
+  "crema and lime wedges": { aisle: "dairy", breaks: DAIRY },
+  "eggs": { aisle: "dairy", buyAs: "large eggs", breaks: EGG },
+  "large egg": { aisle: "dairy", buyAs: "large eggs", breaks: EGG },
+  "large eggs": { aisle: "dairy", breaks: EGG },
   // A yolk is bought as a whole egg; counting it with them is what
   // stops the list asking for six eggs and one mystery.
-  "egg yolk": { aisle: "dairy", buyAs: "large eggs" },
-  "Gruyère": { aisle: "dairy" },
-  "Gruyère or Swiss": { aisle: "dairy", buyAs: "Gruyère" },
-  "Monterey Jack": { aisle: "dairy" },
-  "sharp cheddar": { aisle: "dairy" },
-  "Monterey Jack and sharp cheddar": { aisle: "dairy" },
+  "egg yolk": { aisle: "dairy", buyAs: "large eggs", breaks: EGG },
+  "Gruyère": { aisle: "dairy", breaks: DAIRY },
+  "Gruyère or Swiss": { aisle: "dairy", buyAs: "Gruyère", breaks: DAIRY },
+  "Monterey Jack": { aisle: "dairy", breaks: DAIRY },
+  "sharp cheddar": { aisle: "dairy", breaks: DAIRY },
+  "Monterey Jack and sharp cheddar": { aisle: "dairy", breaks: DAIRY },
   "cheddar and Monterey Jack": {
     aisle: "dairy",
     buyAs: "Monterey Jack and sharp cheddar",
+    breaks: DAIRY,
   },
-  "grated parmesan": { aisle: "dairy", buyAs: "parmesan" },
-  "parmesan or pecorino": { aisle: "dairy", buyAs: "parmesan" },
+  "grated parmesan": { aisle: "dairy", buyAs: "parmesan", breaks: DAIRY },
+  "parmesan or pecorino": { aisle: "dairy", buyAs: "parmesan", breaks: DAIRY },
   "low-moisture mozzarella": {
     aisle: "dairy",
     buyAs: "whole-milk low-moisture mozzarella",
+    breaks: DAIRY,
   },
-  "whole-milk low-moisture mozzarella": { aisle: "dairy" },
+  "whole-milk low-moisture mozzarella": { aisle: "dairy", breaks: DAIRY },
   "whole-milk ricotta — whole-milk only; see Watchpoints": {
     aisle: "dairy",
     buyAs: "whole-milk ricotta",
+    breaks: DAIRY,
   },
-  "queso fresco or cotija": { aisle: "dairy", buyAs: "queso fresco" },
-  "white American cheese": { aisle: "dairy" },
+  "queso fresco or cotija": { aisle: "dairy", buyAs: "queso fresco", breaks: DAIRY },
+  "white American cheese": { aisle: "dairy", breaks: DAIRY },
 
   // --- bakery --------------------------------------------------------------
-  "sourdough": { aisle: "bakery" },
-  "day-old sourdough": { aisle: "bakery", buyAs: "sourdough" },
+  "sourdough": { aisle: "bakery", breaks: GLUTEN },
+  "day-old sourdough": { aisle: "bakery", buyAs: "sourdough", breaks: GLUTEN },
   "corn tortillas": { aisle: "bakery" },
   "corn tortillas — corn": { aisle: "bakery", buyAs: "corn tortillas" },
-  "fresh flour tortillas": { aisle: "bakery", buyAs: "flour tortillas" },
-  "small flour tortillas": { aisle: "bakery", buyAs: "flour tortillas" },
+  "fresh flour tortillas": { aisle: "bakery", buyAs: "flour tortillas", breaks: GLUTEN },
+  "small flour tortillas": { aisle: "bakery", buyAs: "flour tortillas", breaks: GLUTEN },
 
   // --- dry goods -----------------------------------------------------------
-  "lasagna noodles": { aisle: "dry-goods" },
+  "lasagna noodles": { aisle: "dry-goods", breaks: GLUTEN },
   "long-grain white rice — white only; see Watchpoints": {
     aisle: "dry-goods",
     buyAs: "long-grain white rice",
   },
   "wild rice blend": { aisle: "dry-goods" },
-  "panko": { aisle: "dry-goods" },
+  "panko": { aisle: "dry-goods", breaks: GLUTEN },
   "toasted pepitas — seeds": { aisle: "dry-goods", buyAs: "pepitas" },
 
   // --- canned & jarred -----------------------------------------------------
-  "beef broth": { aisle: "canned" },
-  "chicken broth": { aisle: "canned" },
-  "evaporated milk": { aisle: "canned" },
+  "beef broth": { aisle: "canned", breaks: FLESH },
+  "chicken broth": { aisle: "canned", breaks: FLESH },
+  "evaporated milk": { aisle: "canned", breaks: DAIRY },
   "tomato paste": { aisle: "canned" },
   "black beans": { aisle: "canned", buyAs: "canned black beans" },
   "can black beans": { aisle: "canned", buyAs: "canned black beans" },
@@ -225,8 +251,8 @@ export const PANTRY: Record<string, Purchase> = {
   "sesame seeds": { aisle: "spices" },
 
   // --- baking --------------------------------------------------------------
-  "flour": { aisle: "baking", buyAs: "all-purpose flour" },
-  "all-purpose flour": { aisle: "baking" },
+  "flour": { aisle: "baking", buyAs: "all-purpose flour", breaks: GLUTEN },
+  "all-purpose flour": { aisle: "baking", breaks: GLUTEN },
   "cornmeal": { aisle: "baking" },
   "fine yellow cornmeal — for the snap": {
     aisle: "baking",
@@ -245,7 +271,7 @@ export const PANTRY: Record<string, Purchase> = {
   "cocoa powder": { aisle: "baking" },
   "chocolate chips": { aisle: "baking" },
   "Mexican chocolate": { aisle: "baking" },
-  "malted milk powder": { aisle: "baking" },
+  "malted milk powder": { aisle: "baking", breaks: [...DAIRY, ...GLUTEN] },
   "vanilla": { aisle: "baking", buyAs: "vanilla extract" },
   "vanilla extract": { aisle: "baking" },
   "freeze-dried blueberries": { aisle: "baking" },
@@ -253,20 +279,20 @@ export const PANTRY: Record<string, Purchase> = {
   // --- oils & condiments ---------------------------------------------------
   "neutral oil": { aisle: "condiments" },
   "corn oil or neutral oil": { aisle: "condiments", buyAs: "neutral oil" },
-  "lard or neutral oil": { aisle: "condiments", buyAs: "neutral oil" },
-  "corn oil plus butter": { aisle: "condiments" },
+  "lard or neutral oil": { aisle: "condiments", buyAs: "neutral oil", breaks: FLESH },
+  "corn oil plus butter": { aisle: "condiments", breaks: DAIRY },
   "olive oil": { aisle: "condiments" },
   "avocado oil": { aisle: "condiments" },
   "sesame oil": { aisle: "condiments", buyAs: "toasted sesame oil" },
-  "soy sauce": { aisle: "condiments" },
+  "soy sauce": { aisle: "condiments", breaks: GLUTEN },
   "hoisin sauce": { aisle: "condiments" },
   // The author offered a choice; the shopper makes it once.
   "doenjang or white miso": { aisle: "condiments", buyAs: "doenjang" },
   "mirin": { aisle: "condiments" },
   "rice vinegar": { aisle: "condiments" },
-  "honey": { aisle: "condiments" },
-  "Kewpie mayonnaise": { aisle: "condiments" },
-  "mayonnaise": { aisle: "condiments" },
+  "honey": { aisle: "condiments", breaks: ANIMAL },
+  "Kewpie mayonnaise": { aisle: "condiments", breaks: EGG },
+  "mayonnaise": { aisle: "condiments", breaks: EGG },
   "Dijon": { aisle: "condiments", buyAs: "Dijon mustard" },
   "cider vinegar": { aisle: "condiments" },
   "sherry vinegar": { aisle: "condiments" },
@@ -277,14 +303,15 @@ export const PANTRY: Record<string, Purchase> = {
   "peanut butter or almond butter": {
     aisle: "condiments",
     buyAs: "peanut butter",
+    breaks: NUT,
   },
   "mole paste": { aisle: "condiments" },
 
   // --- frozen --------------------------------------------------------------
   "frozen peas": { aisle: "frozen" },
   "frozen wild blueberries": { aisle: "frozen" },
-  "vanilla ice cream": { aisle: "frozen" },
-  "puff pastry": { aisle: "frozen" },
+  "vanilla ice cream": { aisle: "frozen", breaks: DAIRY },
+  "puff pastry": { aisle: "frozen", breaks: GLUTEN },
 
   // --- not a purchase ------------------------------------------------------
   // It comes out of a tap.
@@ -304,6 +331,29 @@ export function shopFor(item: string): Shop | null | undefined {
   if (entry === undefined) return undefined;
   if ("omit" in entry) return null;
   return { aisle: entry.aisle, buyAs: entry.buyAs ?? item };
+}
+
+/**
+ * The dietary flags a recipe sets that one of its items breaks — the
+ * build's refusal, as a pure function so it can be tested on a
+ * fixture. Empty means nothing in the table contradicts the flags,
+ * which is **not** the same as the flags being right: the table only
+ * ever says no.
+ */
+export function violations(
+  dietary: readonly string[],
+  items: readonly string[],
+): { flag: string; item: string }[] {
+  const out: { flag: string; item: string }[] = [];
+  for (const flag of dietary) {
+    for (const item of items) {
+      const entry = PANTRY[item];
+      if (entry && !("omit" in entry) && entry.breaks?.includes(flag as Dietary)) {
+        out.push({ flag, item });
+      }
+    }
+  }
+  return out;
 }
 
 /** The aisles, in walk order, as an index — so a renderer can sort by

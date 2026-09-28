@@ -159,6 +159,12 @@ carriers, which is where the verification actually happens:
   build) — held back until the first recipe review had ruled on the
   three files that failed it, and switched on the same day.
 
+`scripts/pantry.ts` (from 2026-09-28) carries a `breaks` list on
+the items that defeat a dietary flag on every shelf, and the build
+refuses a recipe that sets a flag one of its items breaks. It never
+adds a flag; brand-dependent carriers stay silent there and are the
+ingredient line's job (N2).
+
 Everything else — the level, the window count, the verification —
 is a person, at the tested cook, citing the requirement by number.
 

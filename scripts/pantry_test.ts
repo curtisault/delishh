@@ -14,8 +14,8 @@
  */
 
 import { assert, assertEquals } from "@std/assert";
-import { AISLE_LABELS, AISLES } from "./vocabulary.ts";
-import { PANTRY, shopFor } from "./pantry.ts";
+import { AISLE_LABELS, AISLES, DIETARY } from "./vocabulary.ts";
+import { PANTRY, shopFor, violations } from "./pantry.ts";
 
 const entries = Object.entries(PANTRY);
 
@@ -136,6 +136,92 @@ Deno.test("a compound is never resolved to one of its halves", () => {
       / and /.test(purchase.buyAs),
       `\`${item}\` is bought as "${purchase.buyAs}", which drops half of ` +
         `it. A compound keeps both names.`,
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// `breaks` — the flags an item defeats, and the build's refusal
+// ---------------------------------------------------------------------------
+
+Deno.test("every flag an item breaks is one the vocabulary has", () => {
+  // A `breaks` naming a flag nobody can set is a refusal that can
+  // never fire, which is a comment pretending to be a check.
+  for (const [item, purchase] of entries) {
+    if ("omit" in purchase || !purchase.breaks) continue;
+    for (const flag of purchase.breaks) {
+      assert(
+        (DIETARY as readonly string[]).includes(flag),
+        `\`${item}\` breaks "${flag}", which is not a dietary flag`,
+      );
+    }
+    assert(purchase.breaks.length > 0, `\`${item}\` has an empty breaks list`);
+  }
+});
+
+Deno.test("an item bought as another breaks at least what that one breaks", () => {
+  // "flour" is bought as "all-purpose flour"; if the second breaks
+  // gluten-free, the first cannot say nothing, or a recipe could dodge
+  // the refusal by writing the shorter name.
+  for (const [item, purchase] of entries) {
+    if ("omit" in purchase || !purchase.buyAs) continue;
+    const bought = PANTRY[purchase.buyAs];
+    if (!bought || "omit" in bought || !bought.breaks) continue;
+    for (const flag of bought.breaks) {
+      assert(
+        purchase.breaks?.includes(flag),
+        `\`${item}\` is bought as \`${purchase.buyAs}\`, which breaks ` +
+          `"${flag}", but the row says nothing about it`,
+      );
+    }
+  }
+});
+
+Deno.test("the refusal names the flag and the item, and nothing else", () => {
+  // The fixture is the Frosty's list with a flag it cannot carry: the
+  // malt is wheat. The other flag is fine and must not be named.
+  const items = ["vanilla ice cream", "milk", "chocolate syrup", "malted milk powder", "cocoa powder"];
+  assertEquals(
+    violations(["vegetarian", "gluten-free"], items),
+    [{ flag: "gluten-free", item: "malted milk powder" }],
+  );
+});
+
+Deno.test("the refusal never fires on a flag nothing in the table breaks", () => {
+  // The table only says no. An empty answer is "nothing contradicts
+  // this", never "this is verified" — and a recipe of tap water and
+  // an unmapped item gets the same empty answer as a clean one.
+  assertEquals(violations(["vegan", "nut-free"], ["warm water", "not in the table"]), []);
+  assertEquals(violations([], ["ground beef"]), []);
+});
+
+Deno.test("an `or` breaks what either branch breaks", () => {
+  // N0 verifies both branches of an `or`. "lard or neutral oil" is
+  // bought as neutral oil and still breaks vegetarian, because the
+  // author offered lard.
+  assertEquals(
+    violations(["vegetarian"], ["lard or neutral oil"]),
+    [{ flag: "vegetarian", item: "lard or neutral oil" }],
+  );
+});
+
+Deno.test("the table marks only what is true of every bottle", () => {
+  // The three named in the type's comment as brand-dependent must
+  // stay silent on the flag that varies. If one of these starts
+  // breaking, the bar has moved and the comment is lying.
+  const silent: [string, string][] = [
+    ["vanilla ice cream", "vegetarian"], // gelatin, sometimes
+    ["hoisin sauce", "gluten-free"], // wheat, often
+    ["Gruyère", "vegetarian"], // animal rennet, often
+    ["neutral oil", "nut-free"], // peanut, sometimes
+    ["mole paste", "nut-free"], // nearly every jar, not every jar
+  ];
+  for (const [item, flag] of silent) {
+    const entry = PANTRY[item];
+    assert(entry && !("omit" in entry), `fixture drift: \`${item}\` is not in the table`);
+    assert(
+      !entry.breaks?.includes(flag as never),
+      `\`${item}\` breaks "${flag}", but that varies by brand — the line's note decides it`,
     );
   }
 });

@@ -363,6 +363,23 @@ flags are the only suitability claims the archive makes.
   check was held back until the first recipe review had ruled on
   the three files that failed it, and switched on the same day
   (2026-09-28).
+- **The pantry table refuses a flag it knows is wrong** (added
+  2026-09-28). `scripts/pantry.ts` carries a `breaks` list on the
+  items that defeat a flag on every shelf — beef is never
+  `vegetarian`, flour and soy sauce are never `gluten-free`, milk is
+  never `dairy-free`, an egg is never `egg-free`, honey is never
+  `vegan` — and `build-content.ts` fails a recipe that sets a flag
+  one of its items breaks, naming both. It is the one direction of
+  dietary error a machine can catch without guessing: it never adds
+  a flag, and an empty answer means *nothing contradicts this*, not
+  *verified*. The bar for a `breaks` is that it is true of every
+  bottle, so the carriers that vary by brand — gelatin in an ice
+  cream, wheat in a hoisin, rennet in a hard cheese, peanut in a
+  "neutral" oil, nuts in a mole paste — stay silent there, and N2's
+  note on the ingredient line remains the only way that flag is set.
+  `pantry_test.ts` holds the sets to the vocabulary, holds an item
+  bought as another to at least what that one breaks, and holds the
+  five brand-dependent carriers above to silence.
 - Everything else is a person reading every ingredient line
   against the carrier lists, at `tested:`, and again whenever
   Ingredients changes.

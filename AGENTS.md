@@ -115,7 +115,9 @@ whose only job is to be read.
   *does not keep*. It is authored beside the Keeps block, never read
   out of it, and the build rejects a life with no block to act on.
 - `scripts/build-content.ts` — walks the corpus, runs the checks that
-  need every file at once (photos exist on disk),
+  need every file at once (photos exist on disk), refuses a dietary
+  flag that an item's `breaks` in `scripts/pantry.ts` defeats — the
+  table only ever says no; it never adds a flag — and
   writes the JSON. **Collects every problem before exiting**; writes
   nothing on failure. A validator that stops at the first fault
   trains you to distrust its "all clear".

@@ -271,6 +271,14 @@ these.
 | No `nut-free` anywhere, yet | Every recipe that has no nut in it also has a bare processed carrier — `neutral oil` (the donuts offer peanut), chili powder, chocolate chips, broth, sausage — and N2 will not take the flag until the line says. The candidates a single line-edit away are named in the review's report, and the flag is the user's to set, since it is the one that can hurt | Setting it where nothing was noticed (the failure N0 exists to prevent) |
 | The pot pie's total | Authored at 1 h 25, which omits the covered heat-through before the pastry (its own gauge says 65 min from frozen). Left as the author's number and flagged: the tested cook may have baked it fresh, and the doctrine does not invent a time it did not measure | Changing it to a number nobody cooked |
 
+## Ruled 2026-09-28, at the pantry's refusal
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Whether the build reads ingredients against the flags | **Yes, in one direction only: it refuses.** `scripts/pantry.ts` gains `breaks`, the dietary flags an item defeats on every shelf, in six named sets (`FLESH`, `DAIRY`, `EGG`, `GLUTEN`, `NUT`, `ANIMAL`); `build-content.ts` fails a recipe that sets a flag one of its items breaks, naming both. It never sets a flag — that is the inference §12 bans, and the direction of error that is safe anyway — and an empty answer means *nothing contradicts this*, never *verified* | A `dietary` column that derives flags (inference); a separate food taxonomy (the pantry table already names every ingredient string in the corpus, and a second list drifts from it); tagging ingredients with flavours or effort (a chile is not `spicy 2`, the plate is — the review's mild casseroles would have been mis-tagged the same day) |
+| The bar for a `breaks` | **True of every bottle.** Beef, flour, milk, egg, honey, soy sauce. A carrier that varies by brand — gelatin in ice cream, wheat in hoisin, rennet in Gruyère, peanut in a neutral oil, nuts in a mole paste — stays silent, and `pantry_test.ts` holds those five to silence, because a refusal that fires on a bottle the cook checked would teach authors to route around it. The ingredient line's note (N2) stays the only way a brand-dependent flag is set | Marking carriers as "maybe" and reading the line's note for a constraint (the build reading prose to decide a claim about the reader's safety) |
+| Where the check lives | **A pure `violations` function in `pantry.ts`**, tested on a fixture, called from the build's existing pantry join. One `or` row breaks what either branch breaks, since N0 verifies both | The check inline in the build (untestable without a corpus) |
+
 ## Open — deferred, not decided
 
 Carried out of the plans' *Open items*. Each is a decision **not to
