@@ -128,8 +128,13 @@ type alias Entry =
 type alias Config msg =
     { plan : Plan
     , archive : Archive
-    , lifted : Maybe Day
+
+    -- the entry in the hand, as its day and its place on that day
+    , lifted : Maybe ( Day, Int )
     , entry : Maybe Entry
+
+    -- the entry whose label choices are open, if any
+    , labelOpen : Maybe ( Day, Int )
 
     -- Whether CLEAR THE WEEK has been armed by a first press. Held by
     -- the shell, so leaving the page disarms it.
@@ -139,9 +144,11 @@ type alias Config msg =
     , onCancel : msg
     , onKeep : msg
     , onPick : String -> String -> msg
-    , onLift : Day -> msg
-    , onPlace : Day -> msg
-    , onRemove : Day -> msg
+    , onLift : Day -> Int -> msg
+    , onPlace : Plan.Target -> msg
+    , onRemove : Day -> Int -> msg
+    , onLabelOpen : Day -> Int -> msg
+    , onLabel : Day -> Int -> Maybe Plan.Slot -> msg
     , onClear : msg
 
     -- the picture: its state, what the last share or copy did, and
@@ -187,35 +194,54 @@ view config =
         ]
 
 
+{-| Days, and — once any day holds more than one — meals as well. A
+week of one meal a day reads exactly as the first planner's did.
+-}
 standfirst : Config msg -> String
 standfirst config =
     case liftedMeal config of
-        Just ( from, name ) ->
+        Just ( _, name ) ->
             "Holding "
                 ++ name
-                ++ ". Press a day to set it down, or "
-                ++ Plan.dayName from
-                ++ " to put it back."
+                ++ ". Press a meal to swap with it, or Set here to put it at the end of a day. Press "
+                ++ name
+                ++ " again to put it back."
 
         Nothing ->
-            case Plan.count config.plan of
+            let
+                meals =
+                    Plan.days |> List.map (\d -> List.length (Plan.entries d config.plan)) |> List.sum
+
+                days =
+                    Plan.count config.plan
+
+                mealWords =
+                    if meals > days then
+                        ", " ++ String.fromInt meals ++ " meals"
+
+                    else
+                        ""
+            in
+            case days of
                 0 ->
                     "Nothing planned yet. Press a day to put a meal on it."
 
                 7 ->
-                    "Every day is planned."
+                    "Every day is planned" ++ mealWords ++ "."
 
                 n ->
-                    String.fromInt n ++ " of 7 days planned."
+                    String.fromInt n ++ " of 7 days planned" ++ mealWords ++ "."
 
 
-liftedMeal : Config msg -> Maybe ( Day, String )
+liftedMeal : Config msg -> Maybe ( ( Day, Int ), String )
 liftedMeal config =
     config.lifted
         |> Maybe.andThen
-            (\from ->
-                Plan.get from config.plan
-                    |> Maybe.map (\m -> ( from, (Plan.describe m).name ))
+            (\( from, index ) ->
+                Plan.entries from config.plan
+                    |> List.drop index
+                    |> List.head
+                    |> Maybe.map (\e -> ( ( from, index ), (Plan.describe e.meal).name ))
             )
 
 
@@ -226,30 +252,56 @@ liftedMeal config =
 day : Config msg -> Day -> Html msg
 day config d =
     let
-        meal =
-            Plan.get d config.plan |> Maybe.map Plan.describe
+        list =
+            Plan.entries d config.plan
+
+        opened =
+            config.entry |> Maybe.andThen (\e -> if e.day == d then Just e else Nothing)
     in
     li
         [ id ("day-" ++ Plan.dayKey d)
         , class "plan-day"
         , classList
-            [ ( "is-held", meal /= Nothing )
-            , ( "is-lifted", config.lifted == Just d )
+            [ ( "is-held", not (List.isEmpty list) )
+            , ( "is-lifted", Maybe.map Tuple.first config.lifted == Just d )
             ]
         ]
-        [ case ( liftedMeal config, config.entry ) of
-            ( Just ( from, name ), _ ) ->
-                place config from name d meal
+        [ case liftedMeal config of
+            Just ( held, name ) ->
+                placing config held name d list
 
-            ( Nothing, Just entry ) ->
-                if entry.day == d then
-                    entryRow config entry
+            Nothing ->
+                case ( list, opened ) of
+                    ( [], Nothing ) ->
+                        button
+                            [ type_ "button"
+                            , class "press-block plan-row plan-open"
+                            , onClick (config.onOpen d)
+                            ]
+                            [ dayName d
+                            , span [ class "vh" ] [ text ", add a meal" ]
+                            ]
 
-                else
-                    resting config d meal
+                    ( [], Just entry ) ->
+                        div [ class "plan-row plan-entry-row" ]
+                            [ dayName d
+                            , div [ class "plan-body" ] [ entryForm config entry ]
+                            ]
 
-            ( Nothing, Nothing ) ->
-                resting config d meal
+                    ( _, _ ) ->
+                        div [ class "plan-row plan-held-row" ]
+                            [ dayName d
+                            , div [ class "plan-body" ]
+                                (List.indexedMap (resting config d (showLabels list)) list
+                                    ++ [ case opened of
+                                            Just entry ->
+                                                entryForm config entry
+
+                                            Nothing ->
+                                                addOrFull config d list
+                                       ]
+                                )
+                            ]
         ]
 
 
@@ -258,112 +310,245 @@ dayName d =
     span [ class "plan-dayname u" ] [ text (Plan.dayName d) ]
 
 
-{-| A day with nothing in anybody's hand.
+{-| Label marks appear once a day holds two meals, or on a meal that
+already carries one. A day of one is never made to show a label it
+does not have — the first planner's "never says dinner", kept.
 -}
-resting : Config msg -> Day -> Maybe { name : String, source : Plan.Source } -> Html msg
-resting config d meal =
-    case meal of
-        Nothing ->
-            button
+showLabels : List Plan.Entry -> Bool
+showLabels list =
+    List.length list >= 2 || List.any (\e -> e.label /= Nothing) list
+
+
+{-| ADD, or the sentence that stands where ADD was. The limit is said
+in words where the press would be, never a control that silently
+went away (the expansion's cap ruling).
+-}
+addOrFull : Config msg -> Day -> List Plan.Entry -> Html msg
+addOrFull config d list =
+    if List.length list >= Plan.cap then
+        p [ class "plan-full" ] [ text "Five is a full day." ]
+
+    else
+        div [ class "plan-add-line" ]
+            [ button
                 [ type_ "button"
-                , class "press-block plan-row plan-open"
+                , class "plan-add u"
                 , onClick (config.onOpen d)
                 ]
-                [ dayName d
-                , span [ class "vh" ] [ text ", add a meal" ]
+                [ text "Add"
+                , span [ class "vh" ] [ text (" a meal to " ++ Plan.dayName d) ]
                 ]
-
-        Just m ->
-            div [ class "plan-row" ]
-                [ dayName d
-                , div [ class "plan-held" ]
-                    [ button
-                        [ type_ "button"
-                        , class "press-block plan-meal"
-                        , onClick (config.onLift d)
-                        ]
-                        [ span [ class "plan-meal-name" ] [ text m.name ]
-                        , span [ class "vh" ] [ text ", move" ]
-                        ]
-                    , case m.source of
-                        Plan.Archive slug ->
-                            a
-                                [ class "plan-recipe-link u"
-                                , href (Route.toPath (Route.Recipe slug))
-                                ]
-                                [ text "Recipe"
-                                , span [ class "vh" ] [ text (" for " ++ m.name) ]
-                                ]
-
-                        Plan.Typed ->
-                            text ""
-                    , button
-                        [ type_ "button"
-                        , class "plan-drop u"
-                        , onClick (config.onRemove d)
-                        ]
-                        [ text "Remove"
-                        , span [ class "vh" ] [ text (" " ++ m.name ++ " from " ++ Plan.dayName d) ]
-                        ]
-                    ]
-                ]
+            ]
 
 
-{-| Every day while a meal is lifted: one press, saying what it does.
+{-| One meal on a day with nothing in anybody's hand.
 -}
-place : Config msg -> Day -> String -> Day -> Maybe { name : String, source : Plan.Source } -> Html msg
-place config from lifted d meal =
+resting : Config msg -> Day -> Bool -> Int -> Plan.Entry -> Html msg
+resting config d labels index entry =
     let
-        home =
-            from == d
+        m =
+            Plan.describe entry.meal
 
-        ( hint, spoken ) =
-            if home then
-                ( "Put back", ", lifted. Press to put it back" )
-
-            else
-                case meal of
-                    Just m ->
-                        ( "Swap", ", swap " ++ lifted ++ " with " ++ m.name )
-
-                    Nothing ->
-                        ( "Set here", ", set " ++ lifted ++ " here" )
+        open =
+            config.labelOpen == Just ( d, index )
     in
-    button
-        [ type_ "button"
-        , class "press-block plan-row plan-place"
-        , classList [ ( "is-seated", home ) ]
-        , attribute "aria-pressed"
-            (if home then
-                "true"
+    div [ class "plan-item" ]
+        [ div [ class "plan-item-line" ]
+            [ button
+                [ type_ "button"
+                , class "press-block plan-meal"
+                , onClick (config.onLift d index)
+                ]
+                [ span [ class "plan-meal-name" ] [ text m.name ]
+                , span [ class "vh" ] [ text ", move" ]
+                ]
+            , case m.source of
+                Plan.Archive slug ->
+                    a
+                        [ class "plan-recipe-link u"
+                        , href (Route.toPath (Route.Recipe slug))
+                        ]
+                        [ text "Recipe"
+                        , span [ class "vh" ] [ text (" for " ++ m.name) ]
+                        ]
 
-             else
-                "false"
+                Plan.Typed ->
+                    text ""
+            , if labels then
+                button
+                    [ type_ "button"
+                    , class "plan-label-mark mono u"
+                    , classList [ ( "is-unset", entry.label == Nothing ) ]
+                    , attribute "aria-expanded"
+                        (if open then
+                            "true"
+
+                         else
+                            "false"
+                        )
+                    , onClick (config.onLabelOpen d index)
+                    ]
+                    [ span [ class "vh" ] [ text ("Label for " ++ m.name ++ ": ") ]
+                    , text (Maybe.withDefault "No label" entry.label)
+                    ]
+
+              else
+                text ""
+            , button
+                [ type_ "button"
+                , class "plan-drop u"
+                , onClick (config.onRemove d index)
+                ]
+                [ text "Remove"
+                , span [ class "vh" ] [ text (" " ++ m.name ++ " from " ++ Plan.dayName d) ]
+                ]
+            ]
+        , if open then
+            labelChoices config d index entry m.name
+
+          else
+            text ""
+        ]
+
+
+{-| The five words and NONE. The current one is seated — a shape, and
+`aria-pressed` says it too.
+-}
+labelChoices : Config msg -> Day -> Int -> Plan.Entry -> String -> Html msg
+labelChoices config d index entry name =
+    div
+        [ class "plan-labels"
+        , attribute "role" "group"
+        , attribute "aria-label" ("Label " ++ name)
+        ]
+        (List.map
+            (\choice ->
+                let
+                    on =
+                        entry.label == choice
+                in
+                button
+                    [ type_ "button"
+                    , class "press-block plan-label-opt u"
+                    , classList [ ( "is-seated", on ) ]
+                    , attribute "aria-pressed"
+                        (if on then
+                            "true"
+
+                         else
+                            "false"
+                        )
+                    , onClick (config.onLabel d index choice)
+                    ]
+                    [ text (Maybe.withDefault "None" choice) ]
             )
-        , onClick (config.onPlace d)
-        ]
-        [ dayName d
-        , span [ class "plan-meal-name" ]
-            [ text (Maybe.map .name meal |> Maybe.withDefault "") ]
-        , span [ class "plan-hint u", attribute "aria-hidden" "true" ] [ text hint ]
-        , span [ class "vh" ] [ text spoken ]
-        ]
+            (List.map Just Plan.slots ++ [ Nothing ])
+        )
+
+
+{-| A day while a meal is in the hand. Every meal is a press that swaps
+with it; each day's end is a press that sets it there; the meal that
+was lifted is seated and puts itself back. Nothing destructive is on
+screen: REMOVE, ADD and CLEAR THE WEEK wait until it is set down.
+-}
+placing : Config msg -> ( Day, Int ) -> String -> Day -> List Plan.Entry -> Html msg
+placing config ( from, liftedAt ) lifted d list =
+    case list of
+        [] ->
+            button
+                [ type_ "button"
+                , class "press-block plan-row plan-place"
+                , onClick (config.onPlace (Plan.OntoDay d))
+                ]
+                [ dayName d
+                , span [ class "plan-meal-name" ] []
+                , span [ class "plan-hint u", attribute "aria-hidden" "true" ] [ text "Set here" ]
+                , span [ class "vh" ] [ text (", set " ++ lifted ++ " here") ]
+                ]
+
+        _ ->
+            div [ class "plan-row plan-held-row" ]
+                [ dayName d
+                , div [ class "plan-body" ]
+                    (List.indexedMap
+                        (\i entry ->
+                            let
+                                name =
+                                    (Plan.describe entry.meal).name
+
+                                home =
+                                    d == from && i == liftedAt
+                            in
+                            button
+                                [ type_ "button"
+                                , class "press-block plan-place plan-swap"
+                                , classList [ ( "is-seated", home ) ]
+                                , attribute "aria-pressed"
+                                    (if home then
+                                        "true"
+
+                                     else
+                                        "false"
+                                    )
+                                , onClick (config.onPlace (Plan.OntoEntry d i))
+                                ]
+                                [ span [ class "plan-meal-name" ] [ text name ]
+                                , span [ class "plan-hint u", attribute "aria-hidden" "true" ]
+                                    [ text
+                                        (if home then
+                                            "Put back"
+
+                                         else
+                                            "Swap"
+                                        )
+                                    ]
+                                , span [ class "vh" ]
+                                    [ text
+                                        (if home then
+                                            ", lifted. Press to put it back"
+
+                                         else
+                                            ", swap " ++ lifted ++ " with " ++ name
+                                        )
+                                    ]
+                                ]
+                        )
+                        list
+                        ++ [ if d == from then
+                                text ""
+
+                             else if List.length list >= Plan.cap then
+                                p [ class "plan-full" ] [ text "Five is a full day." ]
+
+                             else
+                                button
+                                    [ type_ "button"
+                                    , class "press-block plan-place plan-end"
+                                    , onClick (config.onPlace (Plan.OntoDay d))
+                                    ]
+                                    [ span [ class "plan-hint u", attribute "aria-hidden" "true" ] [ text "Set here" ]
+                                    , span [ class "vh" ] [ text (Plan.dayName d ++ ", set " ++ lifted ++ " at the end") ]
+                                    ]
+                           ]
+                    )
+                ]
 
 
 
 -- THE ENTRY FIELD
 
 
-{-| An open day: one field, the archive's matches under it, and the
-two ways out — keep the words, or leave.
+{-| The entry field: one field, the archive's matches under it, and
+the two ways out — keep the words, or leave. It adds to the end of its
+day, empty or not.
 
 A `form`, so Enter keeps what was typed. Enter never picks a match:
 the match is the choice that needs a look, and a keystroke that
 silently chose the first one would be the archive guessing.
 
 -}
-entryRow : Config msg -> Entry -> Html msg
-entryRow config entry =
+entryForm : Config msg -> Entry -> Html msg
+entryForm config entry =
     let
         field =
             "plan-entry"
@@ -371,42 +556,40 @@ entryRow config entry =
         typed =
             Plan.own entry.text
     in
-    div [ class "plan-row plan-entry-row" ]
-        [ label [ class "plan-dayname u", for field ] [ text (Plan.dayName entry.day) ]
-        , form [ class "plan-entry", onSubmit config.onKeep ]
-            [ input
-                [ id field
-                , class "plan-entry-input"
-                , type_ "text"
-                , autocomplete False
-                , value entry.text
-                , onInput config.onInput
-                , attribute "aria-describedby" "plan-entry-help"
+    form [ class "plan-entry", onSubmit config.onKeep ]
+        [ label [ class "vh", for field ] [ text ("A meal for " ++ Plan.dayName entry.day) ]
+        , input
+            [ id field
+            , class "plan-entry-input"
+            , type_ "text"
+            , autocomplete False
+            , value entry.text
+            , onInput config.onInput
+            , attribute "aria-describedby" "plan-entry-help"
+            ]
+            []
+        , matches config entry.text
+        , div [ class "plan-entry-actions" ]
+            [ button
+                [ type_ "submit"
+                , class "press-block plan-keep"
+                , disabled (typed == Nothing)
                 ]
-                []
-            , matches config entry.text
-            , div [ class "plan-entry-actions" ]
-                [ button
-                    [ type_ "submit"
-                    , class "press-block plan-keep"
-                    , disabled (typed == Nothing)
-                    ]
-                    [ text
-                        (case typed of
-                            Just meal ->
-                                "Keep “" ++ (Plan.describe meal).name ++ "”"
+                [ text
+                    (case typed of
+                        Just meal ->
+                            "Keep “" ++ (Plan.describe meal).name ++ "”"
 
-                            Nothing ->
-                                "Keep"
-                        )
-                    ]
-                , button
-                    [ type_ "button"
-                    , class "plan-cancel u"
-                    , onClick config.onCancel
-                    ]
-                    [ text "Cancel" ]
+                        Nothing ->
+                            "Keep"
+                    )
                 ]
+            , button
+                [ type_ "button"
+                , class "plan-cancel u"
+                , onClick config.onCancel
+                ]
+                [ text "Cancel" ]
             ]
         ]
 
@@ -574,8 +757,9 @@ sendButton msg label_ =
 
 
 {-| The picture, in words, for a reader who cannot see it. Everything
-the picture says, in the order it says it — an empty day included,
-because the picture shows it open.
+the picture says, in the order it says it — every meal of a day with
+its label and where it came from, and an empty day too, because the
+picture shows it open.
 -}
 alt : Plan -> String
 alt plan =
@@ -585,20 +769,36 @@ alt plan =
                 (\d ->
                     Plan.dayName d
                         ++ ": "
-                        ++ (case Plan.get d plan |> Maybe.map Plan.describe of
-                                Just m ->
-                                    m.name
-                                        ++ (case m.source of
-                                                Plan.Archive _ ->
-                                                    ", from the archive."
-
-                                                Plan.Typed ->
-                                                    "."
-                                           )
-
-                                Nothing ->
+                        ++ (case Plan.entries d plan of
+                                [] ->
                                     "nothing planned."
+
+                                list ->
+                                    String.join "; " (List.map spoken list) ++ "."
                            )
                 )
                 Plan.days
             )
+
+
+spoken : Plan.Entry -> String
+spoken entry =
+    let
+        m =
+            Plan.describe entry.meal
+    in
+    m.name
+        ++ (case entry.label of
+                Just word ->
+                    ", " ++ word
+
+                Nothing ->
+                    ""
+           )
+        ++ (case m.source of
+                Plan.Archive _ ->
+                    ", from the archive"
+
+                Plan.Typed ->
+                    ""
+           )

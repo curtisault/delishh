@@ -154,6 +154,8 @@ whose only job is to be read.
 - `scripts/storage_test.ts` — counts the `localStorage` keys
   `boot.js` declares and holds the colophon's and DS-01 §12's "N
   things are stored" to it. A fourth key cannot arrive unnamed.
+- `scripts/plan_slots_test.ts` — the planner's labels held to the
+  recipes' `SLOTS`, and its five-a-day cap held to their count.
 - `scripts/share_test.ts` — the meal plan's picture, which is the
   one place colour and type are drawn from JavaScript: no raw hex, no
   family spelled, every token it reads declared, every pair it draws
@@ -375,8 +377,22 @@ fixture must never drift under the suite. Keep it parsing.
     Enter keeps the typed words; a match is always its own press.
     Typing a recipe's name never becomes that recipe by itself.
   - **The picker's rule is `Plan.placeRecipe`**, tested there: a day
-    with this recipe toggles it off, an empty day takes it, another
-    meal arms and the second press replaces.
+    with this recipe gives it up, any other day takes it at the end,
+    a full day refuses with `DayFull`. Nothing replaces any more.
+    After placing, a label row offers the five slot words and None;
+    the recipe's own slots are marked, and **none is preselected**.
+  - **A day is a list of up to five entries** (the expansion, done
+    2026-09-27). The pages and the picture read `entries` and write
+    `add`, `remove`, `label` and `moveEntry`. The one-meal `get` /
+    `set` / `move` survive only as test fixtures' shorthand; no page
+    calls them, and new code should not. Label marks show only on a
+    day of two or more, or on a meal that already has one.
+  - **A week of one meal a day draws the first planner's picture,
+    pixel for pixel.** The height budget (one phone screen, then two
+    type steps, then taller) never triggers for it. If you touch the
+    drawing's geometry, re-run the comparison the expansion doc
+    describes before claiming the one-meal picture is unchanged. Labels are the recipes'
+    `SLOTS`, held by `scripts/plan_slots_test.ts`.
   - **The shared picture is drawn by `boot.js`, from tokens.** No hex
     and no font family is written there; `share_test.ts` holds it,
     and holds every text pair it draws to `contrast_test.ts`. A draw

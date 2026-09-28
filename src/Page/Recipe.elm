@@ -68,17 +68,20 @@ type alias Config msg =
 {-| ADD TO PLAN and its day picker.
 
 The press opens seven day presses and says where the recipe already
-is; the picker is where it is put, taken off, and moved. `armed` is
-the day a first press has asked to replace, held by the shell so any
-navigation drops it.
+is; the picker is where it is put, taken off, and moved. `placed` is
+the day this recipe was just put on, whose label row follows the
+picker; `refused` is a day that was full. Both are held by the shell,
+so any navigation drops them.
 
 -}
 type alias Planner msg =
     { plan : Plan
     , open : Bool
-    , armed : Maybe Plan.Day
+    , placed : Maybe Plan.Day
+    , refused : Maybe Plan.Day
     , onOpen : msg
     , onDay : Plan.Day -> msg
+    , onLabel : Maybe Plan.Slot -> msg
     }
 
 
@@ -875,48 +878,64 @@ dayPicker config =
             ]
             [ ul [ class "plan-picker-set" ]
                 (List.map (dayPress config) Plan.days)
+            , case config.planner.refused of
+                Just d ->
+                    p [ class "plan-picker-note", attribute "aria-live" "polite" ]
+                        [ text (Plan.dayName d ++ " holds five. Five is a full day.") ]
+
+                Nothing ->
+                    text ""
+            , labelRow config
             , a [ class "plan-picker-link u", href (Route.toPath Route.Plan) ]
                 [ text "The whole week" ]
             ]
 
 
+{-| Each day press says what the day holds and what the press will do.
+The rule is `Plan.placeRecipe`, where it is tested: a day with this
+recipe gives it up, any other day takes it at the end, a full day
+refuses.
+-}
 dayPress : Config msg -> Plan.Day -> Html msg
 dayPress config d =
     let
-        held =
-            Plan.get d config.planner.plan |> Maybe.map Plan.describe
+        list =
+            Plan.entries d config.planner.plan
 
         mine =
-            case held of
-                Just { source } ->
-                    source == Plan.Archive config.recipe.slug
+            List.member d (Plan.plannedOn config.recipe.slug config.planner.plan)
 
-                Nothing ->
-                    False
+        others =
+            List.filter (\e -> (Plan.describe e.meal).source /= Plan.Archive config.recipe.slug) list
 
-        armed =
-            config.planner.armed == Just d
+        full =
+            List.length list >= Plan.cap
 
         ( word, spoken ) =
-            case held of
-                Nothing ->
-                    ( "", ", plan it here" )
+            if mine then
+                ( "Planned", ", planned. Press to take it off" )
 
-                Just m ->
-                    if mine then
-                        ( "Planned", ", planned. Press to take it off" )
+            else if full then
+                ( "Full", ", holds five. Five is a full day" )
 
-                    else if armed then
-                        ( "Replace " ++ m.name ++ "?", ", press again to replace " ++ m.name )
+            else
+                case others of
+                    [] ->
+                        ( "", ", plan it here" )
 
-                    else
-                        ( m.name, ", holds " ++ m.name ++ ". Press to replace it" )
+                    [ one ] ->
+                        ( (Plan.describe one.meal).name, ", holds " ++ (Plan.describe one.meal).name ++ ". Press to add this after it" )
+
+                    many ->
+                        ( String.fromInt (List.length many) ++ " meals"
+                        , ", holds " ++ String.fromInt (List.length many) ++ " meals. Press to add this after them"
+                        )
     in
     li []
         [ Html.button
             [ Html.Attributes.type_ "button"
             , class "press-block plan-picker-day"
-            , classList [ ( "is-seated", mine ), ( "is-armed", armed ) ]
+            , classList [ ( "is-seated", mine ), ( "is-full", full && not mine ) ]
             , attribute "aria-pressed"
                 (if mine then
                     "true"
@@ -931,6 +950,83 @@ dayPress config d =
             , span [ class "vh" ] [ text (Plan.dayName d ++ spoken) ]
             ]
         ]
+
+
+{-| The label for the day this recipe was just put on: the five slot
+words and NONE.
+
+**The recipe's own slots are marked, and none is chosen.** Marking
+them is showing declared data — this recipe says it is a dessert —
+but choosing one on the reader's behalf would be a guess (§06: nothing
+is inferred). A dessert eaten at lunch is lunch. The mark is a word
+as well as a shape: ", this recipe's slot" for a screen reader, and a
+rule under the word for an eye.
+
+-}
+labelRow : Config msg -> Html msg
+labelRow config =
+    case config.planner.placed of
+        Nothing ->
+            text ""
+
+        Just d ->
+            case Plan.indexOn config.recipe.slug d config.planner.plan of
+                Nothing ->
+                    text ""
+
+                Just index ->
+                    let
+                        current =
+                            Plan.entries d config.planner.plan
+                                |> List.drop index
+                                |> List.head
+                                |> Maybe.andThen .label
+                    in
+                    div
+                        [ class "plan-picker-labels"
+                        , attribute "role" "group"
+                        , attribute "aria-label" ("Label it on " ++ Plan.dayName d)
+                        ]
+                        [ span [ class "plan-picker-k u" ] [ text ("Label it · " ++ shortDay d) ]
+                        , div [ class "plan-picker-label-set" ]
+                            (List.map
+                                (\choice ->
+                                    let
+                                        on =
+                                            current == choice
+
+                                        declared =
+                                            case choice of
+                                                Just word ->
+                                                    List.member word config.recipe.slot
+
+                                                Nothing ->
+                                                    False
+                                    in
+                                    Html.button
+                                        [ Html.Attributes.type_ "button"
+                                        , class "press-block plan-picker-label u"
+                                        , classList [ ( "is-seated", on ), ( "is-declared", declared ) ]
+                                        , attribute "aria-pressed"
+                                            (if on then
+                                                "true"
+
+                                             else
+                                                "false"
+                                            )
+                                        , onClick (config.planner.onLabel choice)
+                                        ]
+                                        [ text (Maybe.withDefault "None" choice)
+                                        , if declared then
+                                            span [ class "vh" ] [ text ", this recipe's slot" ]
+
+                                          else
+                                            text ""
+                                        ]
+                                )
+                                (List.map Just Plan.slots ++ [ Nothing ])
+                            )
+                        ]
 
 
 {-| The way into cook mode, carrying the scale it was set at.
