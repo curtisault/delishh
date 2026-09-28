@@ -286,7 +286,7 @@ suite =
                         |> List.map (D.decodeString Plan.decoder >> Result.toMaybe)
                         |> Expect.equal [ Nothing, Nothing, Nothing ]
             ]
-        , describe "a day of several — docs/meal-planner-expansion.md"
+        , describe "a day of several — docs/decisions.md"
             [ test "add appends, in the order added" <|
                 \_ ->
                     Plan.empty

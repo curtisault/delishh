@@ -1,7 +1,7 @@
 module Install exposing (Offer(..), fromString)
 
 {-| What this browser can do about putting the archive on a home screen
-(`docs/installable.md`).
+(`docs/decisions.md`).
 
 Read off the browser's own capabilities, never its name: `boot.js`
 reports what it found, and there is no user-agent sniffing anywhere in

@@ -40,11 +40,11 @@ module Plan exposing
 {-| The meal plan — a week, Sunday to Saturday, up to five meals a day.
 
 **Pure.** No `Html`, no `Cmd`, no ports, the split `GroceryList` and
-`Shelf` run on. See `docs/meal-planner.md` for the rulings this module
+`Shelf` run on. See `docs/decisions.md` for the rulings this module
 implements.
 
 **The shape is private, on purpose.** A day is a list of entries —
-`docs/meal-planner-expansion.md` — and the first planner's one meal a
+`docs/decisions.md` — and the first planner's one meal a
 day is the list of one. The one-meal functions (`get`, `set`, `move`,
 `placeRecipe`) keep their exact behaviour on a day of one, so the
 pages built for the first planner run unchanged on this shape until
@@ -317,7 +317,7 @@ move from to plan =
 
 
 
--- ENTRIES — docs/meal-planner-expansion.md
+-- ENTRIES — docs/decisions.md
 
 
 {-| A label from the recipes' own slot vocabulary. **Held to
@@ -538,8 +538,8 @@ isRecipe slug entry =
 There is no replacing any more. The first planner armed a held day
 and replaced it on the second press, because a day held one meal;
 a day now holds five, so a held day simply takes one more, and the
-picker's only lossy press is gone (docs/meal-planner-expansion.md,
-Phase 2).
+picker's only lossy press is gone (docs/decisions.md, the
+expansion's picker ruling).
 
 -}
 placeRecipe : Meal -> Day -> Plan -> Result Refusal Plan

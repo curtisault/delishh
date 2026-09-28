@@ -43,7 +43,7 @@ feel like something you enjoy opening, not something you consult.
 | File | Owns |
 |------|------|
 | `docs/design-standard.md` (this doc) | Look, feel, voice, color, type, the recipe document, browse, cook mode, print, hard constraints. **The prose of record — rendered in-app; there is no separate frozen HTML copy.** |
-| `docs/delishh-redesign.md` | The implementation plan for this revision, with its dated decision log |
+| `docs/decisions.md` | The decision record — every ruling in force, dated, with what was rejected; `docs/decisions-archive.md` holds the overturned ones as they were made |
 | `content/recipes/*.md` | The recipes themselves — one markdown file per recipe, frontmatter as the schema of record (§06) |
 | `scripts/` (build) | Enforcement: schema validation and the word rules run at build time, in CI |
 

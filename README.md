@@ -44,7 +44,7 @@ src/fonts.css      @font-face only
 src/sheet.css      components
 scripts/           the content build: recipes and prose → Elm and JSON
 content/recipes/   one markdown file per recipe, the source of record
-docs/              the standard, and the redesign plan
+docs/              the standard, the colophon, the facet constraints, the decision record
 ```
 
 Working on this with Claude Code: read `CLAUDE.md` first.

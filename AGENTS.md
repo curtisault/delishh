@@ -12,10 +12,8 @@ the authority on how this looks and why.
 | `content/recipes/AGENTS.md` | The authoring contract for recipes — schema, vocabularies, block grammar, banned words. **Machine-held**: `agents_test.ts` fails the build if its lists drift from `vocabulary.ts` |
 | `docs/about.md` | The colophon — what this is, what it is built from, what is never kept about a reader. Rendered at `/about` |
 | `docs/design-standard.md` | DS-01 — look, feel, voice, type, colour, the recipe document, browse, cook mode, print, the word rules, hard constraints. **The prose of record.** |
-| `docs/delishh-redesign.md` | The DS-01 Revision 2 implementation plan and its dated decision log. Owns *sequence and scope*; DS-01 owns everything else |
-| `docs/meal-planner.md` | The meal planner's plan and decision log — the week, the two kinds of meal, pick-and-place, the shared picture |
-| `docs/meal-planner-expansion.md` | Several meals a day. **Unscheduled** until the first planner has been used; says what that use must show first |
-| `docs/installable.md` | The home-screen install — manifest, service worker, offline archive — and its dated decision log. Built 2026-09-28; the by-hand pass on a phone is outstanding |
+| `docs/decisions.md` | **The decision record** — every ruling in force, dated, with what was rejected and why, from the Revision 2 reframe through the planner, the install and the facet constraints. Ends with *Open*: what is deferred, and what is outstanding by hand (the install and the planner's picture both still want a pass on a phone). A new ruling is a dated block appended here; the four implementation plans it replaced were dropped 2026-09-28 |
+| `docs/decisions-archive.md` | Rulings that were overturned, **as they were made**, with the date and the ruling that replaced them. Never edited; a row moves here from `decisions.md` in the commit that overturns it |
 | `docs/facet-constraints.md` | The **digest** of the facet doctrine — how a flavour level, an effort tier, a dietary flag and a cuisine are *decided*, as numbered requirements a review cites. The meal path has none: the only requirement for a meal is food |
 | `agents/refs/{flavour,effort,needs}.md` | The **verbose** copies of that doctrine, one per judged facet group: every threshold, false friend, hidden carrier and worked case. Read the one for the facet you are setting. **Machine-held**: `doctrine_test.ts` holds their lists to `vocabulary.ts` and the corpus to their mechanical rules |
 | `src/sw.js` | The service worker: **`public/_headers`' cache policy, carried onto the device.** Cache-first exactly where `_headers` says immutable; `/content/*` never |
@@ -416,8 +414,8 @@ fixture must never drift under the suite. Keep it parsing.
   - **A week of one meal a day draws the first planner's picture,
     pixel for pixel.** The height budget (one phone screen, then two
     type steps, then taller) never triggers for it. If you touch the
-    drawing's geometry, re-run the comparison the expansion doc
-    describes before claiming the one-meal picture is unchanged. Labels are the recipes'
+    drawing's geometry, re-run the pixel comparison recorded in docs/decisions.md
+    before claiming the one-meal picture is unchanged. Labels are the recipes'
     `SLOTS`, held by `scripts/plan_slots_test.ts`.
   - **The shared picture is drawn by `boot.js`, from tokens.** No hex
     and no font family is written there; `share_test.ts` holds it,
@@ -425,7 +423,7 @@ fixture must never drift under the suite. Keep it parsing.
     carries a generation number, and `boot.js` discards any draw that
     is not the one wanted. Share and copy must be called before
     anything is awaited, or Safari refuses them outside the press.
-- `src/sw.js` / `src/Reach.elm` / `src/Install.elm` — the install (`docs/installable.md`).
+- `src/sw.js` / `src/Reach.elm` / `src/Install.elm` — the install (`docs/decisions.md`).
   Three things that are easy to undo:
   - **Test offline by stopping the server**, never with DevTools'
     offline switch: it does not reach the worker's own fetches, and

@@ -163,16 +163,11 @@ carriers, which is where the verification actually happens:
 Everything else — the level, the window count, the verification —
 is a person, at the tested cook, citing the requirement by number.
 
-## Decision log
+## The rulings
 
-Ruled 2026-09-28, at the facet constraints:
-
-| Decision | Ruling | Rejected alternatives |
-|----------|--------|----------------------|
-| Where the doctrine lives | **Three verbose refs under `agents/refs/`, one digest here.** The refs are read by whoever is authoring or reviewing a recipe and are as long as accuracy needs; this doc is one copy, citable, held to the same lists by `doctrine_test.ts` | One long doc (too long to cite, too short to verify a flag against); folding it into `content/recipes/AGENTS.md` (the contract says *what* to write and is already 400 lines; this says *how to decide*) |
-| The meal path | **No doctrine.** The only requirement for a meal is food | A slot doctrine ("breakfast is before noon") — nobody is relying on it |
-| The direction of doubt | **Toward the relying reader**, stated per facet: flavour lower (spicy higher), effort higher, dietary off, cuisine off | One direction for all (wrong on at least two of them) |
-| Optional ingredients | **Move a dietary flag, never a flavour.** The reader who adds the pinch knows it is heat; the reader who adds the malt may not know it is wheat | Ignoring them everywhere (unsafe); counting them everywhere (every gravy would be `spicy 2` for a pinch nobody adds) |
-| Implied flags | **Stated flat** (N3): the shelf ORs selections within a path and infers nothing, so a `dairy-free` reader finds a `vegan` dish only if the word is on it | Deriving the implications in the build (inference, §12); a hierarchy in `Shelf.elm` (the shelf knowing what a flag *means*) |
-| Corpus enforcement of N3 | **Deferred to the review**, since it would fail today | Adding the test now (a red build over a ruling not yet made) |
-| Rendering | **Not rendered in-app.** A plan document, like `meal-planner.md`; the refs are for authors, not readers | A `DOCUMENTS` line in `build-docs.ts` (a reader browsing the shelf does not need the carrier list for `gluten-free`; if that changes it is one line and the `<!-- doc -->` directives) |
+The decisions behind this doctrine — where it lives, the direction
+of doubt, optional ingredients, implied flags, why the corpus check
+for N3 waits, why it is not rendered in-app — are dated in
+`docs/decisions.md` under *Ruled 2026-09-28, at the facet
+constraints*. This document carries the requirements; that one
+carries the reasoning and what was rejected.

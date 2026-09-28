@@ -1,5 +1,5 @@
 /**
- * The install, held to the rest of the product — docs/installable.md.
+ * The install, held to the rest of the product — docs/decisions.md.
  *
  * Almost nothing here fails loudly on its own. A manifest whose colour
  * drifted from theme.css still installs; an icon the manifest names

@@ -1,6 +1,6 @@
 module Page.Plan exposing (Archive(..), Config, Entry, Outcome(..), Picture(..), alt, outcomeFromString, view)
 
-{-| The meal plan — the week, Sunday to Saturday. `docs/meal-planner.md`.
+{-| The meal plan — the week, Sunday to Saturday. `docs/decisions.md`.
 
 **A fourth surface, and it runs quiet**, in the shopping list's
 register: `--page-*` marks only, the neutral press face, and volt on
