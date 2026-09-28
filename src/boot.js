@@ -52,8 +52,21 @@ try {
   // storage unavailable: start with an empty week
 }
 
+// What this browser can do about a home-screen install, read off its
+// capabilities and never its name (docs/installable.md, Install.elm).
+// Already running installed: nothing to offer. Otherwise
+// `navigator.standalone` exists only in Safari on iPhone and iPad —
+// false in a tab — and that browser adds to a home screen through its
+// share sheet with no API for it. Everyone else starts at none, and a
+// browser with its own dialog says so later, with beforeinstallprompt.
+const runningInstalled =
+  matchMedia('(display-mode: standalone)').matches || navigator.standalone === true
+const installAtBoot =
+  !runningInstalled && navigator.standalone === false ? 'share' : 'none'
+
 const app = Elm.Main.init({
   flags: {
+    install: installAtBoot,
     theme: storedTheme,
     list: storedList,
     plan: storedPlan,
@@ -636,6 +649,40 @@ app.ports.sharePlan.subscribe(async (req) => {
       forgetPicture()
       break
   }
+})
+
+// The browser's install dialog. Chrome, Edge and Android hand it over
+// as an event after load, if the site qualifies — which needs the
+// worker below, so it never fires in dev. The event is kept, the
+// browser's own mini-infobar is suppressed in favour of the shelf's
+// press, and prompt() is called with nothing awaited before it, or the
+// browser refuses it outside the press. One prompt spends the event:
+// accepted or dismissed, the press goes, and returns only if the
+// browser offers again.
+let installEvent = null
+
+addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault()
+  installEvent = event
+  app.ports.installOffered.send('prompt')
+})
+
+addEventListener('appinstalled', () => {
+  installEvent = null
+  app.ports.installOffered.send('none')
+})
+
+app.ports.installApp.subscribe(async () => {
+  const event = installEvent
+  if (!event) return
+  installEvent = null
+  event.prompt()
+  try {
+    await event.userChoice
+  } catch (_) {
+    // spent either way
+  }
+  app.ports.installOffered.send('none')
 })
 
 // The service worker (docs/installable.md). Registered last, after

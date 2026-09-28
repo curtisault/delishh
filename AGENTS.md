@@ -412,7 +412,7 @@ fixture must never drift under the suite. Keep it parsing.
     carries a generation number, and `boot.js` discards any draw that
     is not the one wanted. Share and copy must be called before
     anything is awaited, or Safari refuses them outside the press.
-- `src/sw.js` / `src/Reach.elm` — the install (`docs/installable.md`).
+- `src/sw.js` / `src/Reach.elm` / `src/Install.elm` — the install (`docs/installable.md`).
   Three things that are easy to undo:
   - **Test offline by stopping the server**, never with DevTools'
     offline switch: it does not reach the worker's own fetches, and
@@ -426,6 +426,12 @@ fixture must never drift under the suite. Keep it parsing.
     *Unkept* knowable; a static host never sends one.
   - **Registration is production-only.** In dev a worker would cache
     Vite's unhashed modules and fight HMR.
+  - **The install press is drawn from capabilities.** `Install.elm`
+    has three answers — the browser's dialog, Safari's share sheet,
+    nothing — and `boot.js` finds them from `beforeinstallprompt` and
+    `navigator.standalone`, never the user agent (`pwa_test.ts`). It
+    never appears in dev: Chrome offers only with a worker. `prompt()`
+    is called before anything is awaited, or it is refused.
 - Two ports exist: `saveTheme` (out) and `sectionSeen` (in). The
   second is a port because `elm/browser` has no scroll subscription;
   boot.js reads the active section on scroll, resize and DOM

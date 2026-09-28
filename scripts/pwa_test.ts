@@ -193,3 +193,25 @@ Deno.test("boot.js registers the worker, in production only", () => {
     "the registration is missing, or no longer guarded to production",
   );
 });
+
+// ---- the install press ----
+
+Deno.test("the install offer is read off capabilities, never the browser's name", () => {
+  // AGENTS.md: there is no device detection anywhere. The press is
+  // drawn from what the browser can do — its install event, or
+  // navigator.standalone — and a UA match would be a guess about that.
+  for (const sniff of ["userAgent", "navigator.platform", "userAgentData"]) {
+    assert(!boot.includes(sniff), `boot.js reads ${sniff}`);
+  }
+});
+
+Deno.test("the install dialog is asked for before anything is awaited", () => {
+  // Outside the press, the browser refuses prompt() — and a single
+  // await ahead of it is outside the press.
+  const handler = boot.match(/app\.ports\.installApp\.subscribe\(async \(\) => \{([\s\S]*?)\n\}\)/);
+  assert(handler, "boot.js no longer answers installApp");
+  const body = handler[1];
+  const prompt = body.indexOf(".prompt()");
+  assert(prompt !== -1, "installApp never calls prompt()");
+  assert(!body.slice(0, prompt).includes("await"), "something is awaited before prompt()");
+});

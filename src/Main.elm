@@ -40,6 +40,7 @@ import Html.Attributes exposing (attribute, class, classList, href, id, type_)
 import Html.Events exposing (onClick)
 import Html.Keyed as Keyed
 import Http
+import Install
 import Liner
 import Json.Decode as D
 import Json.Encode as E
@@ -147,6 +148,19 @@ port setWakeLock : Bool -> Cmd msg
 port wakeLockChanged : (String -> msg) -> Sub msg
 
 
+{-| The home-screen install (`docs/installable.md`). `boot.js` holds
+the browser's deferred install event and says what it can offer —
+`prompt`, `share`, or `none` — whenever that changes: the event
+arrives after load, and an install or a dismissal spends it.
+`installApp` asks it to open the browser's dialog, from inside the
+press, because the dialog is refused outside one.
+-}
+port installApp : () -> Cmd msg
+
+
+port installOffered : (String -> msg) -> Sub msg
+
+
 main : Program Flags Model Msg
 main =
     Browser.application
@@ -226,6 +240,11 @@ type alias Flags =
     -- the meal plan as it was stored, still a string. The same rule:
     -- what will not decode becomes an empty week
     , plan : Maybe String
+
+    -- what this browser offers for a home-screen install at boot:
+    -- "share" (Safari on iPhone and iPad) or "none". A prompt arrives
+    -- later, on the installOffered port, if at all
+    , install : String
     }
 
 
@@ -341,6 +360,12 @@ type alias Model =
     , timer : Maybe Cook.Timer
     , now : Time.Posix
     , wake : Cook.Wake
+
+    -- the home-screen install: what the browser offers, and whether
+    -- the share-sheet sentence is showing. The sentence closes on any
+    -- real navigation, like the menu
+    , install : Install.Offer
+    , installHelp : Bool
     }
 
 
@@ -398,6 +423,8 @@ init flags url key =
       , timer = Nothing
       , now = Time.millisToPosix 0
       , wake = Cook.Off
+      , install = Install.fromString flags.install
+      , installHelp = False
       }
     , Cmd.batch
         [ routeCmd (Route.fromUrl url)
@@ -621,6 +648,8 @@ type Msg
     | StopTimer
     | Tick Time.Posix
     | WakeChanged String
+    | InstallOffered String
+    | PressInstall
     | NoOp
 
 
@@ -658,6 +687,7 @@ update msg model =
 
                         -- and the menu shuts behind them
                         , menuOpen = model.mirroring && model.menuOpen
+                        , installHelp = model.mirroring && model.installHelp
                         , active =
                             if arrived then
                                 Nothing
@@ -1182,6 +1212,20 @@ update msg model =
         WakeChanged flag ->
             ( { model | wake = Cook.wakeFromFlag flag }, Cmd.none )
 
+        InstallOffered word ->
+            ( { model | install = Install.fromString word }, Cmd.none )
+
+        PressInstall ->
+            case model.install of
+                Install.Prompt ->
+                    ( model, installApp () )
+
+                Install.ShareSheet ->
+                    ( { model | installHelp = not model.installHelp }, Cmd.none )
+
+                Install.NoOffer ->
+                    ( model, Cmd.none )
+
         ClearFilters ->
             ( { model | filters = Shelf.clear model.filters, openPath = Nothing }
             , Cmd.none
@@ -1226,6 +1270,10 @@ subscriptions model =
     Sub.batch
         [ sectionSeen SectionSeen
         , wakeLockChanged WakeChanged
+
+        -- The browser's install event arrives after load, on its own
+        -- time, and an install or a dismissal spends it.
+        , installOffered InstallOffered
 
         -- Both answer a press the reader made, and both arrive on
         -- their own time: a canvas encodes asynchronously, and a
@@ -1440,6 +1488,9 @@ page model =
                             , onToggle = ToggleFacet
                             , onQuery = ShelfQuery
                             , onClear = ClearFilters
+                            , install = model.install
+                            , installHelp = model.installHelp
+                            , onInstall = PressInstall
                             }
 
             Route.ShoppingList ->

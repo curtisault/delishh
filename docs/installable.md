@@ -285,6 +285,24 @@ the plan is not done until they have been done.
   there without a second reload. Reopen offline, confirm it still
   opens.
 
+## The install press — added 2026-09-28
+
+A press at the top right of the shelf's masthead that installs the
+archive, asked for once the install itself was built. It is the
+mark alone — a tray and an arrow, volt, in the press dress at the tap
+floor — with its name in a `.vh` span for a screen reader.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| How the platform is known | **By what the browser can do, never its name.** `beforeinstallprompt` means the browser has its own dialog to hand over (Chrome, Edge, Android); `navigator.standalone === false` means Safari on iPhone or iPad in a tab, which adds to a home screen through its share sheet and has no API for it. `Install.elm` names the three answers; `pwa_test.ts` fails if `boot.js` ever reads the user agent | UA sniffing (the product has no device detection anywhere, and a name is a guess about a capability) |
+| What each platform gets | **The dialog, one sentence, or nothing.** A prompt opens the browser's own dialog; the share-sheet path seats the press and shows *Press Share, then Add to Home Screen* under the title; installed, or a browser that cannot install (Firefox on a desktop), draws **no press** | A press that explains "not supported" (a control that does nothing); a permanent instructions block (furniture for a one-time act) |
+| After the dialog | **The press goes, accepted or dismissed.** One prompt spends the browser's event; it returns only if the browser offers again. A press that reopens nothing would be a lie until reload | Keeping it after a dismissal |
+| Where | **The shelf only**, beside the title plate — the loud surface, where a volt press belongs. Not the site bar, which is chrome on every route including the quiet ones | The site bar (a fourth thing in a fixed-height bar, on every page) |
+
+Not covered: Safari on a Mac adds to the Dock from its File menu and
+exposes no signal for it, so it gets no press. If that is wanted, it
+is a sentence, not a detection.
+
 ## Open items
 
 - **A reload banner.** If the no-prompt ruling turns out to leave
