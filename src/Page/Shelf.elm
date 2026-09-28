@@ -25,6 +25,7 @@ import Html exposing (Html, a, div, h1, h2, input, li, mark, p, section, span, t
 import Html.Attributes exposing (attribute, class, classList, for, href, id, placeholder, type_, value)
 import Flavor
 import Html.Events exposing (onClick, onInput)
+import Reach
 import Shelf exposing (Filters, Path, Summary, Verdict(..))
 
 
@@ -48,12 +49,26 @@ viewLoading =
     shell [ p [ class "shelf-state" ] [ text "Opening the archive…" ] ]
 
 
-viewFailed : Html msg
-viewFailed =
+{-| "A reload usually settles it" is false with no signal, and a
+sentence that is sometimes false is one the reader learns to ignore —
+so it is said only when the archive answered and a reload might help.
+-}
+viewFailed : Reach.Failure -> Html msg
+viewFailed failure =
     shell
         [ h1 [ class "shelf-title" ] [ text "The archive did not open" ]
         , p [ class "shelf-state" ]
-            [ text "The index could not be fetched. A reload usually settles it." ]
+            [ text <|
+                case failure of
+                    Reach.Unkept ->
+                        "There is no connection, and no copy of the archive has been kept on this device yet. It opens once there is a signal."
+
+                    Reach.Unreachable ->
+                        "There is no connection, so the index could not be fetched. It opens once there is a signal."
+
+                    _ ->
+                        "The index could not be fetched. A reload usually settles it."
+            ]
         ]
 
 

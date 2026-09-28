@@ -119,8 +119,21 @@ async function networkFirst(request, key = request) {
   } catch (error) {
     const cached = await caches.match(key)
     if (cached) return cached
+    if (new URL(request.url).pathname.startsWith('/content/')) return unkept()
     throw error
   }
+}
+
+/** No network, and no kept copy. Said as a 503 so the page can tell
+ * it from a recipe the archive does not have (a 404) and say which:
+ * Reach.elm reads it. A static host never answers 503 on its own, so
+ * the status is the whole signal. */
+function unkept() {
+  return new Response(JSON.stringify({ kept: false }), {
+    status: 503,
+    statusText: 'Not kept on this device',
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
 self.addEventListener('fetch', (event) => {

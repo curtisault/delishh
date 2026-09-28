@@ -30,6 +30,7 @@ import Flavor
 import Html.Events exposing (onClick)
 import Plan exposing (Plan)
 import Print
+import Reach
 import Recipe exposing (Recipe)
 import Route
 import Scale
@@ -94,18 +95,51 @@ viewLoading =
     shell [ p [ class "recipe-state" ] [ text "Fetching the recipe…" ] ]
 
 
-{-| A failure states what is missing and offers the way back. A dead
+{-| A failure states what went wrong and offers the way back. A dead
 end is a design failure, not an edge case (DS-01 §07).
+
+Each reason gets its own sentence, because they ask different things
+of the reader: a missing recipe is a wrong address, and an unreachable
+one is a matter of waiting for a signal. Telling a cook with no signal
+that the recipe was never written is the page guessing.
+
 -}
-viewFailed : String -> Html msg
-viewFailed slug =
+viewFailed : Reach.Failure -> String -> Html msg
+viewFailed failure slug =
+    let
+        ( title, before, after ) =
+            case failure of
+                Reach.Missing ->
+                    ( "No such recipe"
+                    , "Nothing in the archive is filed under "
+                    , ". It may have been renamed, or never written."
+                    )
+
+                Reach.Unkept ->
+                    ( "Not kept on this device"
+                    , "There is no connection, and no copy of "
+                    , " has been kept here yet. It opens once there is a signal."
+                    )
+
+                Reach.Unreachable ->
+                    ( "The archive did not answer"
+                    , "There is no connection, so "
+                    , " could not be fetched. It opens once there is a signal."
+                    )
+
+                Reach.Broken ->
+                    ( "The recipe did not open"
+                    , "The archive answered, but not with a recipe for "
+                    , ". A reload usually settles it."
+                    )
+    in
     shell
         [ div [ class "recipe-plate" ]
-            [ h1 [ class "recipe-title" ] [ text "No such recipe" ]
+            [ h1 [ class "recipe-title" ] [ text title ]
             , p [ class "recipe-state" ]
-                [ text "Nothing in the archive is filed under "
+                [ text before
                 , span [ class "mono" ] [ text slug ]
-                , text ". It may have been renumbered, or never written."
+                , text after
                 ]
             , p [] [ a [ class "recipe-back u", href "/" ] [ text "Back to the archive" ] ]
             ]

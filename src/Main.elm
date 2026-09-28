@@ -52,6 +52,7 @@ import Page.Recipe
 import Page.Shelf
 import Plan exposing (Plan)
 import Print
+import Reach
 import Recipe exposing (Recipe)
 import Route exposing (Route)
 import Scale
@@ -351,7 +352,7 @@ does not.
 type Fetch a
     = Fetching
     | Fetched a
-    | FetchFailed
+    | FetchFailed Reach.Failure
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -865,11 +866,11 @@ update msg model =
             , Cmd.none
             )
 
-        GotRecipe (Err _) ->
-            -- The error is not shown. A reader who asked for a recipe
-            -- cannot act on a 404 versus a timeout, and the page says
-            -- the useful thing instead: this is not in the archive.
-            ( { model | recipe = FetchFailed }, Cmd.none )
+        GotRecipe (Err error) ->
+            -- The raw error is not shown, but its reason is: "not in
+            -- the archive" and "no signal" ask different things of a
+            -- reader, and saying the first for both is a guess.
+            ( { model | recipe = FetchFailed (Reach.fromHttp error) }, Cmd.none )
 
         SetFactor factor ->
             ( { model | factor = factor }, Cmd.none )
@@ -1136,8 +1137,8 @@ update msg model =
         GotIndex (Ok index) ->
             ( { model | index = Fetched index }, Cmd.none )
 
-        GotIndex (Err _) ->
-            ( { model | index = FetchFailed }, Cmd.none )
+        GotIndex (Err error) ->
+            ( { model | index = FetchFailed (Reach.fromHttp error) }, Cmd.none )
 
         OpenPath p ->
             ( { model | openPath = p }, Cmd.none )
@@ -1427,8 +1428,8 @@ page model =
                     Fetching ->
                         Page.Shelf.viewLoading
 
-                    FetchFailed ->
-                        Page.Shelf.viewFailed
+                    FetchFailed failure ->
+                        Page.Shelf.viewFailed failure
 
                     Fetched index ->
                         Page.Shelf.view
@@ -1461,7 +1462,7 @@ page model =
                             Fetched index ->
                                 Page.Plan.Searchable index.recipes
 
-                            FetchFailed ->
+                            FetchFailed _ ->
                                 Page.Plan.Unsearchable
                     , lifted = model.lifted
                     , labelOpen = model.planLabelOpen
@@ -1496,8 +1497,8 @@ page model =
                     Fetching ->
                         Page.Recipe.viewLoading
 
-                    FetchFailed ->
-                        Page.Recipe.viewFailed slug
+                    FetchFailed failure ->
+                        Page.Recipe.viewFailed failure slug
 
                     Fetched recipe ->
                         Page.Cook.view
@@ -1522,8 +1523,8 @@ page model =
                     Fetching ->
                         Page.Recipe.viewLoading
 
-                    FetchFailed ->
-                        Page.Recipe.viewFailed slug
+                    FetchFailed failure ->
+                        Page.Recipe.viewFailed failure slug
 
                     Fetched recipe ->
                         Page.Recipe.view
