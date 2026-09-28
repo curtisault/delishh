@@ -2,10 +2,11 @@
 
 > Companion to `docs/meal-planner.md` (the first planner) and
 > `docs/design-standard.md` (DS-01 Revision 2). Created 2026-09-27,
-> **not yet scheduled.** The first planner ships and is used for some
-> weeks before this is built; the section *When to start* says what
-> that use has to show. This doc owns the expansion's *sequence and
-> scope*; DS-01 owns look, feel and voice.
+> **started and finished the same day, early** — see the decision
+> log. The section
+> *When to start* is kept as the questions this was meant to wait
+> for. This doc owns the expansion's *sequence and scope*; DS-01 owns
+> look, feel and voice.
 
 ## What it is
 
@@ -36,6 +37,13 @@ Ruled 2026-09-27, at the expansion's framing:
 | The stored shape | **One shape, versioned by its form, not a number.** The first planner stores a day as one object; the expansion stores a day as an array of entries. The expansion's decoder reads both — an object becomes a list of one unlabelled entry — and writes only the array. No `version:` field: a hand-maintained number that nothing forces to move is the counter the archive retired in 2026-09-21, and the shape already says which it is | A one-off migration on boot that rewrites the key (a write nobody asked for, on a store that may be full); a version field (see the revision counter's retirement) |
 | The picture, with lists | **The same portrait card.** Each held day heads its entries; each entry's meal in the procedure voice, its label in the data voice at the right where the first planner's ARCHIVE mark sits (`LUNCH · ARCHIVE`, or one, or neither). A one-meal day draws exactly as before — the day and the meal on one line — so a picture of a seven-dinner week is byte-for-byte the first planner's. **A height budget of one phone screen** (1080 × 1920 logical): past it the type steps down one size, then a second; past that the card grows taller, because a meal cut off a picture is a broken picture (§12), and a taller card is only a scroll | A 7-column landscape grid once any day has two (arrives as a thumbnail in every chat client — the compact promise lost for exactly the people this is for); one card per day past the budget (seven files, and the week no longer one thing) |
 | What the nav counts | **Still days.** The link's count says how much of the week is covered, and five meals on Monday covers Monday once. The page itself says the meal count | Counting entries (a number that grows without the week being any more planned) |
+
+Ruled 2026-09-27, at the start:
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Starting early | **Started the day the first planner shipped, at the user's call**, twice asked. The plan's own advice was to wait for real weeks of use and the three questions under *When to start*. Recorded so the next reader knows those questions were not answered first, and that the first planner's real-device share pass (its Phase 3) was still outstanding | Waiting, as this doc advised |
+| Phase 1 keeps the pages running | **The storage reshapes; the page API does not, yet.** `get`, `set`, `move` and `placeRecipe` keep their exact one-meal behaviour over the new lists — `get` is a day's first meal, `set` makes the day that one meal — so the first planner's pages run unchanged until Phase 2's presses replace them. The list API (`entries`, `add`, `remove`, `label`, `moveEntry`) sits beside them | Rewriting the pages in the same phase (a phase that cannot be tested on its own); a flag to switch shapes (two planners to keep in agreement) |
 
 ## What changes from the first planner
 
@@ -79,44 +87,115 @@ implementation can be built with these seams in place at no cost:
 
 ## Phases
 
-### Phase 1 — the data
+### Phase 1 — the data ✅ done 2026-09-27
 
-- [ ] `Plan` reshaped: entries, labels, `add` with its refusal,
-      `remove`, `label`, `move` with the two targets, `slots`.
-- [ ] The two-shape decoder, with the first planner's stored value
-      as a permanent fixture.
-- [ ] `tests/PlanTests.elm` extended: the cap, the refusal reason,
-      label set/unset, non-unique labels, both move targets, both
-      stored shapes.
-- [ ] `scripts/plan_slots_test.ts` — `Plan.slots` held to
-      `vocabulary.ts`, order and spelling.
+- [x] `Plan` reshaped: entries, labels, `add` with its refusal
+      (`Err DayFull`), `remove`, `label`, `moveEntry` with the two
+      targets (`OntoDay`, `OntoEntry`), `slots`, `cap`.
+- [x] The two-shape decoder: a first-planner object reads as a list of
+      one, unlabelled, and both shapes may sit in one stored week.
+      Arrays only are written; a label only when there is one.
+- [x] `tests/PlanTests.elm` — 25 more: the cap and its reason, five
+      unlabelled as full, remove, label set/unset, non-unique labels,
+      a word outside the vocabulary refused, both move targets
+      including a swap into a full day, both stored shapes, and the
+      refusals (empty array, six entries, unknown or non-word label).
+      The first planner's stored value stays as a fixture.
+- [x] `scripts/plan_slots_test.ts` — `Plan.slots` held to `SLOTS`,
+      spelling and order, and `cap` held to the vocabulary's size. A
+      misspelled slot was tried and fails it.
+- [x] DS-01 §06: one sentence saying the planner reads the slot list.
 
-### Phase 2 — the pages
+**Two things a Phase 1 build does, to know before Phase 2 lands.**
+It writes the array shape on the next save of any plan, so a browser
+that loads this build and then an older one loses its week; deploys
+only move forward. And nothing in it can make a second entry, but a
+hand-made store could hold one: the page would show and share only
+each day's first meal until Phases 2 and 3.
 
-- [ ] ADD under a held day; the full-day sentence in its place at
+### Phase 2 — the pages ✅ done 2026-09-27
+
+- [x] ADD under a held day; the full-day sentence in its place at
       five.
-- [ ] The label mark and its six presses, on the plan page and after
-      the recipe page's day picker, declared slots marked and none
-      preselected.
-- [ ] REMOVE per entry; PLANNED · DAY, DAY on the recipe page with a
-      remove per day.
-- [ ] Pick-and-place's entry target; the refusal on a full day
-      leaves the entry lifted.
-- [ ] `tests/PlanPageTests.elm` extended: a seven-dinner week renders
-      identically to before (a snapshot of the first planner's
-      markup, held), the sixth ADD is a sentence, a label reads in
-      the data voice, the recipe page marks declared slots and
-      preselects nothing.
+- [x] The label mark and its six presses on the plan page; after the
+      recipe page's day picker, the same six, declared slots marked
+      and none preselected.
+- [x] REMOVE per entry. PLANNED · DAY, DAY on the recipe page, where
+      pressing a planned day takes the recipe off that day.
+- [x] Pick-and-place's entry target. A full day's end is a sentence
+      rather than a press, so a placed meal cannot be refused by
+      surprise; the shell still keeps it lifted if a refusal arrives.
+- [x] `tests/PlanPageTests.elm` — 13 more for days of several, and
+      the lifted-state tests re-cut for lists; `RecipePageTests` — 7
+      for the picker's add, full and label row.
 
-### Phase 3 — the picture
+**Where the build differs from this plan, and why:**
 
-- [ ] The drawing over the new shape: day headers, entry rows, the
-      label mark, the one-meal day drawn on one line as before.
-- [ ] The height budget and the two type steps; growth past them.
-- [ ] A first-planner week rendered through the expansion's drawing
-      and compared pixel-for-pixel to the first planner's output,
-      recorded here. That comparison is the test that the expansion
-      cost nobody anything.
+- **A one-meal week does not render identically to the first
+  planner's**, and could not: this plan also puts ADD on every held
+  day. What holds instead is that a day of one never shows a label
+  mark or the words NO LABEL, and ADD is a quiet word like REMOVE, not
+  a slab. The snapshot test the plan asked for became tests of those
+  two facts.
+- **Label marks show on a day of two or more, or on a meal already
+  labelled.** A single labelled meal keeps its mark, so a label set
+  from the recipe page is visible on a day of one.
+- **The picker no longer replaces.** The first planner armed a held
+  day and replaced it on the second press. With room for five, a held
+  day takes the recipe at the end, and a full day refuses in words
+  under the picker. `Plan.placeRecipe` now returns `Result Refusal`.
+  DS-01 §04's fourth-surface amendment is re-cut to say clearing the
+  week is the plan's one control that asks twice.
+- **Lifted, the targets are the meals and each day's end.** Every
+  other meal is a swap; each held day ends in a SET HERE press, or the
+  full-day sentence; an empty day is still one row press. The lifted
+  meal's own day has no end press: setting it at the end of its own
+  day is not a move the model makes, and PUT BACK is on the meal.
+- **Day names sit level with a day's first meal.** Centred on the
+  stack, THURSDAY floated beside its third meal; found in the browser.
+
+**Verified in a real browser** against `deno task build`: a stored
+week mixing both shapes read correctly; labelling, adding with Enter,
+a swap across days, and a labelled meal moved to an empty day with its
+label; REMOVE gone while a meal was held; the stored week matching at
+each step; and on the recipe page, a day of two taking the recipe at
+the end, the recipe's own slots marked, only None seated until the
+reader chose.
+
+### Phase 3 — the picture ✅ done 2026-09-27
+
+- [x] The drawing over the new shape. `Plan.toShare` now sends each
+      day's meals in order, each with its source and label. A meal's
+      mark is `LUNCH · ARCHIVE`, or one, or neither, right-aligned
+      on its first line. The day's name sits on its first meal's
+      line. Meals on one day are 22 pixels apart, and the rule
+      between days is unchanged.
+- [x] The height budget of 1920 pixels and the two type steps, ×0.85
+      then ×0.72 on the meals' type and the gap between them. A week
+      still too tall after both grows taller rather than cutting.
+- [x] The alt text says every meal with its label and source, and
+      keeps the first planner's wording for a day of one.
+- [x] **The pixel comparison.** The picture code from the first
+      planner's commit (`3d58c30`) and from this phase were loaded
+      into the same page and drew the same one-meal week:
+
+      | Week | First planner | Expansion | Differing pixels |
+      |---|---|---|---|
+      | Six meals, one three-line, lit | 1080 × 1273 | 1080 × 1273 | 0 |
+      | The same, dark | 1080 × 1273 | 1080 × 1273 | 0 |
+      | Empty | 1080 × 1158 | 1080 × 1158 | 0 |
+
+      The expansion cost a one-meal week nothing. The harness was a
+      throwaway: both drawing blocks cut out of `boot.js` at `const
+      PICTURE` and `async function sharePicture`, wrapped as modules,
+      decoded to `ImageData` and compared channel by channel.
+
+**Seen, not only measured.** A mixed week of eight meals, some
+labelled, drew at 1080 × 1500, inside one screen. A full week, 35
+meals with every label, stepped down twice and still grew to
+1080 × 3162. That is the ruling working, but it is worth knowing: a
+maxed-out week is three screens tall, and the wide `LUNCH · ARCHIVE`
+marks narrow the meal column enough that long names wrap to two lines.
 
 ## When to start
 

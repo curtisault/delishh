@@ -343,6 +343,12 @@ work.
 > other press on the plan does what it says, because every other
 > press is one press away from being undone.
 >
+> *Re-cut the same day, by the expansion's Phase 2: replacing is
+> gone.* A day now holds five, so a recipe page's press on a held day
+> adds after what is there instead of replacing it, and a full day
+> says so in words. Clearing the week is the one control on the plan
+> that asks twice.
+>
 > **ADD TO PLAN takes no acid** — *re-cut the same day: it is
 > electric blue, by the palette amendment that follows.* The first ruling
 > kept the action row to two acids and said the plan had no physical
@@ -631,6 +637,9 @@ gauges:                    # optional; up to five operating numbers (§09)
 The facet lists (`slot`, `flavor`, `method`, `effort`, `dietary`) are
 **closed vocabularies** defined in one place in the build script.
 Adding a value is a deliberate act, not a typo surviving review.
+The `slot` list is also read by the meal planner, as the labels a
+planned meal may carry (2026-09-27); `plan_slots_test.ts` holds its
+copy to this one, so a new slot is a new label in both or neither.
 
 > **Amendment 2026-09-21 — a flavour may state how loudly it
 > speaks.** `spicy 2` is the word and an authored level: `1`

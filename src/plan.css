@@ -109,8 +109,29 @@ button.plan-row .plan-dayname {
 
 /* ---------- a held day ---------- */
 
-.plan-held {
+/* A day of several reads from its first meal down, so the day's name
+   sits level with the first slab rather than centred on the stack —
+   centred, THURSDAY floated beside its third meal. The padding is the
+   slab's own inner top (0.45rem) plus its 1px edge, so the name's
+   line lands on the meal's. */
+.plan-held-row {
+  align-items: start;
+}
+.plan-held-row > .plan-dayname {
+  padding-top: calc(0.45rem + 1px + 0.2em);
+}
+
+/* The day's meals, in order, then ADD or the sentence that stands
+   where ADD was. One column: a day is read down, like the week. */
+.plan-body {
   grid-column: 2 / 4;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.plan-item-line {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -139,6 +160,8 @@ button.plan-row .plan-dayname {
   padding-bottom: 0.1rem;
 }
 .plan-recipe-link::after,
+.plan-label-mark::after,
+.plan-add::after,
 .plan-drop::after,
 .plan-clear::after,
 .plan-cancel::after {
@@ -171,6 +194,66 @@ button.plan-row .plan-dayname {
   margin-left: auto;
 }
 
+/* THE LABEL MARK is data, so the data voice: NO LABEL when unset, in
+   the dim ink, the slot's word when set, in full ink. It appears only
+   on a day of two or more, or on a meal already labelled — a day of
+   one is never made to show a label it does not have. An OVERLAY
+   target, like REMOVE, for REMOVE's reason. */
+.plan-label-mark {
+  position: relative;
+  flex: none;
+  background: none;
+  border: 0;
+  border-bottom: 1.5px solid var(--rule);
+  color: var(--tx);
+  font-family: var(--font-data);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.2rem;
+  cursor: pointer;
+}
+.plan-label-mark.is-unset {
+  color: var(--tx-dim);
+  border-bottom-color: var(--rule-soft);
+}
+/* The five words and NONE. The current one is seated. */
+.plan-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.35rem;
+  margin: 0.3rem 0 0.2rem;
+}
+.plan-label-opt {
+  padding: 0.3rem 0.65rem;
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+}
+
+/* ADD, quiet like REMOVE: the second meal is the expansion's whole
+   surface, and it must not make a one-meal week louder than it was. */
+.plan-add-line {
+  display: flex;
+}
+.plan-add {
+  position: relative;
+  background: none;
+  border: 0;
+  border-bottom: 1.5px solid var(--rule);
+  color: var(--tx);
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.2rem;
+  cursor: pointer;
+}
+/* The limit, said where the press was. */
+.plan-full {
+  margin: 0.2rem 0 0;
+  font-size: 0.74rem;
+  color: var(--tx-dim);
+}
+
 /* ARMED IS A WORD — the list's rule, verbatim. */
 .plan-clear.is-armed {
   color: var(--tx);
@@ -187,6 +270,24 @@ button.plan-row .plan-dayname {
 
 /* ---------- a lifted week ---------- */
 
+/* On a held day, each meal is a place to swap with, and the day's end
+   is a place to set it down. Both are slabs the width of the column,
+   so the targets read as the rows they will become. */
+.plan-swap,
+.plan-end {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  width: calc(100% - 5px);
+  padding: 0.45rem 0.8rem;
+  font: inherit;
+  text-align: left;
+}
+.plan-end {
+  justify-content: flex-end;
+}
+
 .plan-hint {
   font-size: 0.6rem;
   letter-spacing: 0.08em;
@@ -202,7 +303,6 @@ button.plan-row .plan-dayname {
   padding-top: 0.85rem;
 }
 .plan-entry {
-  grid-column: 2 / 4;
   min-width: 0;
 }
 .plan-entry-input {
@@ -337,8 +437,7 @@ button.plan-row .plan-dayname {
   .plan-row > .plan-dayname {
     grid-column: 1 / -1;
   }
-  .plan-held,
-  .plan-entry {
+  .plan-body {
     grid-column: 1 / -1;
   }
   .plan-entry-row .plan-dayname {
@@ -349,6 +448,8 @@ button.plan-row .plan-dayname {
 /* Focus is unconditional — it is not decoration, and it is never
    inside a motion query. */
 .plan-recipe-link:focus-visible,
+.plan-label-mark:focus-visible,
+.plan-add:focus-visible,
 .plan-drop:focus-visible,
 .plan-clear:focus-visible,
 .plan-cancel:focus-visible,

@@ -131,7 +131,14 @@ listed =
 {-| The day picker, closed, over the given week. -}
 noPlanner : Plan.Plan -> Page.Recipe.Planner ()
 noPlanner plan =
-    { plan = plan, open = False, armed = Nothing, onOpen = (), onDay = always () }
+    { plan = plan
+    , open = False
+    , placed = Nothing
+    , refused = Nothing
+    , onOpen = ()
+    , onDay = always ()
+    , onLabel = always ()
+    }
 
 
 {-| The page with a given planner, everything else plain.
@@ -166,6 +173,16 @@ aWeek =
         |> Plan.set Wed (Plan.recipe full.slug full.title)
         |> Plan.set Fri (Plan.recipe full.slug full.title)
         |> Plan.set Sun (Plan.own "Spaghetti" |> Maybe.withDefault (Plan.recipe "x" "x"))
+
+
+{-| Sunday holding five of someone else's meals.
+-}
+fullSunday : Plan.Plan
+fullSunday =
+    List.foldl
+        (\_ p -> Plan.add Sun (Plan.recipe "x" "Toast") p |> Result.withDefault p)
+        Plan.empty
+        (List.range 1 5)
 
 
 pickerDay : Int -> Query.Single () -> Query.Single ()
@@ -351,11 +368,46 @@ suite =
                     planned (let p = noPlanner aWeek in { p | open = True })
                         |> pickerDay 0
                         |> Query.has [ Selector.text "Spaghetti" ]
-            , test "armed, that day asks before it replaces" <|
+            , test "a day holding another meal offers to add after it, not to replace it" <|
                 \_ ->
-                    planned (let p = noPlanner aWeek in { p | open = True, armed = Just Sun })
+                    planned (let p = noPlanner aWeek in { p | open = True })
                         |> pickerDay 0
-                        |> Query.has [ Selector.text "Replace Spaghetti?" ]
+                        |> Query.has [ Selector.text "Sunday, holds Spaghetti. Press to add this after it" ]
+            , test "a full day says so" <|
+                \_ ->
+                    planned (let p = noPlanner fullSunday in { p | open = True })
+                        |> pickerDay 0
+                        |> Query.has [ Selector.text "Full", Selector.class "is-full" ]
+            , test "pressing a full day is answered in words" <|
+                \_ ->
+                    planned (let p = noPlanner fullSunday in { p | open = True, refused = Just Sun })
+                        |> Query.has [ Selector.text "Sunday holds five. Five is a full day." ]
+            , test "no label row until the recipe has just been put on a day" <|
+                \_ ->
+                    planned (let p = noPlanner aWeek in { p | open = True })
+                        |> Query.hasNot [ Selector.class "plan-picker-labels" ]
+            , test "placed, it offers the five words and None" <|
+                \_ ->
+                    planned (let p = noPlanner aWeek in { p | open = True, placed = Just Wed })
+                        |> Query.findAll [ Selector.class "plan-picker-label" ]
+                        |> Query.count (Expect.equal 6)
+            , test "the recipe's own slot is marked, in words too" <|
+                \_ ->
+                    planned (let p = noPlanner aWeek in { p | open = True, placed = Just Wed })
+                        |> Query.findAll [ Selector.class "is-declared" ]
+                        |> Query.first
+                        |> Query.has [ Selector.text "dessert", Selector.text ", this recipe's slot" ]
+            , test "and nothing is chosen for the reader" <|
+                \_ ->
+                    -- Only None is seated: the entry has no label until
+                    -- the reader gives it one. A dessert eaten at lunch
+                    -- is lunch (§06, nothing is inferred).
+                    planned (let p = noPlanner aWeek in { p | open = True, placed = Just Wed })
+                        |> Query.findAll [ Selector.class "plan-picker-label", Selector.class "is-seated" ]
+                        |> Expect.all
+                            [ Query.count (Expect.equal 1)
+                            , Query.first >> Query.has [ Selector.text "None" ]
+                            ]
             ]
         , describe "the split"
             [ test "what you need and what you do are separate columns" <|

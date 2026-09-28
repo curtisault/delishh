@@ -747,10 +747,49 @@
   font-size: 0.72rem;
   overflow-wrap: anywhere;
 }
-/* ARMED IS A WORD ("Replace Spaghetti?"), and the weight says the word
-   changed. Never a colour on its own (§12). */
-.plan-picker-day.is-armed .plan-picker-holds {
-  font-weight: 700;
+/* A full day says FULL, dimmed. Pressing it still answers — with a
+   sentence under the picker — because a press that silently did
+   nothing is worse than one that says no. */
+.plan-picker-day.is-full .plan-picker-holds {
+  color: var(--tx-dim);
+}
+.plan-picker-note {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--tx-dim);
+}
+
+/* The label row for the day this recipe was just put on. The recipe's
+   own slots carry a rule under the word — declared data, shown — and
+   none is seated until the reader seats one (§06: nothing is
+   inferred). The rule is the eye's carrier; ", this recipe's slot" is
+   the ear's. */
+.plan-picker-labels {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.8rem;
+  margin-top: 0.8rem;
+}
+.plan-picker-k {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+}
+.plan-picker-label-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.35rem;
+}
+.plan-picker-label {
+  padding: 0.3rem 0.65rem;
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+}
+.plan-picker-label.is-declared {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 .plan-picker-link {
   display: inline-block;

@@ -330,10 +330,19 @@ const PICTURE = {
   wordmark: 64,
   day: 30,
   meal: [46, 38, 32], // stepped down, never cut
-  mark: 22, // ARCHIVE, the data voice
+  mark: 22, // ARCHIVE and the label, the data voice
   rowPad: 40,
   lead: 1.2,
   gap: 48, // between the day column and the meal
+  between: 22, // between two meals on one day
+  // One phone screen. Past it the meals' type steps down once, then
+  // twice; past that the card grows taller, because a meal cut off a
+  // picture is a broken picture (§12) and a taller card is only a
+  // scroll. A week of one meal a day never comes near it, which is
+  // what keeps that week's picture the first planner's, pixel for
+  // pixel (docs/meal-planner-expansion.md, Phase 3).
+  budget: 1920,
+  steps: [1, 0.85, 0.72],
 }
 
 let picture = null // { url, blob, file }
@@ -411,13 +420,15 @@ async function drawPicture(rows) {
   // before the first stroke — so the latin-ext cut loads when a meal
   // needs it. A face that will not load falls to its stack, which is
   // what the page would do too.
-  const words = rows.map((r) => r.meal || '').join(' ')
+  const meals = rows.flatMap((r) => r.meals)
+  const words = meals.map((m) => m.meal).join(' ')
+  const marks = ['ARCHIVE', ...meals.map((m) => (m.label || '').toUpperCase())].join(' ')
   try {
     await Promise.all([
       document.fonts.load(font('display', PICTURE.wordmark), 'DELISHH'),
       document.fonts.load(font('display', PICTURE.day), rows.map((r) => r.day.toUpperCase()).join('')),
       ...PICTURE.meal.map((size) => document.fonts.load(font('body', size), words || 'a')),
-      document.fonts.load(font('data', PICTURE.mark), 'ARCHIVE'),
+      document.fonts.load(font('data', PICTURE.mark), marks),
     ])
   } catch (_) {
     // fall through to the stack
@@ -432,27 +443,52 @@ async function drawPicture(rows) {
   ctx.font = font('display', PICTURE.day)
   const dayWidth = Math.max(...rows.map((r) => ctx.measureText(r.day.toUpperCase()).width))
   const mealX = PICTURE.pad + dayWidth + PICTURE.gap
-  ctx.font = font('data', PICTURE.mark)
-  const markWidth = ctx.measureText('ARCHIVE').width
+
+  // A meal's mark: its label and where it came from, `LUNCH · ARCHIVE`,
+  // or one, or neither. Measured per meal, since a label is a word of
+  // its own width; for a meal with no label it is exactly the first
+  // planner's ARCHIVE.
+  const markOf = (m) =>
+    [m.label ? m.label.toUpperCase() : null, m.source === 'archive' ? 'ARCHIVE' : null]
+      .filter(Boolean)
+      .join(' · ')
 
   // Lay out before drawing: the canvas's height is the sum of its rows,
-  // and setting a canvas's height clears it.
-  const laid = rows.map((row) => {
-    const room =
-      PICTURE.width - PICTURE.pad - mealX - (row.source === 'archive' ? markWidth + 32 : 0)
-    let size = PICTURE.meal[0]
-    let lines = []
-    if (row.meal) {
-      for (size of PICTURE.meal) {
-        ctx.font = font('body', size)
-        lines = wrap(ctx, row.meal, room)
-        if (lines.length <= 2) break
-      }
-    }
-    const height = PICTURE.rowPad * 2 + Math.max(1, lines.length) * size * PICTURE.lead
-    return { ...row, size, lines, height }
-  })
-  canvas.height = PICTURE.band + laid.reduce((sum, r) => sum + r.height, 0) + PICTURE.pad / 2
+  // and setting a canvas's height clears it. Laid out at each step of
+  // the budget until one fits, or the last.
+  const layOut = (step) => {
+    const laid = rows.map((row) => {
+      const entries = row.meals.map((m) => {
+        const mark = markOf(m)
+        ctx.font = font('data', PICTURE.mark)
+        const markWidth = mark ? ctx.measureText(mark).width : 0
+        const room = PICTURE.width - PICTURE.pad - mealX - (mark ? markWidth + 32 : 0)
+        let size = PICTURE.meal[0] * step
+        let lines = []
+        for (const base of PICTURE.meal) {
+          size = base * step
+          ctx.font = font('body', size)
+          lines = wrap(ctx, m.meal, room)
+          if (lines.length <= 2) break
+        }
+        return { mark, size, lines, height: lines.length * size * PICTURE.lead }
+      })
+      // An empty day is one line tall at the first size, as it was.
+      const first = entries[0] ? entries[0].size : PICTURE.meal[0] * step
+      const body = entries.length
+        ? entries.reduce((sum, e) => sum + e.height, 0) + PICTURE.between * step * (entries.length - 1)
+        : first * PICTURE.lead
+      return { day: row.day, entries, first, height: PICTURE.rowPad * 2 + body }
+    })
+    const height = PICTURE.band + laid.reduce((sum, r) => sum + r.height, 0) + PICTURE.pad / 2
+    return { laid, height, step }
+  }
+  let layout = layOut(PICTURE.steps[0])
+  for (const step of PICTURE.steps.slice(1)) {
+    if (layout.height <= PICTURE.budget) break
+    layout = layOut(step)
+  }
+  canvas.height = layout.height
 
   ctx.fillStyle = ink.ground
   ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -469,29 +505,34 @@ async function drawPicture(rows) {
 
   ctx.textBaseline = 'alphabetic'
   let y = PICTURE.band
-  laid.forEach((row, i) => {
+  layout.laid.forEach((row, i) => {
     if (i > 0) {
       ctx.fillStyle = ink.rule
       ctx.fillRect(PICTURE.pad, y, canvas.width - PICTURE.pad * 2, 2)
     }
-    const baseline = y + PICTURE.rowPad + row.size * 0.95
-
+    // The day's name sits on its first meal's first line.
+    const baseline = y + PICTURE.rowPad + row.first * 0.95
     ctx.fillStyle = ink.tx
     ctx.font = font('display', PICTURE.day)
     ctx.fillText(row.day.toUpperCase(), PICTURE.pad, baseline)
 
-    ctx.font = font('body', row.size)
-    row.lines.forEach((line, n) => {
-      ctx.fillText(line, mealX, baseline + n * row.size * PICTURE.lead)
+    let top = y + PICTURE.rowPad
+    row.entries.forEach((entry) => {
+      const line = top + entry.size * 0.95
+      ctx.fillStyle = ink.tx
+      ctx.font = font('body', entry.size)
+      entry.lines.forEach((text, n) => {
+        ctx.fillText(text, mealX, line + n * entry.size * PICTURE.lead)
+      })
+      if (entry.mark) {
+        ctx.fillStyle = ink.dim
+        ctx.font = font('data', PICTURE.mark)
+        ctx.textAlign = 'right'
+        ctx.fillText(entry.mark, canvas.width - PICTURE.pad, line)
+        ctx.textAlign = 'left'
+      }
+      top += entry.height + PICTURE.between * layout.step
     })
-
-    if (row.source === 'archive') {
-      ctx.fillStyle = ink.dim
-      ctx.font = font('data', PICTURE.mark)
-      ctx.textAlign = 'right'
-      ctx.fillText('ARCHIVE', canvas.width - PICTURE.pad, baseline)
-      ctx.textAlign = 'left'
-    }
     y += row.height
   })
 

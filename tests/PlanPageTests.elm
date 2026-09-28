@@ -40,9 +40,11 @@ type Msg
     | Cancel
     | Keep
     | Pick String String
-    | Lift Day
-    | Place Day
-    | Remove Day
+    | Lift Day Int
+    | Place Plan.Target
+    | Remove Day Int
+    | LabelOpen Day Int
+    | SetLabel Day Int (Maybe String)
     | Clear
     | Make
     | ShareIt
@@ -96,6 +98,7 @@ config =
     , archive = archive
     , lifted = Nothing
     , entry = Nothing
+    , labelOpen = Nothing
     , clearArmed = False
     , onOpen = Open
     , onInput = Input
@@ -105,6 +108,8 @@ config =
     , onLift = Lift
     , onPlace = Place
     , onRemove = Remove
+    , onLabelOpen = LabelOpen
+    , onLabel = SetLabel
     , onClear = Clear
     , picture = NotMade
     , outcome = Nothing
@@ -119,6 +124,18 @@ made can =
     { config
         | picture = Made { url = "blob:week", canShare = can.canShare, canCopy = can.canCopy }
     }
+
+
+{-| The week, with a second meal on Wednesday. -}
+twoOnWed : Plan.Plan
+twoOnWed =
+    Plan.add Wed (Plan.recipe "classic-lasagna" "Classic lasagna") aWeek |> Result.withDefault aWeek
+
+
+{-| The week, with five on one day. -}
+fiveOn : Day -> Plan.Plan
+fiveOn d =
+    List.foldl (\_ p -> Plan.add d spaghetti p |> Result.withDefault p) aWeek (List.range 1 5)
 
 
 render : Page.Plan.Config Msg -> Query.Single Msg
@@ -207,7 +224,7 @@ suite =
                         |> dayRow Wed
                         |> Query.find [ Selector.class "plan-meal" ]
                         |> Event.simulate Event.click
-                        |> Event.expect (Lift Wed)
+                        |> Event.expect (Lift Wed 0)
             , test "each Remove names what it removes" <|
                 \_ ->
                     render config
@@ -218,48 +235,152 @@ suite =
         , describe "a lifted meal"
             [ test "its own day is seated" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
+                    render { config | lifted = Just ( Wed, 0 ) }
                         |> dayRow Wed
-                        |> Query.find [ Selector.class "plan-place" ]
+                        |> Query.find [ Selector.class "plan-swap" ]
                         |> Query.has
                             [ Selector.class "is-seated"
                             , Selector.attribute (Attr.attribute "aria-pressed" "true")
                             ]
             , test "and says , lifted to a screen reader" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
+                    render { config | lifted = Just ( Wed, 0 ) }
                         |> dayRow Wed
                         |> Query.has [ Selector.text ", lifted. Press to put it back" ]
-            , test "every day becomes a place to set it down" <|
+            , test "every empty day becomes a place to set it down" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
-                        |> Query.findAll [ Selector.class "plan-place" ]
-                        |> Query.count (Expect.equal 7)
+                    render { config | lifted = Just ( Wed, 0 ) }
+                        |> Expect.all
+                            (List.map
+                                (\d ->
+                                    dayRow d
+                                        >> Query.children [ Selector.class "plan-place" ]
+                                        >> Query.count (Expect.equal 1)
+                                )
+                                [ Mon, Tue, Thu, Fri, Sat ]
+                            )
+            , test "its own day offers no end to set it at: that is putting it back" <|
+                \_ ->
+                    render { config | lifted = Just ( Wed, 0 ) }
+                        |> dayRow Wed
+                        |> Query.hasNot [ Selector.class "plan-end" ]
             , test "a full day says it will swap" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
+                    render { config | lifted = Just ( Wed, 0 ) }
                         |> dayRow Sun
                         |> Query.has [ Selector.text ", swap Spaghetti with Donuts" ]
             , test "pressing a day places it there" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
+                    render { config | lifted = Just ( Wed, 0 ) }
                         |> dayRow Fri
                         |> Query.find [ Selector.class "plan-place" ]
                         |> Event.simulate Event.click
-                        |> Event.expect (Place Fri)
+                        |> Event.expect (Place (Plan.OntoDay Fri))
             , test "nothing destructive is under the hand" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
+                    render { config | lifted = Just ( Wed, 0 ) }
                         |> Expect.all
                             [ Query.hasNot [ Selector.class "plan-drop" ]
                             , Query.hasNot [ Selector.class "plan-clear" ]
                             ]
             , test "the standfirst says what is held and how to put it back" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
+                    render { config | lifted = Just ( Wed, 0 ) }
                         |> Query.find [ Selector.class "plan-standfirst" ]
                         |> Query.has
-                            [ Selector.text "Holding Spaghetti. Press a day to set it down, or Wednesday to put it back." ]
+                            [ Selector.text "Holding Spaghetti. Press a meal to swap with it, or Set here to put it at the end of a day. Press Spaghetti again to put it back." ]
+            ]
+        , describe "a day of several — docs/meal-planner-expansion.md"
+            [ test "a week of one meal a day shows no label marks" <|
+                \_ ->
+                    render config
+                        |> Expect.all
+                            [ Query.hasNot [ Selector.class "plan-label-mark" ]
+                            , Query.hasNot [ Selector.text "No label" ]
+                            ]
+            , test "a held day offers ADD, quietly" <|
+                \_ ->
+                    render config
+                        |> dayRow Wed
+                        |> Query.find [ Selector.class "plan-add" ]
+                        |> Event.simulate Event.click
+                        |> Event.expect (Open Wed)
+            , test "an empty day has no ADD: its name is the press" <|
+                \_ ->
+                    render config
+                        |> dayRow Mon
+                        |> Query.hasNot [ Selector.class "plan-add" ]
+            , test "a day of five says so where ADD was" <|
+                \_ ->
+                    render { config | plan = fiveOn Thu }
+                        |> dayRow Thu
+                        |> Expect.all
+                            [ Query.hasNot [ Selector.class "plan-add" ]
+                            , Query.has [ Selector.text "Five is a full day." ]
+                            ]
+            , test "a day of two shows each meal's label mark, in the data voice" <|
+                \_ ->
+                    render { config | plan = twoOnWed }
+                        |> dayRow Wed
+                        |> Query.findAll [ Selector.class "plan-label-mark" ]
+                        |> Expect.all
+                            [ Query.count (Expect.equal 2)
+                            , Query.first >> Query.has [ Selector.class "mono", Selector.text "No label" ]
+                            ]
+            , test "a labelled meal on a day of one still shows its label" <|
+                \_ ->
+                    render { config | plan = aWeek |> Plan.label Wed 0 (Just "lunch") }
+                        |> dayRow Wed
+                        |> Query.find [ Selector.class "plan-label-mark" ]
+                        |> Query.has [ Selector.text "lunch" ]
+            , test "the mark opens the five words and None" <|
+                \_ ->
+                    render { config | plan = twoOnWed, labelOpen = Just ( Wed, 1 ) }
+                        |> Query.findAll [ Selector.class "plan-label-opt" ]
+                        |> Query.count (Expect.equal 6)
+            , test "a word labels that meal" <|
+                \_ ->
+                    render { config | plan = twoOnWed, labelOpen = Just ( Wed, 1 ) }
+                        |> Query.findAll [ Selector.class "plan-label-opt" ]
+                        |> Query.index 1
+                        |> Event.simulate Event.click
+                        |> Event.expect (SetLabel Wed 1 (Just "lunch"))
+            , test "each meal on a day is removed on its own" <|
+                \_ ->
+                    render { config | plan = twoOnWed }
+                        |> dayRow Wed
+                        |> Query.findAll [ Selector.class "plan-drop" ]
+                        |> Query.index 1
+                        |> Event.simulate Event.click
+                        |> Event.expect (Remove Wed 1)
+            , test "the standfirst counts meals once a day holds more than one" <|
+                \_ ->
+                    render { config | plan = twoOnWed }
+                        |> Query.find [ Selector.class "plan-standfirst" ]
+                        |> Query.has [ Selector.text "2 of 7 days planned, 3 meals." ]
+            , test "held over a full day, the day's end is a sentence, not a press" <|
+                \_ ->
+                    render { config | plan = fiveOn Thu |> Plan.set Sun spaghetti, lifted = Just ( Sun, 0 ) }
+                        |> dayRow Thu
+                        |> Expect.all
+                            [ Query.hasNot [ Selector.class "plan-end" ]
+                            , Query.has [ Selector.text "Five is a full day." ]
+                            ]
+            , test "held, a meal on another day swaps with it" <|
+                \_ ->
+                    render { config | plan = twoOnWed, lifted = Just ( Sun, 0 ) }
+                        |> dayRow Wed
+                        |> Query.findAll [ Selector.class "plan-swap" ]
+                        |> Query.index 1
+                        |> Event.simulate Event.click
+                        |> Event.expect (Place (Plan.OntoEntry Wed 1))
+            , test "held, a held day's end sets it at the end" <|
+                \_ ->
+                    render { config | plan = twoOnWed, lifted = Just ( Sun, 0 ) }
+                        |> dayRow Wed
+                        |> Query.find [ Selector.class "plan-end" ]
+                        |> Event.simulate Event.click
+                        |> Event.expect (Place (Plan.OntoDay Wed))
             ]
         , describe "the entry field"
             [ test "is labelled by its day" <|
@@ -267,7 +388,7 @@ suite =
                     typing ""
                         |> Query.find [ Selector.tag "label" ]
                         |> Query.has
-                            [ Selector.text "Monday"
+                            [ Selector.text "A meal for Monday"
                             , Selector.attribute (Attr.for "plan-entry")
                             ]
             , test "a match press sets the recipe" <|
@@ -339,7 +460,7 @@ suite =
                         |> Query.hasNot [ Selector.class "plan-share" ]
             , test "is not offered while a meal is in the hand" <|
                 \_ ->
-                    render { config | lifted = Just Wed }
+                    render { config | lifted = Just ( Wed, 0 ) }
                         |> Query.hasNot [ Selector.class "plan-share" ]
             , test "is not offered beside an open day, so KEEP is the one volt" <|
                 \_ ->
@@ -374,6 +495,20 @@ suite =
                                         ++ "Monday: nothing planned. Tuesday: nothing planned. "
                                         ++ "Wednesday: Spaghetti. Thursday: nothing planned. "
                                         ++ "Friday: nothing planned. Saturday: nothing planned."
+                                    )
+                                )
+                            ]
+            , test "the words say every meal of a day, with its label and source" <|
+                \_ ->
+                    render (let c = made { canShare = False, canCopy = False } in { c | plan = twoOnWed |> Plan.label Wed 0 (Just "lunch") })
+                        |> Query.find [ Selector.class "plan-picture" ]
+                        |> Query.has
+                            [ Selector.attribute
+                                (Attr.alt
+                                    ("The week, as a picture. Sunday: Donuts, from the archive. "
+                                        ++ "Monday: nothing planned. Tuesday: nothing planned. "
+                                        ++ "Wednesday: Spaghetti, lunch; Classic lasagna, from the archive. "
+                                        ++ "Thursday: nothing planned. Friday: nothing planned. Saturday: nothing planned."
                                     )
                                 )
                             ]

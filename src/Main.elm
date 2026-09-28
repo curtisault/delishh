@@ -316,7 +316,8 @@ type alias Model =
     -- CLEAR THE WEEK is armed. Page state, so any navigation drops
     -- all three — a meal still held after you left the page would be
     -- set down by a press you made somewhere else
-    , lifted : Maybe Plan.Day
+    , lifted : Maybe ( Plan.Day, Int )
+    , planLabelOpen : Maybe ( Plan.Day, Int )
     , planEntry : Maybe Page.Plan.Entry
     , planClearArmed : Bool
 
@@ -324,7 +325,8 @@ type alias Model =
     -- first press asked to replace. Reset by navigation for the same
     -- reason the print form is
     , pickerOpen : Bool
-    , pickerArmed : Maybe Plan.Day
+    , pickerPlaced : Maybe Plan.Day
+    , pickerRefused : Maybe Plan.Day
 
     -- the shared picture, which draw it is waiting for, and what the
     -- last share or copy did. Dropped by any change to the week, the
@@ -382,10 +384,12 @@ init flags url key =
       , clearArmed = False
       , plan = storedPlan
       , lifted = Nothing
+      , planLabelOpen = Nothing
       , planEntry = Nothing
       , planClearArmed = False
       , pickerOpen = False
-      , pickerArmed = Nothing
+      , pickerPlaced = Nothing
+      , pickerRefused = Nothing
       , picture = Page.Plan.NotMade
       , pictureGen = 0
       , pictureOutcome = Nothing
@@ -430,6 +434,20 @@ storePlan model =
             dropPicture model
     in
     ( dropped, Cmd.batch [ savePlan (Plan.encode model.plan), forget ] )
+
+
+{-| Put a meal at the end of a day and close the field. A full day
+cannot reach here — ADD is a sentence at five — but if it did, the
+field stays open with the words still in it rather than losing them.
+-}
+addToDay : Plan.Day -> Plan.Meal -> Model -> ( Model, Cmd Msg )
+addToDay day meal model =
+    case Plan.add day meal model.plan of
+        Ok plan ->
+            storePlan { model | plan = plan, planEntry = Nothing }
+
+        Err Plan.DayFull ->
+            ( model, Cmd.none )
 
 
 {-| Let go of the picture. Every change to the week comes through
@@ -578,12 +596,15 @@ type Msg
     | PlanCancel
     | PlanKeep
     | PlanPick String String
-    | PlanLift Plan.Day
-    | PlanPlace Plan.Day
-    | PlanRemove Plan.Day
+    | PlanLift Plan.Day Int
+    | PlanPlace Plan.Target
+    | PlanRemove Plan.Day Int
+    | PlanLabelOpen Plan.Day Int
+    | PlanLabel Plan.Day Int (Maybe Plan.Slot)
     | PlanClear
     | PickerToggle
     | PickerDay Plan.Day
+    | PickerLabel (Maybe Plan.Slot)
     | MakePicture
     | GotPicture D.Value
     | SharePicture
@@ -726,12 +747,24 @@ update msg model =
 
                             else
                                 model.pickerOpen
-                        , pickerArmed =
+                        , planLabelOpen =
                             if arrived then
                                 Nothing
 
                             else
-                                model.pickerArmed
+                                model.planLabelOpen
+                        , pickerPlaced =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.pickerPlaced
+                        , pickerRefused =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.pickerRefused
                         , done =
                             if arrived then
                                 Set.empty
@@ -902,6 +935,7 @@ update msg model =
             ( { model
                 | planEntry = Just { day = day, text = "" }
                 , lifted = Nothing
+                , planLabelOpen = Nothing
                 , planClearArmed = False
               }
             , Task.attempt (\_ -> NoOp) (Dom.focus "plan-entry")
@@ -924,11 +958,7 @@ update msg model =
                 Just entry ->
                     case Plan.own entry.text of
                         Just meal ->
-                            storePlan
-                                { model
-                                    | plan = Plan.set entry.day meal model.plan
-                                    , planEntry = Nothing
-                                }
+                            addToDay entry.day meal model
 
                         Nothing ->
                             ( model, Cmd.none )
@@ -939,39 +969,64 @@ update msg model =
         PlanPick slug title ->
             case model.planEntry of
                 Just entry ->
-                    storePlan
-                        { model
-                            | plan = Plan.set entry.day (Plan.recipe slug title) model.plan
-                            , planEntry = Nothing
-                        }
+                    addToDay entry.day (Plan.recipe slug title) model
 
                 Nothing ->
                     ( model, Cmd.none )
 
-        PlanLift day ->
-            ( { model | lifted = Just day, planEntry = Nothing, planClearArmed = False }
+        PlanLift day index ->
+            ( { model
+                | lifted = Just ( day, index )
+                , planEntry = Nothing
+                , planLabelOpen = Nothing
+                , planClearArmed = False
+              }
             , Cmd.none
             )
 
-        PlanPlace day ->
-            -- The move table (empty takes, full swaps, home is
-            -- identity) lives in `Plan.move`, where it is tested.
+        PlanPlace target ->
+            -- The move table lives in `Plan.moveEntry`, where it is
+            -- tested. A full day refuses and the meal STAYS in the
+            -- hand; the page never offers that press, so this is the
+            -- second lock on the door.
             case model.lifted of
                 Just from ->
-                    storePlan
-                        { model
-                            | plan = Plan.move from day model.plan
-                            , lifted = Nothing
-                        }
+                    case Plan.moveEntry from target model.plan of
+                        Ok plan ->
+                            storePlan { model | plan = plan, lifted = Nothing }
+
+                        Err Plan.DayFull ->
+                            ( model, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
 
-        PlanRemove day ->
+        PlanRemove day index ->
             storePlan
                 { model
-                    | plan = Plan.clear day model.plan
+                    | plan = Plan.remove day index model.plan
+                    , planLabelOpen = Nothing
                     , planClearArmed = False
+                }
+
+        PlanLabelOpen day index ->
+            ( { model
+                | planLabelOpen =
+                    if model.planLabelOpen == Just ( day, index ) then
+                        Nothing
+
+                    else
+                        Just ( day, index )
+                , planClearArmed = False
+              }
+            , Cmd.none
+            )
+
+        PlanLabel day index slot ->
+            storePlan
+                { model
+                    | plan = Plan.label day index slot model.plan
+                    , planLabelOpen = Nothing
                 }
 
         PlanClear ->
@@ -989,28 +1044,46 @@ update msg model =
                 storePlan updated
 
         PickerToggle ->
-            ( { model | pickerOpen = not model.pickerOpen, pickerArmed = Nothing }
+            ( { model | pickerOpen = not model.pickerOpen, pickerPlaced = Nothing, pickerRefused = Nothing }
             , Cmd.none
             )
 
         PickerDay day ->
             -- The recipe has to be in hand, as it does for the list:
-            -- the plan keeps a snapshot of its title.
+            -- the plan keeps a snapshot of its title. The rule is
+            -- `Plan.placeRecipe`: this recipe's day gives it up, any
+            -- other takes it at the end, a full one refuses.
             case model.recipe of
                 Fetched recipe ->
-                    let
-                        ( plan, armed ) =
-                            Plan.placeRecipe
-                                (Plan.recipe recipe.slug recipe.title)
-                                model.pickerArmed
-                                day
-                                model.plan
-                    in
-                    if armed /= Nothing then
-                        ( { model | pickerArmed = armed }, Cmd.none )
+                    case Plan.placeRecipe (Plan.recipe recipe.slug recipe.title) day model.plan of
+                        Ok plan ->
+                            storePlan
+                                { model
+                                    | plan = plan
+                                    , pickerRefused = Nothing
+                                    , pickerPlaced =
+                                        if List.member day (Plan.plannedOn recipe.slug plan) then
+                                            Just day
 
-                    else
-                        storePlan { model | plan = plan, pickerArmed = Nothing }
+                                        else
+                                            Nothing
+                                }
+
+                        Err Plan.DayFull ->
+                            ( { model | pickerRefused = Just day, pickerPlaced = Nothing }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        PickerLabel slot ->
+            case ( model.recipe, model.pickerPlaced ) of
+                ( Fetched recipe, Just day ) ->
+                    case Plan.indexOn recipe.slug day model.plan of
+                        Just index ->
+                            storePlan { model | plan = Plan.label day index slot model.plan }
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -1391,6 +1464,7 @@ page model =
                             FetchFailed ->
                                 Page.Plan.Unsearchable
                     , lifted = model.lifted
+                    , labelOpen = model.planLabelOpen
                     , entry = model.planEntry
                     , clearArmed = model.planClearArmed
                     , onOpen = PlanOpen
@@ -1401,6 +1475,8 @@ page model =
                     , onLift = PlanLift
                     , onPlace = PlanPlace
                     , onRemove = PlanRemove
+                    , onLabelOpen = PlanLabelOpen
+                    , onLabel = PlanLabel
                     , onClear = PlanClear
                     , picture = model.picture
                     , outcome = model.pictureOutcome
@@ -1463,9 +1539,11 @@ page model =
                             , planner =
                                 { plan = model.plan
                                 , open = model.pickerOpen
-                                , armed = model.pickerArmed
+                                , placed = model.pickerPlaced
+                                , refused = model.pickerRefused
                                 , onOpen = PickerToggle
                                 , onDay = PickerDay
+                                , onLabel = PickerLabel
                                 }
                             , origin = model.origin
                             , today = model.today
