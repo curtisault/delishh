@@ -9,7 +9,7 @@ course: bake
 flavor: [sweet 3]
 method: bake
 effort: relaxed
-dietary: [vegetarian]
+dietary: [vegetarian, pescatarian]
 cuisine: [american]
 print: card
 gauges:

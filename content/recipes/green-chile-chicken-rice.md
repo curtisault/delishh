@@ -6,11 +6,11 @@ time: { active: 40m, total: 1h10m }
 keeps: freezer 3mo
 slot: [dinner]
 course: main
-flavor: [savory 3, spicy 2]
+flavor: [savory 3, spicy 1, tangy 1]
 method: bake
 effort: focused
 dietary: []
-cuisine: [american, mexican]
+cuisine: [american]
 print: sheet
 gauges:
   - { label: Pan, value: 23 × 33 CM }

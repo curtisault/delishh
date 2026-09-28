@@ -9,7 +9,7 @@ course: bake
 flavor: [sweet 3, tangy 1]
 method: deep-fry
 effort: project
-dietary: [vegetarian]
+dietary: [vegetarian, pescatarian]
 cuisine: [american]
 print: booklet
 gauges:

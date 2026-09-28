@@ -10,7 +10,7 @@ flavor: [savory 3, spicy 1]
 method: bake
 effort: focused
 dietary: []
-cuisine: [american, mexican]
+cuisine: [american]
 print: sheet
 gauges:
   - { label: Pan, value: 23 × 33 CM }

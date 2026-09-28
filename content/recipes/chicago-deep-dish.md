@@ -10,7 +10,7 @@ flavor: [savory 3, umami 2]
 method: bake
 effort: project
 dietary: []
-cuisine: [american, italian]
+cuisine: [american]
 print: booklet
 gauges:
   - { label: Pan, value: 30 × 5 CM, note: or 25 cm cast iron }

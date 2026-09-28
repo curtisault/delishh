@@ -10,7 +10,7 @@ flavor: [savory 3, spicy 1]
 method: simmer
 effort: focused
 dietary: []
-cuisine: [american, mexican]
+cuisine: [american]
 print: sheet
 gauges:
   - { label: Format, value: BAGS, note: "4 cups each, laid flat" }

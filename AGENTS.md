@@ -15,6 +15,7 @@ the authority on how this looks and why.
 | `docs/decisions.md` | **The decision record** — every ruling in force, dated, with what was rejected and why, from the Revision 2 reframe through the planner, the install and the facet constraints. Ends with *Open*: what is deferred, and what is outstanding by hand (the install and the planner's picture both still want a pass on a phone). A new ruling is a dated block appended here; the four implementation plans it replaced were dropped 2026-09-28 |
 | `docs/decisions-archive.md` | Rulings that were overturned, **as they were made**, with the date and the ruling that replaced them. Never edited; a row moves here from `decisions.md` in the commit that overturns it |
 | `docs/facet-constraints.md` | The **digest** of the facet doctrine — how a flavour level, an effort tier, a dietary flag and a cuisine are *decided*, as numbered requirements a review cites. The meal path has none: the only requirement for a meal is food |
+| `docs/recipe-review-<date>.md` | One file per review of the corpus against the constraints: what was found, changed and left for the cook, recipe by recipe, citing requirements by number. Appended, never edited; the first is 2026-09-28 |
 | `agents/refs/{flavour,effort,needs}.md` | The **verbose** copies of that doctrine, one per judged facet group: every threshold, false friend, hidden carrier and worked case. Read the one for the facet you are setting. **Machine-held**: `doctrine_test.ts` holds their lists to `vocabulary.ts` and the corpus to their mechanical rules |
 | `src/sw.js` | The service worker: **`public/_headers`' cache policy, carried onto the device.** Cache-first exactly where `_headers` says immutable; `/content/*` never |
 | `src/Prose.elm` | Markdown blocks → the house chrome. **Every styling decision for generated prose lives here**, in hand-written Elm; the generator emits data and knows no class name |
@@ -185,9 +186,8 @@ whose only job is to be read.
   the three effort anchors carry the tiers they anchor, at most two
   cuisines. The judgements themselves — a level, a window count, a
   verified flag — are a person's, at the tested cook, and are not
-  here. One rule is named and deliberately not enforced yet: needs
-  N3 (a `vegetarian` recipe also carries `pescatarian`), which the
-  corpus fails today and the review rules on first.
+  here. Needs N3 (a `vegetarian` recipe also carries `pescatarian`)
+  is held over the corpus too, since the first review (2026-09-28).
 
 Five rules that are easy to break without noticing:
 

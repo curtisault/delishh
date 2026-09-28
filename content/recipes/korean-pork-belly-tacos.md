@@ -2,10 +2,10 @@
 title: Sweet Korean Crispy Pork Belly Tacos
 tested: 2026-09-22
 yield: { amount: 12, unit: pieces, servings: 6 }
-time: { active: 50m, total: 19h }
+time: { active: 50m, total: 21h }
 slot: [dinner]
 course: main
-flavor: [sweet 3, savory 2, umami 2]
+flavor: [sweet 3, salty 2, umami 2, savory 2]
 method: sous-vide
 effort: project
 dietary: []
