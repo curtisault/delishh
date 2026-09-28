@@ -1,10 +1,10 @@
 # delishh, installable — the web app on a home screen
 
 > Companion to `docs/design-standard.md` (DS-01 Revision 2) and
-> `docs/delishh-redesign.md`. Created 2026-09-28. **Nothing here is
-> ruled yet**: the decision log below lists what has to be decided
-> and what is recommended, and stays that way until a ruling is
-> dated. This doc owns the install's *sequence and scope*; DS-01
+> `docs/delishh-redesign.md`. Created 2026-09-28; **ruled and built
+> the same day**, every ruling the recommendation it was drafted
+> with. Phases 1–5 are done; Phase 6 needs a phone and is
+> outstanding. This doc owns the install's *sequence and scope*; DS-01
 > owns look, feel and voice, and where the install needs the standard
 > to move, the amendment is named below and DS-01 gets the dated
 > clause. When the two disagree, DS-01 governs.
@@ -48,21 +48,24 @@ What is already true, read out of the code on 2026-09-28:
 
 ## Decision log
 
-Open, as of 2026-09-28. Each row is ruled by replacing *Open* with a
-date and moving the rejected route to the last column.
+Ruled 2026-09-28, when the build was asked for: each row took the
+recommendation it was drafted with.
 
-| Decision | Status and recommendation | Alternatives |
-|----------|---------------------------|--------------|
-| Is the offline archive a "thing stored"? | **Open.** DS-01 §12 and the colophon promise *three things are stored, all named*, and `scripts/storage_test.ts` holds that number to `boot.js`'s key list. A Cache Storage copy of the archive is not *about the reader*, but it is bytes on their device that clearing site data removes. Recommended: name it in both documents as its own sentence, distinct from the three keys — *a copy of the archive is kept so it opens without a connection* — and teach the test to hold the worker's cache name the way it holds the keys, so a renamed or second cache cannot arrive unnamed | Counting it as a fourth key (it is not one, and the colophon would then describe the archive as something kept *about* the reader); saying nothing (the statement that lags the code is the one a reader believes) |
-| What is kept offline | **Open.** Recommended: **the whole archive**, fetched best-effort after the worker activates, never blocking anything. At 252 KB there is no reason a recipe you have not yet opened should fail in the kitchen, and "only what you have opened" is a rule the reader cannot see and would have to discover by failing | Only what has been opened (smaller, but the failure is invisible until it matters); shipping the corpus in the bundle (the reason recipes are fetched and not compiled in — a growing corpus does not belong in the bundle) |
-| Display mode | **Open.** Recommended: **`standalone`**, no browser chrome. Note what it costs: the cook-mode scale *rides in the URL and is bookmarkable*, and there is no URL bar to bookmark from. The scale is still set on the page before entering cook mode, so nothing is lost but the bookmark | `minimal-ui` (keeps a URL bar on Android; iOS ignores the value and behaves as standalone anyway, so it is two behaviours for one word); `browser` (an icon that opens a tab — not an install) |
-| The icon | **Open.** The icon is a surface, and §04 says one acid dominates per surface. This is a colour ruling, not a build detail. Recommended: the wordmark's letterform on a stencil field, volt as the one acid, with a maskable variant that keeps the mark inside the safe zone. Two sizes drawn by hand, never a screenshot | A photograph (the acid layer is never image payloads); three acids (never three) |
-| Update behaviour | **Open.** Recommended: **no prompt in the first cut.** The worker takes over immediately (`skipWaiting`, `clients.claim`) and navigations are network-first, so the next open is the current build when online. An *a newer archive is ready* banner needs a new incoming port and a subscription, and the shell's rule is one subscription unless something on screen genuinely changes on its own | A reload banner (the port and the subscription, for a site whose builds are minutes apart at most); a worker that waits for every tab to close (the classic stale-for-days failure) |
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Is the offline archive a "thing stored"? | **Ruled 2026-09-28.** DS-01 §12 and the colophon promise *three things are stored, all named*, and `scripts/storage_test.ts` holds that number to `boot.js`'s key list. A Cache Storage copy of the archive is not *about the reader*, but it is bytes on their device that clearing site data removes. So it is named in both documents as its own sentence, distinct from the three keys — *a copy of the archive is kept so it opens without a connection* — and the storage test holds the worker's cache name the way it holds the keys, so a renamed or second cache cannot arrive unnamed | Counting it as a fourth key (it is not one, and the colophon would then describe the archive as something kept *about* the reader); saying nothing (the statement that lags the code is the one a reader believes) |
+| What is kept offline | **Ruled 2026-09-28: the whole archive**, fetched best-effort after the worker activates, never blocking anything. At 252 KB there is no reason a recipe you have not yet opened should fail in the kitchen, and "only what you have opened" is a rule the reader cannot see and would have to discover by failing | Only what has been opened (smaller, but the failure is invisible until it matters); shipping the corpus in the bundle (the reason recipes are fetched and not compiled in — a growing corpus does not belong in the bundle) |
+| Display mode | **Ruled 2026-09-28: `standalone`**, no browser chrome. Note what it costs: the cook-mode scale *rides in the URL and is bookmarkable*, and there is no URL bar to bookmark from. The scale is still set on the page before entering cook mode, so nothing is lost but the bookmark | `minimal-ui` (keeps a URL bar on Android; iOS ignores the value and behaves as standalone anyway, so it is two behaviours for one word); `browser` (an icon that opens a tab — not an install) |
+| The icon | **Ruled 2026-09-28.** The icon is a surface, and §04 says one acid dominates per surface. The wordmark's `d`, outlined from the shipped Archivo Expanded 700 cut (a launcher has no web fonts), volt on the stencil field — the site bar's own pairing. **One drawing** (`public/icons/icon.svg`), full bleed with the mark inside the maskable safe circle, so the maskable entry is the same file rather than a variant that could drift. The PNGs are rendered from it by `deno task icons` and committed | A photograph (the acid layer is never image payloads); three acids (never three) |
+| Update behaviour | **Ruled 2026-09-28: no prompt in the first cut.** The worker takes over immediately (`skipWaiting`, `clients.claim`) and navigations are network-first, so the next open is the current build when online. An *a newer archive is ready* banner needs a new incoming port and a subscription, and the shell's rule is one subscription unless something on screen genuinely changes on its own | A reload banner (the port and the subscription, for a site whose builds are minutes apart at most); a worker that waits for every tab to close (the classic stale-for-days failure) |
 
 ## DS-01 amendments this plan needs
 
 Each becomes a dated clause in `design-standard.md` when its phase
 lands; they are listed here so the standard moves once, deliberately.
+The two §12 clauses and the colophon's landed 2026-09-28; the print
+clause waits on Phase 6; §04 needed none, the icon's one acid being
+the site bar's own.
 
 - **§12 Hard constraints — "Nothing about a reader leaves their
   browser."** Depending on the first ruling above, a sentence naming
@@ -86,14 +89,16 @@ lands; they are listed here so the standard moves once, deliberately.
 
 ## Phases
 
-### Phase 1 — the manifest, the icons, the head
+### Phase 1 — the manifest, the icons, the head ✅ done 2026-09-28
 
 - `manifest.webmanifest`: name, `short_name`, `start_url: "/"`,
   `scope: "/"`, `display` per the ruling, `background_color`,
   `theme_color`, and the icons: an SVG, a maskable variant, and a
-  512 px PNG for Android's splash.
+  512 px PNG for Android's splash. As built: `background_color` is
+  `--surface` and `theme_color` is `--stencil-bg`, the site bar's
+  field, so the system bar reads as the bar's continuation.
 - **Where its hexes come from.** Raw hex outside `theme.css` is a
-  bug, and a manifest is hex literals. Recommended: **generate it**
+  bug, and a manifest is hex literals. Built: **generated**
   in `deno task content`, a `scripts/build-manifest.ts` that reads
   the two tokens it needs out of `theme.css` and writes
   `public/manifest.webmanifest`, gitignored like `public/content`.
@@ -106,7 +111,9 @@ lands; they are listed here so the standard moves once, deliberately.
   `<meta name="theme-color">` with `media="(prefers-color-scheme: …)"`
   so the status bar follows the theme. Those two metas are the one
   place a hex has to sit in HTML; they are held to `theme.css` by
-  the test in Phase 4.
+  the test in Phase 4. As built: they carry `--stencil-bg`, and
+  `boot.js` repaints both from the computed token when the reader
+  picks a lighting on the page — a media query sees only the OS.
 - `public/404.html` links the manifest too. An install begun from a
   mistyped address should still know what it is.
 - `public/_headers`: the manifest revalidates (`max-age=0,
@@ -114,7 +121,7 @@ lands; they are listed here so the standard moves once, deliberately.
   unhashed and changes.
 - `_redirects` is untouched.
 
-### Phase 2 — the service worker
+### Phase 2 — the service worker ✅ done 2026-09-28
 
 - **Source at `src/sw.js`, generated to `public/sw.js`.** A small
   `scripts/build-sw.ts`, run inside `deno task content`, copies the
@@ -152,7 +159,13 @@ lands; they are listed here so the standard moves once, deliberately.
 - `public/_headers`: `/sw.js` revalidates. Browsers cap a worker
   script's cache at a day regardless; `max-age=0` is the honest
   statement of what the file is.
-- **Pre-caching the archive** (per the ruling): after activate, read
+- **The shell**, at install: `/`, the manifest, and every hashed
+  asset and font the page and its stylesheets name — read out of
+  them, because the names are Vite's. The install fails if the
+  shell cannot be kept, and the old worker stays.
+- **Pre-caching the archive** (per the ruling): at install, after the
+  shell (not after activate — a page is never waiting on an install,
+  and a worker that has activated may be stopped at any time), read
   `/content/index.json` and fetch each recipe it lists into the
   cache, one at a time, best-effort. It never blocks a page, never
   reports progress, and a failure part-way leaves the recipes it
@@ -166,7 +179,7 @@ lands; they are listed here so the standard moves once, deliberately.
   (`CLAUDE.md`, *Not yet in force*), any analytics. The wake lock
   is already the reason you should not be reloading mid-cook.
 
-### Phase 3 — offline honesty
+### Phase 3 — offline honesty ✅ done 2026-09-28
 
 - The shelf's failure sentence today is *The index could not be
   fetched. A reload usually settles it.* Offline, a reload settles
@@ -184,11 +197,17 @@ lands; they are listed here so the standard moves once, deliberately.
     (`NetworkError`, which is what a browser without the worker
     still gets). One branch in `Main.elm`, one sentence each on the
     shelf and the recipe page, in the voice of §11.
+- As built: the **status alone** is the signal; the body is not read,
+  because `Http.expectJson` does not expose an error's body and a
+  static host never sends a 503 on its own. `src/Reach.elm` is the
+  classifier, pure and tested. It also found a worse case than the
+  shelf's: the recipe page said *Nothing in the archive is filed
+  under …* for **every** failure, offline included.
 - Cook mode needs nothing: it is reached from a recipe already
   loaded, and its timer counts to an absolute end with no network
   in the loop.
 
-### Phase 4 — the tests and CI
+### Phase 4 — the tests and CI ✅ done 2026-09-28
 
 - **`scripts/pwa_test.ts`**, in the house style, one test a rule:
   - the manifest parses, `start_url` and `scope` are `/`, and
@@ -206,15 +225,17 @@ lands; they are listed here so the standard moves once, deliberately.
   - the worker never matches `/content/` inside its cache-first
     branch.
 - **`scripts/storage_test.ts`** extended per the first ruling: the
-  cache name the worker declares is the one the colophon and §12
-  name.
+  worker keeps one cache, `delishh-archive-<build>`, and the
+  colophon and §12 both say *a copy of the archive* (landed with
+  Phase 5, since it holds the documents' words).
 - **`.github/workflows/deploy.yml`** gains two lines beside the
   existing 404 / wildcard / content guards: `dist/sw.js` and
-  `dist/manifest.webmanifest` are present. A build that lost either
-  would install as the site did before, silently.
+  `dist/manifest.webmanifest` are present, and the worker is
+  stamped. A build that lost either would install as the site did
+  before, silently.
 - `print_test.ts` is unchanged unless Phase 6 says otherwise.
 
-### Phase 5 — the documents
+### Phase 5 — the documents ✅ done 2026-09-28
 
 - DS-01 §12, the amendments above, dated.
 - `docs/about.md`, *What is kept about you*, the matching sentence.
@@ -225,7 +246,21 @@ lands; they are listed here so the standard moves once, deliberately.
 - This document's decision log, with the rulings dated and the
   rejected routes moved.
 
-### Phase 6 — by hand, on a phone
+### Phase 6 — by hand, on a phone — outstanding
+
+Done on a desktop Chromium on 2026-09-28, against the production
+build: the worker installs, keeps the shell, every font and all
+eighteen recipes; with the server stopped, a recipe never opened
+loads straight into cook mode in all four faces, and an unknown
+address says *Not kept on this device*. A new build's worker takes
+over and clears the old cache.
+
+**Test offline by stopping the server, not with DevTools' offline
+switch.** The switch does not reach the worker's own fetches, and
+`vite preview` answers any missing path with `index.html` at 200 —
+which Cloudflare, with its scoped `_redirects`, never does. Together
+they make an unknown recipe read as *Broken* in a way production
+cannot reproduce.
 
 No static read establishes any of these; they need a device, and
 the plan is not done until they have been done.

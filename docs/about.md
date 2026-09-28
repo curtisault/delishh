@@ -93,6 +93,12 @@ in this browser, and goes only where you send it. All three keys are local to th
 so neither the list nor the plan follows you to another device, and
 clearing your site data ends all three.
 
+Beside them, and not about you, **a copy of the archive** is kept in
+this browser — the site and every recipe — so that it opens in a
+kitchen with no signal. It is the same files the site serves, replaced
+whole whenever the site changes, and it holds nothing you did. Clearing
+your site data removes it with the rest.
+
 ### Checks that run on every build
 
 The unusual ones, because they are the reason the archive can be

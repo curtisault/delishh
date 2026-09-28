@@ -15,7 +15,8 @@ the authority on how this looks and why.
 | `docs/delishh-redesign.md` | The DS-01 Revision 2 implementation plan and its dated decision log. Owns *sequence and scope*; DS-01 owns everything else |
 | `docs/meal-planner.md` | The meal planner's plan and decision log — the week, the two kinds of meal, pick-and-place, the shared picture |
 | `docs/meal-planner-expansion.md` | Several meals a day. **Unscheduled** until the first planner has been used; says what that use must show first |
-| `docs/installable.md` | The home-screen install — manifest, service worker, offline archive. **Nothing ruled yet**: its decision log holds five open questions with recommendations, and no phase starts until they are dated |
+| `docs/installable.md` | The home-screen install — manifest, service worker, offline archive — and its dated decision log. Built 2026-09-28; the by-hand pass on a phone is outstanding |
+| `src/sw.js` | The service worker: **`public/_headers`' cache policy, carried onto the device.** Cache-first exactly where `_headers` says immutable; `/content/*` never |
 | `src/Prose.elm` | Markdown blocks → the house chrome. **Every styling decision for generated prose lives here**, in hand-written Elm; the generator emits data and knows no class name |
 | `src/Page/DesignStandard.elm` | Four lines of wiring: `Generated.DesignStandard` through `Prose` through `Doc`. There is no second copy of the standard anywhere |
 | `src/Scale.elm` | The measurement ladder (DS-01 §05) as a pure module. **Where a recipe archive would otherwise lie to you** — see below |
@@ -48,12 +49,13 @@ Neither the Elm compiler nor the test runner is a package; both
 resolve off PATH, so `mise install` is required before
 `deno task build` or `deno task test` will work.
 
-- `deno task content` — recipes → JSON, prose → generated Elm, both validated
+- `deno task content` — recipes → JSON, prose → generated Elm, both validated; the manifest from `theme.css`, the worker from `src/sw.js`
 - `deno task dev` — content, then the Vite dev server
 - `deno task build` — content, then production build to `dist/`
 - `deno task test` — content, the validator's tests, then elm-test-rs
 - `deno task test:content` — the validator's tests alone
 - `deno task deploy` — build, then `wrangler pages deploy dist`
+- `deno task icons` — the home-screen PNGs from `public/icons/icon.svg`. Needs `resvg` on PATH; the PNGs are committed, so only a redrawn icon needs it
 
 `content` runs first in `dev`, `build` and `test` alike. That is
 deliberate: `test` is the one gate both CI workflows share, so content
@@ -71,6 +73,8 @@ gitignored trees that are never edited by hand:
 |--------|-----------|-----------|
 | `content/recipes/*.md` | `public/content/*.json` | Fetched at runtime — a growing corpus does not belong in the bundle |
 | `docs/*.md` (the standard, the colophon) | `src/Generated/*.elm` | Compiled in — see below |
+| `src/theme.css` | `public/manifest.webmanifest` | Its two colours are hexes, and `theme.css` is the only place one may live |
+| `src/sw.js` | `public/sw.js` | A build stamp substituted in: a new worker, and a new cache name, every build |
 
 **Why prose compiles in and recipes do not.** A document that ships
 *with* the app is not a corpus. Generating Elm keeps
@@ -154,7 +158,15 @@ whose only job is to be read.
   focus outline hidden behind a motion query.
 - `scripts/storage_test.ts` — counts the `localStorage` keys
   `boot.js` declares and holds the colophon's and DS-01 §12's "N
-  things are stored" to it. A fourth key cannot arrive unnamed.
+  things are stored" to it. A fourth key cannot arrive unnamed. It
+  also holds the worker to **one** cache, `delishh-archive`, which
+  both documents name as *a copy of the archive* — not a key, and not
+  about the reader, but bytes on their device all the same.
+- `scripts/pwa_test.ts` — the install: the manifest's scope and
+  colours, every icon on disk at its claimed size, the head's links,
+  the theme-color metas held to `--stencil-bg`, the revalidate rules,
+  and the worker's cache-first list held to `_headers`' immutable
+  paths — so `/content/*` can never be served stale by the device.
 - `scripts/plan_slots_test.ts` — the planner's labels held to the
   recipes' `SLOTS`, and its five-a-day cap held to their count.
 - `scripts/share_test.ts` — the meal plan's picture, which is the
@@ -400,6 +412,20 @@ fixture must never drift under the suite. Keep it parsing.
     carries a generation number, and `boot.js` discards any draw that
     is not the one wanted. Share and copy must be called before
     anything is awaited, or Safari refuses them outside the press.
+- `src/sw.js` / `src/Reach.elm` — the install (`docs/installable.md`).
+  Three things that are easy to undo:
+  - **Test offline by stopping the server**, never with DevTools'
+    offline switch: it does not reach the worker's own fetches, and
+    `vite preview` answers a missing path with `index.html` at 200,
+    which Cloudflare never does. The two together fake a failure
+    production cannot have.
+  - **A failed fetch says why.** `Reach.fromHttp` turns the error
+    into Missing / Unkept / Unreachable / Broken, and each page has a
+    sentence per reason. *No such recipe* for a kitchen with no
+    signal is the page guessing. The worker's `503` is what makes
+    *Unkept* knowable; a static host never sends one.
+  - **Registration is production-only.** In dev a worker would cache
+    Vite's unhashed modules and fight HMR.
 - Two ports exist: `saveTheme` (out) and `sectionSeen` (in). The
   second is a port because `elm/browser` has no scroll subscription;
   boot.js reads the active section on scroll, resize and DOM

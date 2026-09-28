@@ -1221,7 +1221,13 @@ copy is written in a hurry and nobody reviews a tooltip.
   never image payloads; at most one photograph per recipe, lazily
   loaded. An image the reader *makes* — the meal plan's picture,
   drawn on request (amended 2026-09-27) — is not a payload the site
-  *ships*: it is output, never fetched.
+  *ships*: it is output, never fetched. **The archive opens without a
+  connection once it has been opened with one** (amended 2026-09-28):
+  a service worker keeps the site and every recipe on the device, and
+  a kitchen with no signal is a kitchen this is built for. What it
+  cannot open offline, it says so — *not kept on this device* is a
+  different sentence from *no such recipe*, and the page never offers
+  the second for the first.
 - **Self-hosted assets only.** No font CDNs, no third-party analytics
   on a document you may want to read in ten years.
 - **Nothing about a reader leaves their browser.** Three things are
@@ -1231,6 +1237,10 @@ copy is written in a hurry and nobody reviews a tooltip.
   save — a full or blocked store degrades to the choice holding for
   the session, never to a surface that will not render. State that
   cannot be read back is discarded and the reader starts empty.
+  Beside them, and not about the reader, **a copy of the archive** is
+  kept so it opens offline (amended 2026-09-28): the site and its
+  recipes, replaced whole on each new build. A copy that cannot be
+  written degrades to the site as it always was — fetched.
 
 ---
 
