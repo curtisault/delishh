@@ -637,3 +637,14 @@ app.ports.sharePlan.subscribe(async (req) => {
       break
   }
 })
+
+// The service worker (docs/installable.md). Registered last, after
+// everything the page needs is running, and only in a production
+// build: in dev it would cache Vite's unhashed modules and fight HMR.
+// A browser without the API boots exactly as it did before there was
+// one. src/sw.js is the policy; public/sw.js is generated from it.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {
+    // not installed: the site is fetched, as it always was
+  })
+}
