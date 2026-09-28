@@ -21,7 +21,7 @@ const manifest = {
   id: "/",
   name: "delishh",
   short_name: "delishh",
-  description: "A personal recipe archive.",
+  description: "A personal recipe archive: browse, search, filter, print.",
   lang: "en",
   start_url: "/",
   scope: "/",
