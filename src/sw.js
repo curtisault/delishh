@@ -1,5 +1,5 @@
 // The service worker: public/_headers' cache policy, carried onto the
-// device. docs/installable.md is the plan; this is the whole of it.
+// device. docs/decisions.md holds the rulings; this is the whole of it.
 //
 // NOT bundled. `deno task content` copies this file to public/sw.js
 // with BUILD substituted, so every build is a worker that differs

@@ -5,10 +5,10 @@ yield: { amount: 650, unit: ml, servings: 2 }
 time: { active: 5m, total: 5m }
 slot: [dessert]
 course: drink
-flavor: [sweet 2]
+flavor: [sweet 3]
 method: blend
 effort: relaxed
-dietary: [vegetarian]
+dietary: [vegetarian, pescatarian]
 cuisine: [american]
 print: card
 ---
@@ -20,7 +20,7 @@ print: card
 
 ## Ingredients
 
-- 2 cups vanilla ice cream, softened slightly
+- 2 cups vanilla ice cream, softened slightly — one without gelatin in it
 - ½ cup milk
 - ¼ cup chocolate syrup
 - 2 tbsp malted milk powder, optional — the malt is what makes it taste like the drive-through

@@ -53,7 +53,7 @@ try {
 }
 
 // What this browser can do about a home-screen install, read off its
-// capabilities and never its name (docs/installable.md, Install.elm).
+// capabilities and never its name (docs/decisions.md, Install.elm).
 // Already running installed: nothing to offer. Otherwise
 // `navigator.standalone` exists only in Safari on iPhone and iPad —
 // false in a tab — and that browser adds to a home screen through its
@@ -358,7 +358,7 @@ new MutationObserver(scheduleRead).observe(document.body, {
 
 scheduleRead()
 
-// The meal plan's picture — docs/meal-planner.md, Phase 3.
+// The meal plan's picture — docs/decisions.md, the planner (2026-09-27).
 //
 // Elm hands over words and where they came from (Plan.toShare); this
 // draws them onto a canvas and holds the one PNG that SHARE, COPY and
@@ -391,7 +391,7 @@ const PICTURE = {
   // picture is a broken picture (§12) and a taller card is only a
   // scroll. A week of one meal a day never comes near it, which is
   // what keeps that week's picture the first planner's, pixel for
-  // pixel (docs/meal-planner-expansion.md, Phase 3).
+  // pixel (docs/decisions.md, the planner's expansion).
   budget: 1920,
   steps: [1, 0.85, 0.72],
 }
@@ -693,7 +693,7 @@ app.ports.installApp.subscribe(async () => {
   app.ports.installOffered.send('none')
 })
 
-// The service worker (docs/installable.md). Registered last, after
+// The service worker (docs/decisions.md). Registered last, after
 // everything the page needs is running, and only in a production
 // build: in dev it would cache Vite's unhashed modules and fight HMR.
 // A browser without the API boots exactly as it did before there was

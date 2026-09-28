@@ -148,7 +148,7 @@ port setWakeLock : Bool -> Cmd msg
 port wakeLockChanged : (String -> msg) -> Sub msg
 
 
-{-| The home-screen install (`docs/installable.md`). `boot.js` holds
+{-| The home-screen install (`docs/decisions.md`). `boot.js` holds
 the browser's deferred install event and says what it can offer —
 `prompt`, `share`, or `none` — whenever that changes: the event
 arrives after load, and an install or a dismissal spends it.

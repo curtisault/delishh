@@ -312,7 +312,7 @@ suite =
                         |> Query.index -1
                         |> Query.has [ Selector.class "cook-enter" ]
             ]
-        , describe "the plan control — docs/meal-planner.md"
+        , describe "the plan control — docs/decisions.md"
             [ test "stands with the actions, before COOK THIS" <|
                 \_ ->
                     plain

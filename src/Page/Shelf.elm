@@ -129,7 +129,7 @@ masthead config =
 
 
 {-| The home-screen install, top right of the masthead
-(`docs/installable.md`).
+(`docs/decisions.md`).
 
 Drawn only when pressing it will do something: the browser's own
 dialog where the browser offers one, the one sentence Safari needs

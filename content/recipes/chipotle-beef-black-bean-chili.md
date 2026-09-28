@@ -10,7 +10,7 @@ flavor: [savory 3, spicy 2, umami 2]
 method: stew
 effort: project
 dietary: []
-cuisine: [american, mexican]
+cuisine: [american]
 print: sheet
 gauges:
   - { label: Format, value: BAGS, note: "4 cups each, laid flat" }

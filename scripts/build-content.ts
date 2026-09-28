@@ -19,7 +19,7 @@
 
 import { parseRecipe, type Problem, type Recipe } from "./recipe.ts";
 import { AISLES } from "./vocabulary.ts";
-import { shopFor } from "./pantry.ts";
+import { shopFor, violations } from "./pantry.ts";
 import {
   COURSES,
   CUISINES,
@@ -169,6 +169,27 @@ async function main() {
     }
     if (unplaced.length) {
       report(`${RECIPES_IN}/${r.slug}.md`, unplaced);
+      failed++;
+    }
+
+    // A dietary flag is a claim, and the table knows some items that
+    // defeat one on every shelf — beef is never vegetarian, flour is
+    // never gluten-free. A flag one of the recipe's items breaks fails
+    // here. The table never adds a flag (that is the inference DS-01
+    // §12 refuses); it only refuses one, which is the direction of
+    // dietary error that hurts (agents/refs/needs.md, N0).
+    const broken = violations(
+      r.dietary,
+      r.ingredients.flatMap((g) => g.items.map((i) => i.item)),
+    ).map(({ flag, item }): Problem => ({
+      where: "frontmatter.dietary",
+      message:
+        `\`${flag}\` is set, but \`${item}\` breaks it (scripts/pantry.ts). ` +
+        `Drop the flag, or change the ingredient — an absent flag means ` +
+        `"not verified" and is always safe; a wrong one is not.`,
+    }));
+    if (broken.length) {
+      report(`${RECIPES_IN}/${r.slug}.md`, broken);
       failed++;
     }
   }

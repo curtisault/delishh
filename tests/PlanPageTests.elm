@@ -1,6 +1,6 @@
 module PlanPageTests exposing (suite)
 
-{-| The meal plan page — `docs/meal-planner.md`.
+{-| The meal plan page — `docs/decisions.md`.
 
 `PlanTests` proves the week's rules. This proves what the rendered
 page does with them, which a correct `Plan.move` would not give you:
@@ -290,7 +290,7 @@ suite =
                         |> Query.has
                             [ Selector.text "Holding Spaghetti. Press a meal to swap with it, or Set here to put it at the end of a day. Press Spaghetti again to put it back." ]
             ]
-        , describe "a day of several — docs/meal-planner-expansion.md"
+        , describe "a day of several — docs/decisions.md"
             [ test "a week of one meal a day shows no label marks" <|
                 \_ ->
                     render config

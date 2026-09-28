@@ -6,7 +6,7 @@ time: { active: 50m, total: 1h30m }
 keeps: freezer 3mo
 slot: [dinner]
 course: main
-flavor: [savory 3, spicy 2]
+flavor: [savory 3, spicy 1]
 method: bake
 effort: focused
 dietary: []

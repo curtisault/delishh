@@ -12,10 +12,11 @@ the authority on how this looks and why.
 | `content/recipes/AGENTS.md` | The authoring contract for recipes — schema, vocabularies, block grammar, banned words. **Machine-held**: `agents_test.ts` fails the build if its lists drift from `vocabulary.ts` |
 | `docs/about.md` | The colophon — what this is, what it is built from, what is never kept about a reader. Rendered at `/about` |
 | `docs/design-standard.md` | DS-01 — look, feel, voice, type, colour, the recipe document, browse, cook mode, print, the word rules, hard constraints. **The prose of record.** |
-| `docs/delishh-redesign.md` | The DS-01 Revision 2 implementation plan and its dated decision log. Owns *sequence and scope*; DS-01 owns everything else |
-| `docs/meal-planner.md` | The meal planner's plan and decision log — the week, the two kinds of meal, pick-and-place, the shared picture |
-| `docs/meal-planner-expansion.md` | Several meals a day. **Unscheduled** until the first planner has been used; says what that use must show first |
-| `docs/installable.md` | The home-screen install — manifest, service worker, offline archive — and its dated decision log. Built 2026-09-28; the by-hand pass on a phone is outstanding |
+| `docs/decisions.md` | **The decision record** — every ruling in force, dated, with what was rejected and why, from the Revision 2 reframe through the planner, the install and the facet constraints. Ends with *Open*: what is deferred, and what is outstanding by hand (the install and the planner's picture both still want a pass on a phone). A new ruling is a dated block appended here; the four implementation plans it replaced were dropped 2026-09-28 |
+| `docs/decisions-archive.md` | Rulings that were overturned, **as they were made**, with the date and the ruling that replaced them. Never edited; a row moves here from `decisions.md` in the commit that overturns it |
+| `docs/facet-constraints.md` | The **digest** of the facet doctrine — how a flavour level, an effort tier, a dietary flag and a cuisine are *decided*, as numbered requirements a review cites. The meal path has none: the only requirement for a meal is food |
+| `docs/recipe-review-<date>.md` | One file per review of the corpus against the constraints: what was found, changed and left for the cook, recipe by recipe, citing requirements by number. Appended, never edited; the first is 2026-09-28 |
+| `agents/refs/{flavour,effort,needs}.md` | The **verbose** copies of that doctrine, one per judged facet group: every threshold, false friend, hidden carrier and worked case. Read the one for the facet you are setting. **Machine-held**: `doctrine_test.ts` holds their lists to `vocabulary.ts` and the corpus to their mechanical rules |
 | `src/sw.js` | The service worker: **`public/_headers`' cache policy, carried onto the device.** Cache-first exactly where `_headers` says immutable; `/content/*` never |
 | `src/Prose.elm` | Markdown blocks → the house chrome. **Every styling decision for generated prose lives here**, in hand-written Elm; the generator emits data and knows no class name |
 | `src/Page/DesignStandard.elm` | Four lines of wiring: `Generated.DesignStandard` through `Prose` through `Doc`. There is no second copy of the standard anywhere |
@@ -114,7 +115,9 @@ whose only job is to be read.
   *does not keep*. It is authored beside the Keeps block, never read
   out of it, and the build rejects a life with no block to act on.
 - `scripts/build-content.ts` — walks the corpus, runs the checks that
-  need every file at once (photos exist on disk),
+  need every file at once (photos exist on disk), refuses a dietary
+  flag that an item's `breaks` in `scripts/pantry.ts` defeats — the
+  table only ever says no; it never adds a flag — and
   writes the JSON. **Collects every problem before exiting**; writes
   nothing on failure. A validator that stops at the first fault
   trains you to distrust its "all clear".
@@ -177,6 +180,16 @@ whose only job is to be read.
   `@font-face` and its `--font-*` token and nothing breaks: the stack
   falls through to a system face, the page renders, and DS-01's type
   casting is silently void.
+- `scripts/doctrine_test.ts` — the facet constraints
+  (`docs/facet-constraints.md` and `agents/refs/*.md`) held to
+  `vocabulary.ts`, the same way `agents_test.ts` holds the authoring
+  contract, and the corpus held to the doctrine's *mechanical* rules:
+  every flavour carries a level, at most four words and two at `3`,
+  the three effort anchors carry the tiers they anchor, at most two
+  cuisines. The judgements themselves — a level, a window count, a
+  verified flag — are a person's, at the tested cook, and are not
+  here. Needs N3 (a `vegetarian` recipe also carries `pescatarian`)
+  is held over the corpus too, since the first review (2026-09-28).
 
 Five rules that are easy to break without noticing:
 
@@ -403,8 +416,8 @@ fixture must never drift under the suite. Keep it parsing.
   - **A week of one meal a day draws the first planner's picture,
     pixel for pixel.** The height budget (one phone screen, then two
     type steps, then taller) never triggers for it. If you touch the
-    drawing's geometry, re-run the comparison the expansion doc
-    describes before claiming the one-meal picture is unchanged. Labels are the recipes'
+    drawing's geometry, re-run the pixel comparison recorded in docs/decisions.md
+    before claiming the one-meal picture is unchanged. Labels are the recipes'
     `SLOTS`, held by `scripts/plan_slots_test.ts`.
   - **The shared picture is drawn by `boot.js`, from tokens.** No hex
     and no font family is written there; `share_test.ts` holds it,
@@ -412,7 +425,7 @@ fixture must never drift under the suite. Keep it parsing.
     carries a generation number, and `boot.js` discards any draw that
     is not the one wanted. Share and copy must be called before
     anything is awaited, or Safari refuses them outside the press.
-- `src/sw.js` / `src/Reach.elm` / `src/Install.elm` — the install (`docs/installable.md`).
+- `src/sw.js` / `src/Reach.elm` / `src/Install.elm` — the install (`docs/decisions.md`).
   Three things that are easy to undo:
   - **Test offline by stopping the server**, never with DevTools'
     offline switch: it does not reach the worker's own fetches, and

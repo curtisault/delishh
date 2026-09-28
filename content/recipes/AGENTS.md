@@ -171,6 +171,28 @@ zero — the page draws a meter only for what you have actually
 judged. Write `spicy 2`, not `spicy: 2`: the colon turns the entry
 into a YAML map and the build will tell you so.
 
+### Deciding a facet — the constraints
+
+The build holds these words to the vocabulary and stops. Which word,
+which level, which tier and which flag is a judgement, and the rules
+for making it the same way every time are in `agents/refs/` — one
+file per judged facet group: `flavour.md`, `effort.md`, `needs.md`
+(digest: `docs/facet-constraints.md`). Read the one for the facet
+you are setting before you set it. Three rules from there that
+matter most, so you have seen them before you look:
+
+- **Every listed flavour carries a level**, and an optional
+  ingredient never moves one; in doubt go lower, except `spicy`,
+  where you go higher.
+- **Effort counts windows, not minutes**: `relaxed` can be left,
+  `focused` has a window you must watch, `project` wants the day or
+  more than one session. In doubt go higher.
+- **A dietary flag is verified against every ingredient line,
+  optional and `or` included**, and a known carrier (soy sauce,
+  malt, hoisin, mole paste, hard cheese) states its constraint in
+  the line or the flag stays off. Absent is *not verified*, never
+  *not suitable*, so off is always safe.
+
 ## The blocks — fixed order, `##` headings
 
 **Enforced.** The order is:
@@ -255,6 +277,14 @@ Three things that trip people:
   neutral oil. `Monterey Jack and sharp cheddar` keeps its own name,
   because nothing here knows how much of the 200 g is the cheddar and
   a list that split it would be making the number up.
+
+- **The table also refuses a dietary flag it knows is wrong.** An
+  item may carry `breaks`, the flags it defeats on every shelf
+  (`"ground beef": { aisle: "meat", breaks: FLESH }`), and the build
+  fails a recipe that sets one of them. It never adds a flag, and it
+  says nothing about a carrier that varies by brand — that is what
+  the note on your ingredient line is for (`agents/refs/needs.md`,
+  N2).
 
 - `aisle` — exactly one of: `produce` · `meat` · `dairy` · `bakery` · `dry-goods` · `canned` · `spices` · `baking` · `condiments` · `frozen`
 
