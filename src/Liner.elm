@@ -69,6 +69,9 @@ leafKey route =
         Plan ->
             "plan"
 
+        RestaurantRoulette ->
+            "restaurant-roulette"
+
 
 {-| The liner. Rows of the archive's name, set by `sheet.css` — the
 words are CSS generated content rather than text nodes, so they are

@@ -1,0 +1,325 @@
+/* Restaurant Roulette — docs/decisions.md, ruled 2026-09-28.
+ *
+ * A BROWSE-CLASS SURFACE, ONE ACID. The reader is choosing, not
+ * reading, so a --shelf-* fill is permitted here; volt lands on SPIN,
+ * the one actionable thing in view, and nowhere else. The settled
+ * name is carried by type and by the sentence under the reel, never
+ * by colour. One acid, no cameo.
+ *
+ * THE REEL IS NOT IN THIS FILE. Its frames are cuts drawn by the shell
+ * from its own clock (DS-01 §10, the reel): one name replaces another
+ * in one colour on one fill, with no transition and no change of fill,
+ * so nothing here animates and nothing flashes. The box is a fixed
+ * height so a long name and a short one land in the same place and
+ * the answer never shifts the page.
+ *
+ * NOTHING MOVES. No transition and no keyframe in this file, guarded
+ * or otherwise. `motion_test.ts` has this sheet in its SHEETS list.
+ */
+
+.roulette-layout {
+  padding: 1.6rem 1.2rem 4rem;
+  display: flex;
+  justify-content: center;
+}
+.restaurant-roulette {
+  width: 100%;
+  /* 40rem plus the leaf's margin either side (sheet.css). */
+  max-width: calc(40rem + 4.4rem);
+}
+
+/* ---------- the plate ---------- */
+
+.roulette-plate {
+  border-bottom: 3px solid var(--rule);
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+.roulette-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 6vw, 2.6rem);
+  line-height: 0.95;
+  margin: 0;
+  text-transform: uppercase;
+}
+.roulette-standfirst {
+  font-size: 0.82rem;
+  color: var(--tx-dim);
+  margin: 0.5rem 0 0;
+}
+.roulette-h {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  border-bottom: 1.5px solid var(--rule);
+  padding-bottom: 0.3rem;
+  margin: 0 0 0.9rem;
+}
+
+/* ---------- the wheel ---------- */
+
+.roulette-wheel {
+  margin-bottom: 2.2rem;
+}
+/* A FIXED-HEIGHT BOX. Two lines of the reel voice at its largest,
+   centred, ruled: a name is an object laid in it, and every frame
+   lands in the same place. `overflow-wrap` keeps one long word from
+   widening the page; the height keeps a wrapped name from moving the
+   presses beneath. */
+.roulette-reel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 6.4rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--rule);
+  text-align: center;
+}
+.roulette-reel-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 4.4vw, 1.7rem);
+  line-height: 1.15;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  color: var(--tx);
+}
+/* Idle, the box holds the count in the dim ink: it is a sentence
+   about the wheel, not a name on it. */
+.roulette-reel:not(.is-spinning):not(.is-settled) .roulette-reel-name {
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.92rem;
+  text-transform: none;
+  color: var(--tx-dim);
+}
+/* Landed is a shape as well as a sentence: the box's rule thickens
+   under the answer. The sentence beneath is the carrier for an ear. */
+.roulette-reel.is-settled {
+  border-width: 3px;
+}
+.roulette-answer {
+  font-size: 0.92rem;
+  margin: 0.7rem 0 0;
+  min-height: 1.3em;
+}
+.roulette-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  margin-top: 0.9rem;
+}
+/* SPIN is volt: the one actionable thing on the surface. While the
+   reel runs it is inert and says so, and the colour goes with it — a
+   disabled press in the actionable acid would be the colour promising
+   a press that does nothing. */
+.roulette-spin {
+  --press-face: var(--accent);
+  padding: 0.5rem 1.2rem;
+  font: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+}
+.roulette-spin:disabled {
+  --press-face: var(--surface);
+  cursor: default;
+  color: var(--tx-dim);
+}
+
+/* NOT THAT ONE and REMOVE and CLEAR: the quiet word, like the plan's.
+   OVERLAY targets, for the list's reason: the rule under the word is
+   the whole treatment, and growing the box would carry the rule to
+   the bottom of a 2.75rem box. */
+.roulette-veto,
+.roulette-drop,
+.roulette-clear {
+  flex: none;
+  position: relative;
+  background: none;
+  border: 0;
+  border-bottom: 1.5px solid var(--rule-soft);
+  color: var(--tx-dim);
+  font: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.2rem;
+  cursor: pointer;
+}
+.roulette-veto {
+  color: var(--tx);
+  border-bottom-color: var(--rule);
+}
+.roulette-veto::after,
+.roulette-drop::after,
+.roulette-clear::after,
+.roulette-week-link::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+
+/* ---------- the week ---------- */
+
+.roulette-week {
+  margin-top: 1.6rem;
+}
+.roulette-days {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.35rem;
+}
+.roulette-day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 5.5rem;
+  max-width: 12rem;
+  padding: 0.35rem 0.6rem;
+  font: inherit;
+  text-align: left;
+}
+.roulette-dayname {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+}
+.roulette-holds {
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+/* A full day says FULL, dimmed. Pressing it still answers, with the
+   sentence under the row. */
+.roulette-day.is-full .roulette-holds {
+  color: var(--tx-dim);
+}
+.roulette-week-note {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--tx-dim);
+}
+.roulette-week-link {
+  position: relative;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--tx);
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--rule);
+  padding-bottom: 0.1rem;
+}
+
+/* ---------- the restaurants ---------- */
+
+.roulette-names {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.roulette-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.45rem 0;
+  min-width: 0;
+}
+.roulette-row + .roulette-row {
+  border-top: 1px solid var(--rule-soft);
+}
+.roulette-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+.roulette-drop {
+  margin-left: auto;
+}
+
+/* ---------- the entry field ---------- */
+
+.roulette-entry {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1.5px solid var(--rule);
+}
+.roulette-entry-label {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.roulette-entry-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+.roulette-entry-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: var(--tap);
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.6rem;
+  background: transparent;
+  border: 1.5px solid var(--rule);
+  border-radius: 0;
+  color: var(--tx);
+  caret-color: var(--tx);
+}
+/* ADD is neutral: SPIN is the acid on this surface, and a field's
+   submit beside it in volt would be two. */
+.roulette-add {
+  flex: none;
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+}
+.roulette-add:disabled {
+  cursor: default;
+  color: var(--tx-dim);
+}
+.roulette-entry-help {
+  font-size: 0.74rem;
+  color: var(--tx-dim);
+  margin: 0.45rem 0 0;
+  min-height: 1.2em;
+}
+
+/* ARMED IS A WORD — the list's rule, verbatim. */
+.roulette-clear.is-armed {
+  color: var(--tx);
+  font-weight: 700;
+  border-bottom-color: var(--tx);
+}
+.roulette-foot {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1.5px solid var(--rule);
+  margin-top: 1.2rem;
+  padding-top: 0.9rem;
+}
+
+/* Focus is unconditional — it is not decoration, and it is never
+   inside a motion query. */
+.roulette-veto:focus-visible,
+.roulette-drop:focus-visible,
+.roulette-clear:focus-visible,
+.roulette-week-link:focus-visible,
+.roulette-entry-input:focus-visible {
+  outline: 2px solid var(--here);
+  outline-offset: 2px;
+}

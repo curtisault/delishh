@@ -21,7 +21,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 3.5rem;
+  /* 1.25rem — the narrow tier's own — not the 3.5rem it was until
+     2026-09-28. RESTAURANT ROULETTE is the longest label the bar
+     carries, and at the 60rem tier the six routes, their counts, the
+     brand and the theme control need every one of these pixels: the
+     gaps and the tracking below are cut for the same reason. Widen
+     any of them and measure the bar at 960px with a two-digit count
+     on every route before claiming it fits; 60rem is a ruling
+     (docs/decisions.md, the bench layout), and the bar fits inside
+     it rather than moving it. */
+  padding: 0 1.25rem;
 }
 .site-nav .brand {
   flex: none;
@@ -35,11 +44,11 @@
   flex: none;
   display: flex;
   align-items: center;
-  gap: 2.2rem;
+  gap: 1.2rem;
 }
 .site-nav .nav-links {
   display: flex;
-  gap: 1.4rem;
+  gap: 0.9rem;
 }
 /* chrome is never squashed by text pressure: a route that shrinks
    below its own label does not wrap inside a bar of fixed height, it
@@ -129,6 +138,8 @@
   color: var(--stencil-tx);
   text-decoration: none;
   font-size: 0.62rem;
+  /* tighter than `.u`'s 0.1em, for the bar's width budget above */
+  letter-spacing: 0.06em;
   padding-bottom: 0.15rem;
   border-bottom: 2px solid transparent;
 }
@@ -162,7 +173,7 @@
   align-items: baseline;
   gap: 0.7rem;
   border-left: 1px solid var(--stencil-tx);
-  padding-left: 1.1rem;
+  padding-left: 0.9rem;
 }
 .theme-btn {
   background: none;
@@ -1049,6 +1060,8 @@ ul.tight li {
   }
   .site-nav .nav-menu a {
     font-size: 0.68rem;
+    /* the panel has room; the bar's tighter tracking is not needed */
+    letter-spacing: 0.1em;
     padding: 0.85rem 1.25rem;
     border-bottom: 1px solid var(--stencil-tx);
     /* the active route is marked down its edge rather than under it:

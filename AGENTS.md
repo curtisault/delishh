@@ -27,6 +27,8 @@ the authority on how this looks and why.
 | `src/Cook.elm` | The step timer and the wake state (DS-01 §08, §10). The timer counts to an **absolute end**, never down a counter |
 | `src/Plan.elm` | The week, pure. **The shape is private**: pages go through its API so the expansion lands here, not in the shell |
 | `src/Liner.elm` | The backing paper and the leaf (DS-01 §04 as amended 2026-09-23). `on` is the one place that says which routes get the liner (every one but cook mode); `leafKey` is what makes a navigation a new sheet |
+| `src/Roulette.elm` | Restaurant Roulette, pure: the list of places and the spin. **The answer is drawn at the press**; `showing` reads the reel off the clock, and `settle` is the tick past its absolute end (DS-01 §10, the reel) |
+| `src/Page/RestaurantRoulette.elm` | The one surface in the archive that is not about cooking, and it says so in every place a reader could mistake it. Volt on SPIN, nothing else |
 
 ## Commands
 
@@ -425,6 +427,27 @@ fixture must never drift under the suite. Keep it parsing.
     carries a generation number, and `boot.js` discards any draw that
     is not the one wanted. Share and copy must be called before
     anything is awaited, or Safari refuses them outside the press.
+- `src/Roulette.elm` / `src/Page/RestaurantRoulette.elm` — Restaurant
+  Roulette at `/restaurant-roulette` (`docs/decisions.md`, ruled
+  2026-09-28). **The domain is a restaurant, never a recipe**, and
+  the full name is used everywhere for that reason. Four things that
+  are easy to undo:
+  - **The answer is drawn at the press, not during the reel.** The
+    shell fetches the instant, seeds `Random` off it, and
+    `Roulette.start` takes the index. The reel is `showing`, a pure
+    function of the clock arranged so its last step is the answer; a
+    tab that was hidden settles on its first tick back. It is the
+    §10 exception dated 2026-09-28, and it is drawn by Elm as cuts:
+    `roulette.css` may not contain a `transition` or a `@keyframes`.
+  - **`Time.every` is subscribed only while a spin runs**, the timer's
+    rule. Under `prefers-reduced-motion` (`flags.calm`, read once at
+    boot) there is no reel and the same answer lands at once.
+  - **`saveRestaurants` needs a caller the compiler can see.**
+    `Main.readRestaurants` discarding an unreadable store is that
+    caller, as `readPlan` is for `savePlan`.
+  - **A duplicate ignoring case is refused**, because a name entered
+    twice is a weighted wheel. The pick lands on the week as an own
+    meal holding the name alone; the plan is not taught what it is.
 - `src/sw.js` / `src/Reach.elm` / `src/Install.elm` — the install (`docs/decisions.md`).
   Three things that are easy to undo:
   - **Test offline by stopping the server**, never with DevTools'
