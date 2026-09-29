@@ -69,6 +69,7 @@ suite =
                 , DesignStandard
                 , ShoppingList
                 , Plan
+                , RestaurantRoulette
                 , Recipe "salted-caramel"
                 , Cook "salted-caramel"
                 ]

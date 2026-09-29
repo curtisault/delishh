@@ -1155,6 +1155,23 @@ and never ambiently.
   shell measures a deep-linked anchor in the frame the page renders
   and a sheet that arrived displaced would land every one of them
   low. Cook mode does not land; it has no paper to land on.
+- **Sanctioned exception — the reel** (amended 2026-09-28). Restaurant
+  Roulette spins: after the press, the names on the reader's list are
+  shown one after another, quickly and then slower, and the last one
+  shown is the answer. Four things hold it to an exception rather than
+  a loosening. The answer is decided at the press, by a random draw,
+  before a frame is shown: the reel is a readout of a decision already
+  made, never the decision, so a reader who reads none of it loses
+  nothing. It runs to an absolute end like the step timer, so a tab
+  that was hidden settles the moment it returns rather than replaying.
+  Every frame is a cut — one name replaces another in one colour on
+  one fill, with no transition and no change of fill — so nothing
+  flashes under §12's 3 Hz bar and there is no travel for a reader
+  who asked for calm to be spared; under `prefers-reduced-motion`
+  there is no reel at all, and the same answer lands at once. And it
+  is drawn by the shell from its own clock, not by a stylesheet, so
+  the motion test's ban on `@keyframes` stands: a reel is not an
+  animation the page can run on its own.
 
 ---
 
@@ -1230,10 +1247,11 @@ copy is written in a hurry and nobody reviews a tooltip.
   the second for the first.
 - **Self-hosted assets only.** No font CDNs, no third-party analytics
   on a document you may want to read in ten years.
-- **Nothing about a reader leaves their browser.** Three things are
+- **Nothing about a reader leaves their browser.** Four things are
   stored, all local and all named in the colophon: the lighting
-  they chose, the shopping list they built, and the week they
-  planned (the third added 2026-09-27). Any may fail to
+  they chose, the shopping list they built, the week they
+  planned (the third added 2026-09-27), and the restaurants they keep
+  for roulette (the fourth added 2026-09-28). Any may fail to
   save — a full or blocked store degrades to the choice holding for
   the session, never to a surface that will not render. State that
   cannot be read back is discarded and the reader starts empty.

@@ -13,12 +13,14 @@ import './recipe.css'
 import './cook.css'
 import './list.css'
 import './plan.css'
+import './roulette.css'
 import './print.css'
 import { Elm } from './Main.elm'
 
 const THEME_KEY = 'delishh-theme'
 const LIST_KEY = 'delishh-list'
 const PLAN_KEY = 'delishh-plan'
+const RESTAURANTS_KEY = 'delishh-restaurants'
 
 // Apply the stored preference BEFORE Elm boots — the page must never
 // flash the wrong theme. "system" is represented by absence: no
@@ -52,6 +54,20 @@ try {
   // storage unavailable: start with an empty week
 }
 
+// The restaurant list, read raw for the same reason the list is.
+let storedRestaurants = null
+try {
+  storedRestaurants = localStorage.getItem(RESTAURANTS_KEY)
+} catch (_) {
+  // storage unavailable: start with no restaurants
+}
+
+// Whether the reader asked for calm, read once. The reel (DS-01 §10)
+// is the one thing in Elm that consults it: under calm a spin settles
+// at once, on the same answer. Every other motion is a stylesheet's,
+// authored inside the media query itself.
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+
 // What this browser can do about a home-screen install, read off its
 // capabilities and never its name (docs/decisions.md, Install.elm).
 // Already running installed: nothing to offer. Otherwise
@@ -78,6 +94,8 @@ const app = Elm.Main.init({
     theme: storedTheme,
     list: storedList,
     plan: storedPlan,
+    restaurants: storedRestaurants,
+    calm,
     // The date a printed sheet says it was pulled (DS-01 §09). Elm
     // cannot read a clock without a subscription, and a document does
     // not need one ticking — this is the load date, which for a page
@@ -213,6 +231,22 @@ app.ports.savePlan.subscribe((plan) => {
     }
   } catch (_) {
     // storage full or unavailable: the week holds for this session
+  }
+})
+
+app.ports.saveRestaurants.subscribe((restaurants) => {
+  try {
+    // An empty list clears the key, as the week's does: the colophon
+    // says taking the last restaurant off removes it, and `[]` stored
+    // would make that a lie. This is also how the shell discards a
+    // stored list it could not read.
+    if (Array.isArray(restaurants) && restaurants.length > 0) {
+      localStorage.setItem(RESTAURANTS_KEY, JSON.stringify(restaurants))
+    } else {
+      localStorage.removeItem(RESTAURANTS_KEY)
+    }
+  } catch (_) {
+    // storage full or unavailable: the list holds for this session
   }
 })
 

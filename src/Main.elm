@@ -49,6 +49,9 @@ import Page.Cook
 import Page.DesignStandard
 import Page.GroceryList
 import Page.Plan
+import Page.RestaurantRoulette
+import Random
+import Roulette exposing (Roulette)
 import Page.Recipe
 import Page.Shelf
 import Plan exposing (Plan)
@@ -89,6 +92,19 @@ for the same reason: the schema lives in `Plan.encode`, and boot.js
 only stringifies. An empty week clears the key.
 -}
 port savePlan : E.Value -> Cmd msg
+
+
+{-| Write the restaurant list back to this browser — the fourth thing
+stored (DS-01 §12, amended 2026-09-28), under its own key. The same
+shape as `savePlan`: the schema lives in `Roulette.encode`, boot.js
+only stringifies, and an empty list clears the key.
+
+`readRestaurants` is the caller the compiler can see. Elm drops an
+unused port, and boot.js subscribing to one that is not there throws
+at boot.
+
+-}
+port saveRestaurants : E.Value -> Cmd msg
 
 
 {-| The shared picture, out: `{ do: "draw", gen, rows }` to draw the
@@ -241,6 +257,15 @@ type alias Flags =
     -- what will not decode becomes an empty week
     , plan : Maybe String
 
+    -- the restaurant list as it was stored, still a string. The same
+    -- rule: what will not decode becomes an empty list
+    , restaurants : Maybe String
+
+    -- whether the reader asked for calm (`prefers-reduced-motion`),
+    -- read once at boot. The reel is the one thing that consults it:
+    -- under calm a spin settles at once, on the same answer
+    , calm : Bool
+
     -- what this browser offers for a home-screen install at boot:
     -- "share" (Safari on iPhone and iPad) or "none". A prompt arrives
     -- later, on the installOffered port, if at all
@@ -356,6 +381,22 @@ type alias Model =
     , pictureGen : Int
     , pictureOutcome : Maybe Page.Plan.Outcome
 
+    -- the restaurants. The reader's, like the list and the week: no
+    -- navigation resets it
+    , restaurants : Roulette
+
+    -- the roulette page's hand: the spin, the entry field's text and
+    -- why the last ADD was refused, the day the answer was put on or
+    -- that was full, and whether CLEAR is armed. Page state, so any
+    -- navigation drops all of it — a spin is a moment, not a record
+    , spin : Roulette.Spin
+    , rouletteEntry : String
+    , rouletteRefusal : Maybe Roulette.Refusal
+    , roulettePlaced : Maybe Plan.Day
+    , rouletteRefused : Maybe Plan.Day
+    , rouletteClearArmed : Bool
+    , calm : Bool
+
     , done : Set Int
     , timer : Maybe Cook.Timer
     , now : Time.Posix
@@ -385,6 +426,9 @@ init flags url key =
     let
         ( storedPlan, discardPlan ) =
             readPlan flags.plan
+
+        ( storedRestaurants, discardRestaurants ) =
+            readRestaurants flags.restaurants
     in
     ( { key = key
       , route = Route.fromUrl url
@@ -419,6 +463,14 @@ init flags url key =
       , picture = Page.Plan.NotMade
       , pictureGen = 0
       , pictureOutcome = Nothing
+      , restaurants = storedRestaurants
+      , spin = Roulette.Idle
+      , rouletteEntry = ""
+      , rouletteRefusal = Nothing
+      , roulettePlaced = Nothing
+      , rouletteRefused = Nothing
+      , rouletteClearArmed = False
+      , calm = flags.calm
       , done = Set.empty
       , timer = Nothing
       , now = Time.millisToPosix 0
@@ -430,6 +482,7 @@ init flags url key =
         [ routeCmd (Route.fromUrl url)
         , setWakeLock (isCooking (Route.fromUrl url))
         , discardPlan
+        , discardRestaurants
 
         -- a cold load with a fragment (a shared deep link) still owes
         -- a jump — the browser cannot do it, because Elm renders
@@ -524,6 +577,41 @@ readPlan stored =
 
                 Err _ ->
                     ( Plan.empty, savePlan (Plan.encode Plan.empty) )
+
+
+{-| The stored restaurants, and what to do about them — `readPlan`'s
+rule, for the fourth key. This is also the caller `saveRestaurants`
+needs to exist.
+-}
+readRestaurants : Maybe String -> ( Roulette, Cmd msg )
+readRestaurants stored =
+    case stored of
+        Nothing ->
+            ( Roulette.empty, Cmd.none )
+
+        Just raw ->
+            case D.decodeString Roulette.decoder raw of
+                Ok restaurants ->
+                    ( restaurants, Cmd.none )
+
+                Err _ ->
+                    ( Roulette.empty, saveRestaurants (Roulette.encode Roulette.empty) )
+
+
+{-| Keep a changed restaurant list, and write it through, as `store`
+does the list. A spin over the old list is dropped with it: the wheel
+the reel was reading is not the wheel any more.
+-}
+storeRestaurants : Roulette -> Model -> ( Model, Cmd Msg )
+storeRestaurants restaurants model =
+    ( { model
+        | restaurants = restaurants
+        , spin = Roulette.Idle
+        , roulettePlaced = Nothing
+        , rouletteRefused = Nothing
+      }
+    , saveRestaurants (Roulette.encode restaurants)
+    )
 
 
 {-| boot.js's answer to a draw: which draw, and the picture or the
@@ -638,6 +726,14 @@ type Msg
     | SharePicture
     | CopyPicture
     | PictureShared String
+    | RouletteInput String
+    | RouletteAdd
+    | RouletteRemove String
+    | RouletteSpin (Maybe String)
+    | RouletteSpinAt (List String) Time.Posix
+    | RouletteDay Plan.Day
+    | RouletteClear
+    | RouletteTick Time.Posix
     | OpenPath (Maybe Shelf.Path)
     | ToggleFacet Shelf.Path String
     | ShelfQuery String
@@ -796,6 +892,42 @@ update msg model =
 
                             else
                                 model.pickerRefused
+                        , spin =
+                            if arrived then
+                                Roulette.Idle
+
+                            else
+                                model.spin
+                        , rouletteEntry =
+                            if arrived then
+                                ""
+
+                            else
+                                model.rouletteEntry
+                        , rouletteRefusal =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.rouletteRefusal
+                        , roulettePlaced =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.roulettePlaced
+                        , rouletteRefused =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.rouletteRefused
+                        , rouletteClearArmed =
+                            if arrived then
+                                False
+
+                            else
+                                model.rouletteClearArmed
                         , done =
                             if arrived then
                                 Set.empty
@@ -1164,6 +1296,86 @@ update msg model =
         PictureShared word ->
             ( { model | pictureOutcome = Just (Page.Plan.outcomeFromString word) }, Cmd.none )
 
+        RouletteInput typed ->
+            ( { model | rouletteEntry = typed, rouletteRefusal = Nothing }, Cmd.none )
+
+        RouletteAdd ->
+            -- Enter on a blank field says so rather than closing:
+            -- the field stays, with a sentence, and never looks like
+            -- it kept something.
+            case Roulette.add model.rouletteEntry model.restaurants of
+                Ok restaurants ->
+                    storeRestaurants restaurants
+                        { model | rouletteEntry = "", rouletteRefusal = Nothing, rouletteClearArmed = False }
+
+                Err why ->
+                    ( { model | rouletteRefusal = Just why }, Cmd.none )
+
+        RouletteRemove name ->
+            storeRestaurants (Roulette.remove name model.restaurants)
+                { model | rouletteClearArmed = False }
+
+        RouletteSpin vetoed ->
+            -- The answer is drawn at the press (DS-01 §10, the reel),
+            -- and the instant is fetched first because the reel runs
+            -- to an absolute end. The draw is seeded off that instant,
+            -- which is what `Random.generate` would do with one more
+            -- round trip through the runtime.
+            case Roulette.wheel vetoed model.restaurants of
+                [] ->
+                    ( model, Cmd.none )
+
+                wheel ->
+                    ( { model | roulettePlaced = Nothing, rouletteRefused = Nothing, rouletteClearArmed = False }
+                    , Task.perform (RouletteSpinAt wheel) Time.now
+                    )
+
+        RouletteSpinAt wheel now ->
+            let
+                ( index, _ ) =
+                    Random.step
+                        (Random.int 0 (List.length wheel - 1))
+                        (Random.initialSeed (Time.posixToMillis now))
+            in
+            ( { model
+                | spin = Roulette.start { calm = model.calm, wheel = wheel, index = index, now = now }
+                , now = now
+              }
+            , Cmd.none
+            )
+
+        RouletteTick now ->
+            ( { model | now = now, spin = Roulette.settle now model.spin }, Cmd.none )
+
+        RouletteDay day ->
+            -- The plan holds the name as typed, as an own meal, and
+            -- does not learn it was a restaurant (docs/decisions.md).
+            case model.spin of
+                Roulette.Settled name ->
+                    case Plan.own name of
+                        Just meal ->
+                            case Plan.add day meal model.plan of
+                                Ok plan ->
+                                    storePlan { model | plan = plan, roulettePlaced = Just day, rouletteRefused = Nothing }
+
+                                Err Plan.DayFull ->
+                                    ( { model | rouletteRefused = Just day, roulettePlaced = Nothing }, Cmd.none )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        RouletteClear ->
+            -- Two presses, like the list and the week: the first arms,
+            -- the second clears. Any other press on the page disarms.
+            if model.rouletteClearArmed then
+                storeRestaurants Roulette.empty { model | rouletteClearArmed = False }
+
+            else
+                ( { model | rouletteClearArmed = True }, Cmd.none )
+
         GotIndex (Ok index) ->
             ( { model | index = Fetched index }, Cmd.none )
 
@@ -1285,6 +1497,16 @@ subscriptions model =
                 Time.every 1000 Tick
 
             Nothing ->
+                Sub.none
+
+        -- The reel, only while one runs (DS-01 §10, the reel). Each
+        -- tick reads the clock; the frame shown is a function of it,
+        -- and the tick past the end settles.
+        , case model.spin of
+            Roulette.Spinning _ ->
+                Time.every 80 RouletteTick
+
+            _ ->
                 Sub.none
         ]
 
@@ -1537,6 +1759,32 @@ page model =
                     , onCopy = CopyPicture
                     }
 
+            Route.RestaurantRoulette ->
+                Page.RestaurantRoulette.view
+                    { roulette = model.restaurants
+                    , spin = model.spin
+                    , now = model.now
+                    , entry = model.rouletteEntry
+                    , refusal = model.rouletteRefusal
+                    , plan = model.plan
+                    , placed = model.roulettePlaced
+                    , refused = model.rouletteRefused
+                    , clearArmed = model.rouletteClearArmed
+                    , onInput = RouletteInput
+                    , onAdd = RouletteAdd
+                    , onRemove = RouletteRemove
+                    , onSpin = RouletteSpin Nothing
+                    , onVeto =
+                        case model.spin of
+                            Roulette.Settled name ->
+                                RouletteSpin (Just name)
+
+                            _ ->
+                                RouletteSpin Nothing
+                    , onDay = RouletteDay
+                    , onClear = RouletteClear
+                    }
+
             Route.About ->
                 Page.About.view (chrome model)
 
@@ -1629,6 +1877,7 @@ siteNav model =
                 [ navLink model.route Route.Home "Home"
                 , countedLink model.route Route.ShoppingList "Shopping List" ( "recipe", "recipes" ) (GroceryList.count model.list)
                 , countedLink model.route Route.Plan "Meal Plan" ( "day", "days" ) (Plan.count model.plan)
+                , countedLink model.route Route.RestaurantRoulette "Restaurant Roulette" ( "restaurant", "restaurants" ) (Roulette.count model.restaurants)
                 , navLink model.route Route.DesignStandard "Standard"
                 , navLink model.route Route.About "About"
                 ]
