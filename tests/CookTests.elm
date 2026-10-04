@@ -171,6 +171,7 @@ fixture =
     , print = "sheet"
     , photo = Nothing
     , keepsFor = Just { where_ = "fridge", amount = 14, unit = "d" }
+    , inspired = Nothing
     , gauges = []
     , ingredients =
         [ { name = Nothing

@@ -248,6 +248,9 @@ async function main() {
         // The shelf's last column. Null is "not stated" all the way
         // through — the row draws nothing rather than a hedge.
         keepsFor: r.keepsFor,
+        // Searchable, not shown: typing the restaurant's name finds
+        // the dish, and the row stays five columns.
+        inspired: r.inspired,
       })),
   };
 

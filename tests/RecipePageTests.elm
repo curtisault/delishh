@@ -65,6 +65,7 @@ full =
     , print = "sheet"
     , photo = Nothing
     , keepsFor = Just { where_ = "fridge", amount = 14, unit = "d" }
+    , inspired = Nothing
     , gauges =
         [ { label = "Pan", value = "20 cm", note = Just "pale interior" }
         , { label = "Take it to", value = "175–180 °C", note = Nothing }
@@ -594,6 +595,24 @@ suite =
                     -- is exactly that (DS-01 §06).
                     rendered { full | gauges = [] } Nothing
                         |> Query.findAll [ Selector.class "recipe-gauges" ]
+                        |> Query.count (Expect.equal 0)
+            ]
+        , describe "the attribution — DS-01 §06, amended 2026-10-04"
+            [ test "sits in the serial row, label and name" <|
+                \_ ->
+                    rendered { full | inspired = Just "The Corner Bakery" } Nothing
+                        |> Query.find [ Selector.class "recipe-serial" ]
+                        |> Query.find [ Selector.class "recipe-inspired" ]
+                        |> Query.has
+                            [ Selector.text "INSPIRED BY"
+                            , Selector.text "THE CORNER BAKERY"
+                            ]
+            , test "nothing stands in for an absent one" <|
+                \_ ->
+                    -- No "original", no dash: the archive claims
+                    -- authorship of nothing (§12).
+                    plain
+                        |> Query.findAll [ Selector.class "recipe-inspired" ]
                         |> Query.count (Expect.equal 0)
             ]
         ]

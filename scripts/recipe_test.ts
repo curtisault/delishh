@@ -442,3 +442,61 @@ Deno.test("a Keeps block with no keeping life is allowed", () => {
   assert(recipe);
   assert(recipe.keeps.length > 0);
 });
+
+// ---------------------------------------------------------------------------
+// The attribution (DS-01 §06, amended 2026-10-04)
+//
+// `inspired:` is who the dish is after. Free text, one line, kept as
+// typed; the one rule is that the title does not repeat it.
+// ---------------------------------------------------------------------------
+
+const inspired = (source: string) =>
+  swap(source, "print: sheet\n", "print: sheet\ninspired: The Corner Bakery\n");
+
+Deno.test("an attribution is carried exactly as typed", () => {
+  const { recipe, problems } = parseRecipe("salted-caramel", inspired(good));
+  assertEquals(problems, []);
+  assert(recipe);
+  assertEquals(recipe.inspired, "The Corner Bakery");
+});
+
+Deno.test("an attribution is optional — absent is *none*, never a placeholder", () => {
+  const { recipe } = parseRecipe("salted-caramel", good);
+  assert(recipe);
+  assertEquals(recipe.inspired, null);
+});
+
+Deno.test("an empty attribution is rejected", () => {
+  rejects(
+    swap(good, "print: sheet\n", 'print: sheet\ninspired: ""\n'),
+    "must be a name, or absent",
+  );
+});
+
+Deno.test("a title that repeats the attribution is rejected", () => {
+  // The name lives in one place. "Corner Bakery-Style Salted Caramel"
+  // is attributing twice, and the second time is the sell register.
+  rejects(
+    swap(inspired(good), "title: Salted Caramel", "title: The Corner Bakery-Style Salted Caramel"),
+    "repeats the attribution",
+  );
+});
+
+Deno.test("the title check ignores case", () => {
+  rejects(
+    swap(inspired(good), "title: Salted Caramel", "title: Salted Caramel, the corner bakery way"),
+    "repeats the attribution",
+  );
+});
+
+Deno.test("the word rules do not read the attribution", () => {
+  // A restaurant may be called whatever it is called. A proper noun
+  // is not procedure, and the title rule is the only check it gets.
+  const { recipe, problems } = parseRecipe(
+    "salted-caramel",
+    swap(good, "print: sheet\n", "print: sheet\ninspired: The Best Little Caramel Shop Ever!\n"),
+  );
+  assertEquals(problems, []);
+  assert(recipe);
+  assertEquals(recipe.inspired, "The Best Little Caramel Shop Ever!");
+});

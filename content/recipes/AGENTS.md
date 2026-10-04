@@ -50,6 +50,8 @@ print: sheet
 photo: salted-caramel.avif   # optional; the file must exist in
                              # public/photos — omit the field if
                              # there is no photograph
+inspired: The Corner Bakery  # optional; who the dish is after —
+                             # see below
 gauges:                      # optional; at most 5 — see below
   - { label: Pan, value: 20 cm, note: pale interior }
   - { label: Take it to, value: 175–180 °C, note: deep amber }
@@ -139,6 +141,29 @@ them the thing you re-read from a metre away with your hands full.
 - **Omit the field when the recipe has no number worth the plate.** A
   drink blended until it is smooth is blended until it is smooth, and
   no temperature will tell you more than that.
+
+### The attribution — optional
+
+`inspired: Lupe Tortilla` is **who the dish is after** — the
+restaurant, usually, whose plate you were trying to get back to. It
+heads the plate at the top right, beside the method and the
+last-batch date, and it prints there too. It is homage, not a facet:
+nobody browses by it, so it is one line of free text kept exactly as
+typed, never a vocabulary.
+
+- **The title is the food.** *Warm Bean Dip*, not *Lupe Tortilla-Style
+  Warm Bean Dip*. The build rejects a title that contains the
+  attribution's name, ignoring case — the name lives in one place so
+  it can be right in one place, and *-style* and *copycat* are the
+  sell register. **Enforced.**
+- **Absent means no attribution**, never "original". Leave it out for
+  a dish that is yours; the archive claims authorship of nothing.
+- **The story goes in the Note.** The field is the fact — *this dish
+  is after that place* — and the Note is why: the booth, the
+  sizzling platter, what the copy gets wrong. The field is never read
+  out of the Note.
+- **The word rules do not read it.** A place is called what it is
+  called, and a proper noun is not procedure.
 
 ### The closed vocabularies
 
@@ -386,6 +411,8 @@ effort: relaxed
 dietary: []
 cuisine: []
 print: sheet
+# inspired: Name of the place   # optional — who the dish is after;
+                                # the title stays the food
 gauges: []
 ---
 

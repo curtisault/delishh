@@ -82,6 +82,7 @@ type alias Summary =
     , dietary : List String
     , cuisine : List String
     , keepsFor : Maybe Keeps
+    , inspired : Maybe String
     }
 
 
@@ -367,7 +368,9 @@ judge filters recipe =
 {-| Every word of a query has to match, so a second word narrows
 rather than widens — the same rule the site search uses. Matched
 against the title and every facet, because "vegan" is a thing people
-type into a search box as readily as they click it.
+type into a search box as readily as they click it — and against the
+attribution, because the restaurant's name is how a reader remembers
+the dish, and the row does not draw it.
 -}
 matchesQuery : String -> Summary -> Bool
 matchesQuery query recipe =
@@ -376,6 +379,7 @@ matchesQuery query recipe =
             String.toLower
                 (String.join " "
                     (recipe.title
+                        :: Maybe.withDefault "" recipe.inspired
                         :: recipe.method
                         :: recipe.effort
                         :: recipe.course
@@ -581,3 +585,4 @@ summaryDecoder =
         |> field "dietary" (D.list D.string)
         |> field "cuisine" (D.list D.string)
         |> field "keepsFor" (D.nullable keepsDecoder)
+        |> field "inspired" (D.nullable D.string)

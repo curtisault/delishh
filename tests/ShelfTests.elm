@@ -34,6 +34,7 @@ recipe slug =
     , dietary = [ "vegetarian" ]
     , cuisine = []
     , keepsFor = Nothing
+    , inspired = Nothing
     }
 
 
@@ -52,6 +53,7 @@ caramel =
     , dietary = [ "vegetarian", "gluten-free" ]
     , cuisine = []
     , keepsFor = Just { where_ = "fridge", amount = 14, unit = "d" }
+    , inspired = Nothing
     }
 
 
@@ -70,6 +72,7 @@ pickles =
     , dietary = [ "vegan", "gluten-free" ]
     , cuisine = []
     , keepsFor = Nothing
+    , inspired = Nothing
     }
 
 
@@ -177,6 +180,17 @@ suite =
                 \_ ->
                     Shelf.judge { noFilters | query = "caramel x" } caramel
                         |> Expect.equal Shown
+            , test "matches the attribution, which the row does not draw" <|
+                \_ ->
+                    -- The restaurant's name is how a reader remembers
+                    -- the dish (docs/decisions.md, 2026-10-04).
+                    Shelf.judge { noFilters | query = "corner bakery" }
+                        { caramel | inspired = Just "The Corner Bakery" }
+                        |> Expect.equal Shown
+            , test "an absent attribution matches nothing" <|
+                \_ ->
+                    Shelf.judge { noFilters | query = "corner" } caramel
+                        |> Expect.equal (Excluded [])
             ]
         , describe "order"
             [ test "default sort is last tested, newest first" <|

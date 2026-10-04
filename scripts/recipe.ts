@@ -147,6 +147,17 @@ export type Recipe = {
   cuisine: string[];
   print: string;
   photo: string | null;
+  /** Who the dish is after — a restaurant, usually — from the
+   * frontmatter's `inspired:`, kept exactly as typed.
+   *
+   * **Null is "no attribution", never "original".** The archive does
+   * not claim authorship of a dish any more than it claims a dietary
+   * flag; it states what the cook wrote down and nothing more. The
+   * name is free text rather than a vocabulary because it is homage,
+   * not a facet: nobody browses by it, and a closed list of three
+   * restaurants would be a filter that returns three things
+   * (docs/decisions.md, 2026-10-04). */
+  inspired: string | null;
   /** Empty when the recipe has none, which is the honest answer for a
    * drink blended until it is smooth. Never a placeholder row. */
   gauges: Gauge[];
@@ -335,6 +346,7 @@ const ALLOWED_KEYS = [
   "cuisine",
   "print",
   "photo",
+  "inspired",
   "gauges",
   "keeps",
 ];
@@ -605,6 +617,47 @@ export function parseRecipe(
       );
     } else {
       photo = fm.photo.trim();
+    }
+  }
+
+  // --- inspired: the attribution (DS-01 §06, amended 2026-10-04) -----------
+  //
+  // Optional, free text, one line. The one check it gets is the one
+  // that keeps the name in one place: a title that repeats it is
+  // attributing twice, and "Lupe Tortilla-Style Warm Bean Dip" is the
+  // sell register the title rule exists to keep off the plate. The
+  // word rules do not read it — a restaurant may be called whatever
+  // it is called, and a proper noun is not procedure.
+
+  let inspired: string | null = null;
+  if (fm.inspired !== undefined) {
+    if (typeof fm.inspired !== "string" || !fm.inspired.trim()) {
+      fail(
+        "frontmatter.inspired",
+        "must be a name, or absent. An empty attribution says nothing; " +
+          "omit the field and the plate carries none, which is honest " +
+          "(DS-01 §06).",
+        at("inspired"),
+      );
+    } else if (/[\r\n]/.test(fm.inspired.trim())) {
+      fail(
+        "frontmatter.inspired",
+        "is one line — a name. The story of the place belongs in the Note, " +
+          "in your own words.",
+        at("inspired"),
+      );
+    } else {
+      inspired = fm.inspired.trim();
+      if (title && title.toLowerCase().includes(inspired.toLowerCase())) {
+        fail(
+          "frontmatter.title",
+          `repeats the attribution. The title is the food — "Warm Bean ` +
+            `Dip" — and \`inspired: ${inspired}\` is where the name goes, ` +
+            `so it can be right in one place. "-style" and "copycat" are ` +
+            `the sell register (DS-01 §11).`,
+          at("title"),
+        );
+      }
     }
   }
 
@@ -1011,6 +1064,7 @@ export function parseRecipe(
       cuisine,
       print,
       photo,
+      inspired,
       gauges,
       keepsFor,
       ingredients,
