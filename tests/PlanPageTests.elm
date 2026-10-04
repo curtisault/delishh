@@ -66,6 +66,7 @@ summary slug title =
     , dietary = []
     , cuisine = []
     , keepsFor = Nothing
+    , inspired = Nothing
     }
 
 

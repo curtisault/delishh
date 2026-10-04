@@ -54,6 +54,7 @@ type alias Recipe =
     , photo : Maybe String
     , gauges : List Gauge
     , keepsFor : Maybe Keeps
+    , inspired : Maybe String
     , ingredients : List IngredientGroup
     , equipment : List String
     , steps : List Step
@@ -237,6 +238,7 @@ decoder =
         |> field "photo" (D.nullable D.string)
         |> field "gauges" (D.list gaugeDecoder)
         |> field "keepsFor" (D.nullable keepsDecoder)
+        |> field "inspired" (D.nullable D.string)
         |> field "ingredients" (D.list groupDecoder)
         |> field "equipment" (D.list D.string)
         |> field "steps" (D.list stepDecoder)

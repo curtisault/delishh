@@ -98,10 +98,14 @@ export const PANTRY: Record<string, Purchase> = {
   "green bell pepper": { aisle: "produce", buyAs: "green bell peppers" },
   "red bell pepper": { aisle: "produce", buyAs: "red bell peppers" },
   "jalapeños": { aisle: "produce" },
+  "jalapeño": { aisle: "produce", buyAs: "jalapeños" },
   "lemon": { aisle: "produce", buyAs: "lemons" },
   "lemon juice": { aisle: "produce", buyAs: "lemons" },
   "lime": { aisle: "produce", buyAs: "limes" },
+  "limes": { aisle: "produce" },
+  "lime juice": { aisle: "produce", buyAs: "limes" },
   "roasted green chiles": { aisle: "produce" },
+  "Roma tomatoes": { aisle: "produce" },
   "scallions": { aisle: "produce" },
   "thyme": { aisle: "produce", buyAs: "fresh thyme" },
   "very ripe bananas — 1¼ cups mashed": { aisle: "produce", buyAs: "bananas" },
@@ -113,6 +117,8 @@ export const PANTRY: Record<string, Purchase> = {
   "beef chuck": { aisle: "meat", breaks: FLESH },
   "skin-on pork belly": { aisle: "meat", breaks: FLESH },
   "ground beef": { aisle: "meat", breaks: FLESH },
+  "skirt steak": { aisle: "meat", breaks: FLESH },
+  "bacon": { aisle: "meat", breaks: FLESH },
   "boneless chicken thighs": { aisle: "meat", breaks: FLESH },
   "chicken thighs": { aisle: "meat", breaks: FLESH },
   // One bird answers all four. What differs between them is how it is
@@ -186,6 +192,7 @@ export const PANTRY: Record<string, Purchase> = {
   "corn tortillas": { aisle: "bakery" },
   "corn tortillas — corn": { aisle: "bakery", buyAs: "corn tortillas" },
   "fresh flour tortillas": { aisle: "bakery", buyAs: "flour tortillas", breaks: GLUTEN },
+  "flour tortillas": { aisle: "bakery", breaks: GLUTEN },
   "small flour tortillas": { aisle: "bakery", buyAs: "flour tortillas", breaks: GLUTEN },
 
   // --- dry goods -----------------------------------------------------------
@@ -210,6 +217,7 @@ export const PANTRY: Record<string, Purchase> = {
     buyAs: "canned great northern beans",
   },
   "pinto or kidney beans": { aisle: "canned", buyAs: "canned pinto beans" },
+  "pinto beans": { aisle: "canned", buyAs: "canned pinto beans" },
   "can crushed tomatoes": { aisle: "canned", buyAs: "canned crushed tomatoes" },
   "can whole peeled tomatoes": {
     aisle: "canned",
@@ -316,6 +324,7 @@ export const PANTRY: Record<string, Purchase> = {
   // --- not a purchase ------------------------------------------------------
   // It comes out of a tap.
   "warm water": { omit: true },
+  "water": { omit: true },
   // The third option in "Instead of the walnuts — optional, pick one",
   // which is to add nothing.
   "or nothing at all; it is excellent plain": { omit: true },

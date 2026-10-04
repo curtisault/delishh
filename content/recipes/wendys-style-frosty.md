@@ -1,5 +1,5 @@
 ---
-title: Wendy's-Style Frosty
+title: Chocolate Malt Frosty
 tested: 2026-09-21
 yield: { amount: 650, unit: ml, servings: 2 }
 time: { active: 5m, total: 5m }
@@ -11,6 +11,7 @@ effort: relaxed
 dietary: [vegetarian, pescatarian]
 cuisine: [american]
 print: card
+inspired: Wendy's
 ---
 
 ## Equipment

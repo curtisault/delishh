@@ -23,7 +23,7 @@ the authority on how this looks and why.
 | `src/Scale.elm` | The measurement ladder (DS-01 §05) as a pure module. **Where a recipe archive would otherwise lie to you** — see below |
 | `src/Page/Recipe.elm` | The nine blocks of DS-01 §06. Deliberately does **not** wear `Doc` |
 | `src/print.css` | **All of DS-01 §09.** The four printed forms, the ink discipline, the break law, the traceability footer |
-| `src/Shelf.elm` | The four browse paths and the filter logic (DS-01 §07), pure. `judge` returns a verdict **with its reasons** |
+| `src/Shelf.elm` | The five browse paths and the filter logic (DS-01 §07), pure; the fifth, by place, is backed by the names the corpus carries rather than a closed list. `judge` returns a verdict **with its reasons** |
 | `src/Cook.elm` | The step timer and the wake state (DS-01 §08, §10). The timer counts to an **absolute end**, never down a counter |
 | `src/Plan.elm` | The week, pure. **The shape is private**: pages go through its API so the expansion lands here, not in the shell |
 | `src/Liner.elm` | The backing paper and the leaf (DS-01 §04 as amended 2026-09-23). `on` is the one place that says which routes get the liner (every one but cook mode); `leafKey` is what makes a navigation a new sheet |

@@ -349,6 +349,17 @@
   .recipe-mark {
     font-weight: 700;
   }
+  /* The attribution prints, in the same place, in ink. The chips do
+     not because they are for finding; this is part of what the sheet
+     is, like the title, and a sheet handed to a friend should say
+     where the dish came from. */
+  .recipe-inspired {
+    padding: 2pt 4pt;
+    border: 1pt solid #000;
+  }
+  .recipe-inspired-v {
+    font-weight: 700;
+  }
   .recipe-facts {
     gap: 14pt;
     margin-bottom: 0;

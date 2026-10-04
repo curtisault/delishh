@@ -300,12 +300,17 @@ plate config =
     in
     div [ class "recipe-plate" ]
         ([ div [ class "recipe-serial mono" ]
-            [ -- The method leads the plate: the word for the acid the
-              -- whole page runs on. Information is never colour-only
-              -- (§04), and this is that rule kept where it is loudest.
-              span [ class "recipe-mark" ] [ text (methodWord r.method) ]
-            , span [] [ text ("LAST BATCH " ++ r.tested) ]
-            ]
+            ([ -- The method leads the plate: the word for the acid the
+               -- whole page runs on. Information is never colour-only
+               -- (§04), and this is that rule kept where it is loudest.
+               span [ class "recipe-mark" ] [ text (methodWord r.method) ]
+             , span [] [ text ("LAST BATCH " ++ r.tested) ]
+             ]
+                -- The attribution, last in the row and pushed to the
+                -- far edge by the stylesheet. Absent when the recipe
+                -- has none — never a placeholder, never "original".
+                ++ inspired r
+            )
         , h1 [ class "recipe-title" ] [ text r.title ]
         , div [ class "recipe-facts mono" ]
             ([ fact "YIELD" (yieldText config)
@@ -367,6 +372,33 @@ plate config =
                  , dayPicker config
                ]
         )
+
+
+{-| The attribution: who the dish is after (DS-01 §06, amended
+2026-10-04). The label dim and the name at weight 700 in ink, inside
+a ruled box — prominent by shape and weight, never colour, because
+the plate's one acid is the method's and a name is neither an action
+nor a process (§04). It prints, in the same place, because it is part
+of what the sheet *is*; the chips do not, because they are for
+finding.
+
+Nothing stands in for an absent one. The archive does not claim a
+dish is original any more than it claims a dietary flag it has not
+verified (§12).
+
+-}
+inspired : Recipe -> List (Html msg)
+inspired r =
+    case r.inspired of
+        Nothing ->
+            []
+
+        Just name ->
+            [ span [ class "recipe-inspired" ]
+                [ span [ class "recipe-inspired-k" ] [ text "INSPIRED BY" ]
+                , span [ class "recipe-inspired-v" ] [ text (String.toUpper name) ]
+                ]
+            ]
 
 
 {-| The gauge strip: the recipe's operating numbers, authored in the

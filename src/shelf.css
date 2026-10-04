@@ -206,13 +206,15 @@
   color: var(--tx-dim);
 }
 
-/* ---------- the four paths ----------
+/* ---------- the five paths ----------
    Full-acid tiles, one per way in. This is the sticker sheet: flat
    colour, hard edges, ink text on every fill. */
 
 .paths {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  /* 10rem since the fifth tile (2026-10-04): five fit the column in one
+     row at the reading width, where 11rem left one tile alone below. */
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 0.5rem;
   margin-bottom: 1.2rem;
 }
@@ -255,6 +257,13 @@
 }
 .path-tile.path-dietary {
   --press-face: var(--shelf-cold);
+}
+/* The fifth path (2026-10-04) takes lilac, the one shelf acid no
+   surface had spoken for: time went to the plan press and work to
+   the list press. Gentle heat is the nearest name for a dish
+   somebody else perfected first. */
+.path-tile.path-inspired {
+  --press-face: var(--shelf-soft);
 }
 .path-label {
   font-size: 0.78rem;

@@ -72,6 +72,26 @@
   color: var(--acid);
   font-weight: 700;
 }
+/* The attribution (DS-01 §06, amended 2026-10-04): last in the serial
+   row, pushed to the far edge. The label stays dim like the date; the
+   name is weight 700 in ink inside a ruled box. Prominent by shape
+   and weight, never colour — the plate's one acid is the method's,
+   and a name is neither an action nor a process (§04). Not a slab:
+   a slab is a press, and this does nothing. */
+.recipe-inspired {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5em;
+  padding: 0.3rem 0.6rem;
+  border: 1.5px solid var(--rule);
+  white-space: nowrap;
+}
+.recipe-inspired-v {
+  color: var(--tx);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
 .recipe-title {
   font-family: var(--font-display);
   text-transform: uppercase;
@@ -453,6 +473,14 @@
   }
   .recipe-facts {
     gap: 1rem;
+  }
+  /* The serial row wraps, and the attribution takes its own line
+     under the date — left, with everything else on the plate, rather
+     than alone at the right edge of a line it does not share. */
+  .recipe-inspired {
+    margin-left: 0;
+    flex-basis: 100%;
+    width: fit-content;
   }
 }
 
