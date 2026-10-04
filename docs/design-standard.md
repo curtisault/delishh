@@ -628,6 +628,7 @@ dietary: [vegetarian, gluten-free]   # verified flags only — absence means unv
 cuisine: []                # optional tags; empty is honest
 print: sheet               # sheet | card | booklet — default template (§09)
 photo: salted-caramel.avif # optional; omitted means no photo, never a placeholder
+inspired: The Corner Bakery # optional; who the dish is after — free text, never a vocabulary
 gauges:                    # optional; up to five operating numbers (§09)
   - { label: Pan, value: 20 cm, note: pale interior }
   - { label: Take it to, value: 175–180 °C, note: deep amber }
@@ -666,6 +667,26 @@ copy to this one, so a new slot is a new label in both or neither.
 > authored beside that block and never read out of it — picking which
 > of a paragraph's durations is the one you bet on is a judgement,
 > exactly as a gauge is (§12).
+
+> **Amendment 2026-10-04 — a dish may say who it is after.**
+> `inspired:` is an optional line of free text naming the restaurant,
+> usually, whose plate the recipe was trying to get back to. It is
+> homage, not a facet: nobody browses by it, so it is never a
+> vocabulary, and the shelf searches it without drawing it. On the
+> plate it is the last item of the serial row, at the far edge beside
+> the method mark and the last-batch date — INSPIRED BY dim, the name
+> at weight 700 in ink, inside a ruled box. **Prominent by shape and
+> weight, never colour**: the plate's one acid is the method's, and a
+> name is neither an action nor a process (§04). It prints in the same
+> place (§09), because it is part of what the sheet *is*, where the
+> facet chips are for finding. **The title is the food** — *Warm Bean
+> Dip*, never *Lupe Tortilla-Style Warm Bean Dip* — and the build
+> rejects a title that repeats the attribution: the name lives in one
+> place so it can be right in one place, and *-style* and *copycat*
+> are the sell register (§11). Absent means **no attribution**, never
+> "original"; the archive claims authorship of nothing (§12). The
+> story of the place belongs in the note, and the field is never read
+> out of it.
 
 ### The body blocks
 
@@ -736,7 +757,7 @@ copy to this one, so a new slot is a new label in both or neither.
 
 | # | Block | Carries |
 |---|-------|---------|
-| 1 | Header plate | Rendered from frontmatter: name, method mark, last-batch date, yield, times, and the gauge strip if the recipe has one |
+| 1 | Header plate | Rendered from frontmatter: name, method mark, last-batch date, the attribution if the recipe has one, yield, times, and the gauge strip if the recipe has one |
 | 2 | Photo | One photograph. One. Absent if none — never a grey box |
 | 3 | Equipment | Named with the dimensions and materials that change the result |
 | 4 | Ingredients | Grouped by sub-preparation, mass-first, scalable |
