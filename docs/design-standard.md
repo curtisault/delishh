@@ -889,11 +889,12 @@ photo means the block is absent. Never a placeholder.
 ---
 
 ## 07. Browse — choose your own path
-<!-- doc anchor=sec-browse toc="Browse" intent="Four ways in, and filters that never hide" body=clauses -->
+<!-- doc anchor=sec-browse toc="Browse" intent="Five ways in, and filters that never hide" body=clauses -->
 
 The shelf is the fun half of the product, and its job is to let you
 choose *how* you want to choose. Four browse paths, one per required
-facet group, each a first-class entry point on the home surface:
+facet group, each a first-class entry point on the home surface — and
+a fifth, since 2026-10-04, for the dish you are trying to get back to:
 
 | Path | Facets | The question it answers |
 |------|--------|------------------------|
@@ -901,6 +902,18 @@ facet group, each a first-class entry point on the home surface:
 | **By flavor** | `flavor` (combinable) | "I want something sweet and spicy" |
 | **By effort** | `method` + `effort` + `time` | "What am I up for tonight?" |
 | **By needs** | `dietary` + `cuisine` | "Gluten-free, and make it Thai" |
+| **Inspired by** | `inspired` | "The one from that restaurant" |
+
+> **Amendment 2026-10-04 — a fifth path, by place.** The attribution
+> (§06, the same day) is browsable as well as searchable. Its chips
+> are not a closed vocabulary: the build collects every name the
+> corpus carries, once, exactly as authored, so a chip is backed by a
+> recipe that exists — the same guarantee the other four paths get
+> from `vocabulary.ts`, reached from the other direction. A recipe
+> with no attribution is excluded by name when a place is chosen,
+> wearing *Hidden by place* like any other miss; nothing is inferred
+> to fill the gap (§12). The tile takes lilac, the one shelf acid no
+> surface had spoken for (§04).
 
 Paths are presented as full-acid tiles — this is the loudest surface
 in the product. Selecting within a path composes with the others:

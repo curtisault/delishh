@@ -315,10 +315,25 @@ vocabulary holds.
 | Where it sits | **Top right of the plate, in the serial row.** The row already carries the method mark and LAST BATCH on the left; the attribution is the row's last item, pushed to the far edge. Below 34rem the row wraps and it takes its own line under the date, left with everything else on the plate, still above the title — nothing hides and nothing clips (§12). The data voice, uppercase, the label dim and the name at weight 700 in ink, inside a 1.5px `--rule` box. **Prominent by shape and weight, not colour**: the page's one acid is the method's, and a name is not a quantity, an action or a process (§04). It is not an extruded slab, because a slab is a press and this does nothing | The chips row (a chip is a facet, outlined and hidden at print); an acid cameo (the plate already has one acid, on the method, and it earns it); bare text (a third serial fact, lost beside the date); the title itself |
 | Print | **It prints**, in the same place, in ink. The chips do not print because they are for *finding*; the attribution is part of what the sheet *is*, like the title, and a printed sheet handed to a friend should say where the dish came from. Not on the footer: the footer is traceability, not credit | Hidden with the chips |
 | Cook mode | **Not shown.** The cook head carries the title, the scale and the wake state — what a pair of wet hands needs. Homage is for reading | A line under the cook title (chrome the step anchors would then have to clear) |
-| The shelf | **Searchable, not shown** (`ShelfTests`). The name rides on the index summary and into `matchesQuery`'s haystack, so typing *lupe* finds all three. The row does not draw it: a row is method, title, flavour, times, keeps, and a sixth column is a row that wraps on a phone | A row tag (clutter at three recipes); a fifth browse path (§07 holds four, and a path needs a vocabulary) |
+| The shelf | **Searchable, and the row does not draw it** (`ShelfTests`). The name rides on the index summary and into `matchesQuery`'s haystack, so typing *lupe* finds all three. A row is method, title, flavour, times, keeps, and a sixth column is a row that wraps on a phone. *The fifth-path half of this row was overturned the same day, below* | A row tag (clutter at three recipes) |
 | The Note | **The story goes in the Note, in the cook's words.** The field is the fact — *this dish is after that place* — and the Note is why: the booth, the sizzling platter, what the copy gets wrong. The field is never read out of the Note; picking a name from a paragraph is inference (§12) | Deriving the tag from a Note that names a restaurant |
 | The word rules | **The name is exempt.** A restaurant may be called *The Best Little Taco Stand Ever*, and the checker does not read a proper noun. The title rule above is the only check it gets | Running `WORD_RULES` over it |
 | The existing case | **`wendys-style-frosty` keeps its slug.** The slug is the recipe's identity, rides in the shopping list's and the planner's stores on every reader's device, and a renamed slug is a planned week pointing at *no such recipe*. The title moves to the food — *Chocolate Malt Frosty* — with `inspired: Wendy's` | Renaming the slug (breaks two stores on every reader's device) |
+
+## Ruled 2026-10-04, at the fifth path
+
+Ruled the same day as the attribution, overturning its row's
+*rejected* column: the reader wanted to browse by the place, not only
+search for it. The earlier reasoning — a path needs a vocabulary —
+stands; what changed is where the vocabulary comes from.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| A fifth path | **Inspired by**, the fifth tile on the shelf, filtering on `inspired`. §07's four become five, and `Shelf.paths` carries it last | Leaving it to the search (the reader asked for a tile) |
+| Its vocabulary | **The names the corpus carries, collected at build.** `build-content.ts` writes every distinct `inspired:` into the index, once, exactly as authored, sorted ignoring case. A chip is backed by a recipe that exists, which is the guarantee the closed lists give the other four — reached from the other direction. `inspired:` stays free text; the build infers nothing, it enumerates | A closed list in `vocabulary.ts` (adding a restaurant would be a code change, and the point of free text was that it is not) |
+| A recipe with no attribution | **Excluded by name when a place is chosen**, wearing *Hidden by place* like any other miss. The other four paths read a facet every recipe carries; this one reads a field only some do, and nothing is inferred to fill the gap (`ShelfTests`) | Treating an unattributed recipe as matching every place (a filter that hides nothing is not a filter) |
+| The words | Tile **Inspired by**, note *The one from that restaurant*, lockout noun **place** — "Hidden by place", because "Hidden by Inspired by" is the sentence `pathNoun` exists to prevent. A chip reads the name as typed; the hyphen-opening the vocabulary words get would rewrite a proper noun | *By place* on the tile (the reader's word was *inspired*) |
+| The acid | **Lilac** (`--shelf-soft`), the one shelf acid no surface had spoken for: time went to the plan press and work to the list press (2026-09-27). One acid per tile is the surface's grammar | Reusing one of the four tile acids (two tiles one colour on the surface whose rule is one acid per path) |
 
 ## Open — deferred, not decided
 
@@ -343,7 +358,6 @@ when it is ruled and the ruling is dated above.
 - **The restaurant list in the URL.** Each browser has its own list. If "send me your list" is asked, the route is the list encoded in the address the way the scale rides in cook mode's — never a server.
 - **A `how` on a restaurant.** Delivery, pickup, go out — a facet to spin over. Widened only when a real Friday wants "delivery only"; until then a name is the whole entry.
 - **The plan saying *from a restaurant*.** The week holds the name a spin placed and nothing about where it came from. If the picture should say it, that is a third `Meal` variant and a mark on the drawing, and the ruling is that the plan does not know until someone needs it to.
-- **A browse path by attribution.** If the corpus collects a dozen restaurants, *by place* is a fifth path; it would need the names held to a vocabulary, which is the moment `inspired:` stops being free text.
 - **The attribution on the shelf row.** Revisit if readers scan the shelf for a place rather than a dish; until then the search finds it.
 - **A link on the attribution.** The field carries a name and no URL. A restaurant's address in the archive is a thing that rots; if wanted, it is a second optional field, never a parse of the name.
 
