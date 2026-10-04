@@ -17,7 +17,8 @@
  */
 
 // ---------------------------------------------------------------------------
-// Facets — the four browse paths of DS-01 §07
+// Facets — the browse paths of DS-01 §07 (four here; the fifth, by
+// place, reads the attribution and has no closed list)
 // ---------------------------------------------------------------------------
 
 /** By meal, half one: when you would eat it. Multi-valued. */

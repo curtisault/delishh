@@ -102,23 +102,30 @@ type alias Index =
 
 
 
--- THE FOUR PATHS
+-- THE FIVE PATHS
 
 
-{-| The four ways in — DS-01 §07. Each answers a different question,
-and the tiles are the loudest surface in the product because choosing
-is the enjoyable part.
+{-| The five ways in — DS-01 §07, the fifth added 2026-10-04. Each
+answers a different question, and the tiles are the loudest surface
+in the product because choosing is the enjoyable part.
+
+Four read a facet every recipe carries. The fifth, `ByPlace`, reads
+the attribution, which only some do: a recipe with no `inspired:` is
+excluded by name when a place is chosen, wearing the tag like any
+other miss, and nothing is inferred to fill the gap.
+
 -}
 type Path
     = ByMeal
     | ByFlavor
     | ByEffort
     | ByNeeds
+    | ByPlace
 
 
 paths : List Path
 paths =
-    [ ByMeal, ByFlavor, ByEffort, ByNeeds ]
+    [ ByMeal, ByFlavor, ByEffort, ByNeeds, ByPlace ]
 
 
 pathLabel : Path -> String
@@ -135,6 +142,9 @@ pathLabel p =
 
         ByNeeds ->
             "By needs"
+
+        ByPlace ->
+            "Inspired by"
 
 
 {-| The path's facet as a bare noun, for prose that already supplies
@@ -157,6 +167,9 @@ pathNoun p =
         ByNeeds ->
             "needs"
 
+        ByPlace ->
+            "place"
+
 
 {-| The question the path answers. Every tile states its own use, so
 nobody has to press one to find out what it does (DS-01 §2.5).
@@ -175,6 +188,9 @@ pathNote p =
 
         ByNeeds ->
             "Gluten-free, and make it Thai"
+
+        ByPlace ->
+            "The one from that restaurant"
 
 
 {-| Which facet a path filters on. One facet each, deliberately: a
@@ -195,6 +211,9 @@ path p =
         ByNeeds ->
             "dietary"
 
+        ByPlace ->
+            "inspired"
+
 
 {-| A recipe's own values for a path's facet.
 -}
@@ -213,6 +232,11 @@ facetsOf p recipe =
         ByNeeds ->
             recipe.dietary
 
+        ByPlace ->
+            -- The name exactly as authored: a chip is backed by a
+            -- string that is in the corpus, or it is not offered.
+            Maybe.withDefault [] (Maybe.map List.singleton recipe.inspired)
+
 
 
 -- FILTERS
@@ -226,6 +250,7 @@ type alias Filters =
     , flavor : Set String
     , effort : Set String
     , needs : Set String
+    , place : Set String
     , query : String
     }
 
@@ -236,6 +261,7 @@ noFilters =
     , flavor = Set.empty
     , effort = Set.empty
     , needs = Set.empty
+    , place = Set.empty
     , query = ""
     }
 
@@ -259,6 +285,9 @@ selected p filters =
 
         ByNeeds ->
             filters.needs
+
+        ByPlace ->
+            filters.place
 
 
 {-| Turn one facet value on or off. Selecting within a path composes
@@ -286,6 +315,9 @@ toggle p value filters =
 
         ByNeeds ->
             { filters | needs = flip filters.needs }
+
+        ByPlace ->
+            { filters | place = flip filters.place }
 
 
 {-| What the reader has selected within one path.
@@ -547,22 +579,26 @@ decoder =
 
 {-| The vocabulary travels with the index so the tiles offer exactly
 what `scripts/vocabulary.ts` allows — a chip the corpus can never
-match is a filter that always returns nothing.
+match is a filter that always returns nothing. The places are the
+exception that proves it: no closed list, so the build collects the
+names the corpus actually carries, and the chips are exactly those.
 -}
 vocabularyDecoder : Decoder (List ( Path, List String ))
 vocabularyDecoder =
-    D.map4
-        (\meal flavor effort needs ->
+    D.map5
+        (\meal flavor effort needs places ->
             [ ( ByMeal, meal )
             , ( ByFlavor, flavor )
             , ( ByEffort, effort )
             , ( ByNeeds, needs )
+            , ( ByPlace, places )
             ]
         )
         (D.field "slot" (D.list D.string))
         (D.field "flavor" (D.list D.string))
         (D.field "effort" (D.list D.string))
         (D.field "dietary" (D.list D.string))
+        (D.field "inspired" (D.list D.string))
 
 
 summaryDecoder : Decoder Summary

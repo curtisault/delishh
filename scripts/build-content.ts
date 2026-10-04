@@ -227,6 +227,13 @@ async function main() {
       dietary: DIETARY,
       cuisine: CUISINES,
       print: PRINT_TEMPLATES,
+      // The fifth path's chips (DS-01 §07, amended 2026-10-04). Not
+      // a closed list: the names the corpus actually carries, each
+      // exactly as authored, once, in the order a reader would scan
+      // them. A chip here is backed by a recipe that exists, which is
+      // the same guarantee the closed lists give the other four.
+      inspired: [...new Set(recipes.flatMap((r) => (r.inspired ? [r.inspired] : [])))]
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
     },
     recipes: [...recipes]
       .sort((a, b) => (a.tested < b.tested ? 1 : a.tested > b.tested ? -1 : a.slug.localeCompare(b.slug)))

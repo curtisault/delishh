@@ -287,6 +287,17 @@ facetChip config p word =
     let
         on =
             List.member word (Shelf.facetValues p config.filters)
+
+        -- A vocabulary word is a key — `gluten-free` — and reads
+        -- with its hyphen opened. A place is a name, as typed, and
+        -- is shown as typed: nothing about it is a key.
+        ( shown, mark ) =
+            case p of
+                Shelf.ByPlace ->
+                    ( word, "" )
+
+                _ ->
+                    ( String.replace "-" " " word, " f-" ++ word )
     in
     Html.button
         [ type_ "button"
@@ -294,7 +305,7 @@ facetChip config p word =
           -- too — same mark, same place, so the association is built
           -- where the words are first met. On any other path the
           -- class matches no mask and draws nothing.
-          class ("press-block chip chip-" ++ Shelf.path p ++ " u f-" ++ word)
+          class ("press-block chip chip-" ++ Shelf.path p ++ " u" ++ mark)
         , classList [ ( "on", on ), ( "is-seated", on ) ]
         , attribute "aria-pressed"
             (if on then
@@ -305,7 +316,7 @@ facetChip config p word =
             )
         , onClick (config.onToggle p word)
         ]
-        [ text (word |> String.replace "-" " ") ]
+        [ text shown ]
 
 
 
