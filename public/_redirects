@@ -1,15 +1,24 @@
-# Client routes — SCOPED, deliberately. No wildcard `/* /index.html
-# 200`: a wildcard makes Cloudflare Pages answer every missing hashed
-# asset with index.html as 200 text/html, which strict-MIME refuses and
-# the immutable cache header then pins for a year. Adding a route in
+# Client routes — SCOPED, deliberately. No wildcard `/* / 200`: a
+# wildcard makes Cloudflare Pages answer every missing hashed asset
+# with index.html as 200 text/html, which strict-MIME refuses and the
+# immutable cache header then pins for a year. Adding a route in
 # src/Route.elm means adding a line here by name, and that friction is
 # the point. CI fails the build if a wildcard appears.
+#
+# The target is `/`, NEVER `/index.html`. Pages canonicalises every
+# `/index.html` address to `/` with a 308 and applies that to a
+# rewrite's target too, so `/about /index.html 200` bounced a shared
+# link to the front page; and its parser rejects a splat whose target
+# ends in `/index.html` as an infinite loop and silently drops the
+# rule, so `/recipe/* /index.html 200` was never in force at all and
+# every recipe link landed on the 404. Both held from the first deploy
+# until 2026-10-04. `scripts/redirects_test.ts` holds the form.
 
-/about /index.html 200
-/design-standard /index.html 200
-/list /index.html 200
-/plan /index.html 200
-/restaurant-roulette /index.html 200
+/about / 200
+/design-standard / 200
+/list / 200
+/plan / 200
+/restaurant-roulette / 200
 
 # The one wildcard, and the one route that cannot be named: a recipe's
 # slug is CONTENT, and adding a recipe must not mean editing this file.
@@ -19,4 +28,4 @@
 # back as index.html with a 200 and a text/html type; hashed assets
 # live under /assets/ and nothing but a recipe address can ever fall
 # into /recipe/. CI still rejects a root-level wildcard.
-/recipe/* /index.html 200
+/recipe/* / 200

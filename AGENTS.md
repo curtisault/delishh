@@ -254,6 +254,12 @@ fixture must never drift under the suite. Keep it parsing.
   to `public/_redirects` (scoped, no wildcard — that friction is
   deliberate) and a variant to the round-trip list in
   `tests/RouteTests.elm`, which the compiler cannot check for you.
+  **A rewrite's target is `/`, never `/index.html`**: Pages 308s every
+  `/index.html` address to `/` and applies it to a rewrite's target,
+  and its parser drops a splat to `/index.html` as a loop — which is
+  how every deep link bounced or 404ed until 2026-10-04.
+  `scripts/redirects_test.ts` holds both and holds every named route
+  to a line.
 - `src/Doc.elm` — the document format: shared chrome (masthead,
   contents rail, § numbering, clause marks, search, footer). **It
   numbers and frames; pages render.** Never teach it page content —
