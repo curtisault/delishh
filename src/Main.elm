@@ -746,6 +746,7 @@ type Msg
     | Unfold Shelf.Path
     | ToggleFacet Shelf.Path String
     | ShelfQuery String
+    | ClearQuery
     | ClearFilters
     | Stamp Int
     | StartTimer Int Int
@@ -1429,6 +1430,16 @@ update msg model =
             , Cmd.none
             )
 
+        ClearQuery ->
+            -- The query line's CLEAR. The console stays as it is: a
+            -- reader who opened it keeps it, and clearing is not
+            -- typing, so it does not open one that is closed. The
+            -- caret goes back to the field, because the press that
+            -- emptied it took the focus with it.
+            ( { model | filters = (\f -> { f | query = "" }) model.filters }
+            , Task.attempt (\_ -> NoOp) (Dom.focus "shelf-query")
+            )
+
         Stamp n ->
             ( { model
                 | done =
@@ -1752,6 +1763,7 @@ page model =
                             , onUnfold = Unfold
                             , onToggle = ToggleFacet
                             , onQuery = ShelfQuery
+                            , onClearQuery = ClearQuery
                             , onClear = ClearFilters
                             , install = model.install
                             , installHelp = model.installHelp

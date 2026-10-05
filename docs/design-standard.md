@@ -979,7 +979,10 @@ QUERY ▸ caram_
   field is `QUERY ▸`, not a box with a magnifier in it, and the
   letters it matched are marked in the rows that stayed — the same
   courtesy the lockout tag pays the rows that went. A row is on the
-  page for a reason, and the reason should be visible in it.
+  page for a reason, and the reason should be visible in it. *Since
+  2026-10-05* the line ends in its own clear: the word, with the
+  actionable rule under it, shown only while there is something to
+  clear and never moving the field when it appears.
 - **How long it keeps is the last thing in the row**, with the place
   it keeps in (§06). Absent when the recipe has never said: nothing
   stands in for an unstated life, because a hedge in that slot is the

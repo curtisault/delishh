@@ -42,6 +42,7 @@ type alias Config msg =
     , onUnfold : Path -> msg
     , onToggle : Path -> String -> msg
     , onQuery : String -> msg
+    , onClearQuery : msg
     , onClear : msg
     , install : Install.Offer
     , installHelp : Bool
@@ -210,8 +211,16 @@ between a label and its field.
 -}
 searchLine : Config msg -> Html msg
 searchLine config =
+    let
+        empty =
+            String.isEmpty config.filters.query
+    in
     div [ class "shelf-search" ]
-        [ Html.label [ class "query-line", for "shelf-query" ]
+        [ Html.label
+            [ class "query-line"
+            , classList [ ( "is-empty", empty ) ]
+            , for "shelf-query"
+            ]
             [ span [ class "query-k mono" ] [ text "Query" ]
             , span [ class "query-mark mono", attribute "aria-hidden" "true" ]
                 [ text "▸" ]
@@ -224,6 +233,32 @@ searchLine config =
                 , onInput config.onQuery
                 ]
                 []
+
+            -- The clear (docs/decisions.md, 2026-10-05, CL-05 off
+            -- the bench): the word CLEAR with a volt rule under it,
+            -- the way-back link's dress. Text, not a slab, because
+            -- the line is an instrument and a slab on an instrument
+            -- is a sticker. A button inside the label is interactive
+            -- content, so the label does not redirect its click to
+            -- the field; the shell puts the caret back itself. It is
+            -- always rendered and hidden by visibility while the
+            -- query is empty, so the line's width never moves when
+            -- it appears. The browser's own cancel mark is
+            -- suppressed in shelf.css; this is the only clear.
+            , Html.button
+                [ type_ "button"
+                , class "query-clear mono u"
+                , attribute "aria-hidden" (bool empty)
+                , Html.Attributes.tabindex
+                    (if empty then
+                        -1
+
+                     else
+                        0
+                    )
+                , onClick config.onClearQuery
+                ]
+                [ text "Clear" ]
             ]
         ]
 

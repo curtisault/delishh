@@ -398,6 +398,20 @@ and nothing on it said what.
 | The ring | **`--rule` at the set's weight.** An ink disc on the dark theme's ink-dark ground is found by its slot alone; the ring makes the face a findable control (1.4.11). `contrast_test.ts` holds the slot's two states on the face and the ring on the page | A hairline (under 3:1 after dark) |
 | The floor | **It grows.** It stands beside the segmented set, which grows, and a switch has room; `tap_test.ts` lists it under GROWS | An overlay (for a control that is not inline in a sentence) |
 
+## Ruled 2026-10-05, the query line's clear
+
+Picked by the reader off a bench of eight (the Query Clear Bench
+artifact: a keycap ×, the slab with the word, a volt slab ×, a
+backspace key, the word, an inline block, a count readout, an ESC
+key), each mounted live in the line as built, in both lightings.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| The dress | **CL-05, the word.** CLEAR in the data voice with a 2px volt rule under it, at the right end of the query line: the way-back link's dress and the print fold's. Text, because the line is an instrument and a slab on it is a sticker; the rule is the actionable acid the caret already wears. The browser's own cancel mark stays suppressed, so this is the only clear | A stencil keycap × (a second keycap over the filter line's, two keys on one panel); the slab with the word (a press on an instrument); a volt slab × (a second acid fill on the shelf's first screen); a backspace or ESC key (a key drawn for a key the field already answers to); an inline block (the matched letters' dress on the thing that removes them); a count readout (a register nobody asked to read) |
+| When it shows | **Hidden by visibility while the query is empty**, never by `display`: the box stays in the line, so the field is the same width before and after the first letter and nothing moves when the word appears. Out of the tab order and the accessibility tree while hidden | Removing it (the field widens and narrows by a word); showing it always (a control that does nothing) |
+| What it does | **Empties the query and puts the caret back** (`Main.ClearQuery`, `Browser.Dom.focus`). The console keeps its state: clearing is not typing, so it opens nothing, and a reader who opened it keeps it. The console's dimmed words return on their own, since the query that dimmed them is gone | Clearing the facets too (that is CLEAR ALL on the active bar, a different press); closing the console (a state the reader set) |
+| The floor | **The transparent overlay** (§12), since it is inline in the line and growing it would carry its rule to the foot of a 2.75rem box. Listed in `tap_test.ts` | Growing (the printer fold's reason, again) |
+
 ## Open — deferred, not decided
 
 Carried out of the plans' *Open items*. Each is a decision **not to
