@@ -575,6 +575,7 @@
    needs it just as much. */
 .scaler-btn:focus-visible,
 .printer-btn:focus-visible,
+.printer-toggle:focus-visible,
 .recipe-back:focus-visible {
   outline: 3px solid var(--tx);
   outline-offset: 2px;
