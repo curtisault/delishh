@@ -1,9 +1,9 @@
 /**
  * The motion register — DS-01 §10, machine-checked.
  *
- * **§10 opens the register at zero and keeps it there.** Nothing
- * loops, drifts, breathes or pulses; what a surface is permitted is
- * *acknowledgement* of a hand, and only on the shelf.
+ * **Motion may run on its own** since §10 was amended 2026-10-04: a
+ * surface may loop, blink or pulse. What these tests hold is the part
+ * that was never about taste — calm readers and the 3 Hz bar.
  *
  * The rule these tests exist for is the subtle one:
  *
@@ -56,40 +56,62 @@ function guardedRanges(css: string): Array<[number, number]> {
 
 // ---------------------------------------------------------------------------
 
-Deno.test("nothing in the product animates on its own, but the paper", () => {
-  // No keyframes anywhere — with one entry in the register since
-  // 2026-09-23: the backing paper drifts (§10). An animation
-  // that runs without being asked for is ambient motion by definition,
-  // so the exception is held to exactly one block, by name, in the
-  // chrome sheet, and the test below holds that block's shape.
-  const offenders: string[] = [];
+Deno.test("every animation is authored inside a reduced-motion guard", () => {
+  // Ambient motion is allowed (§10, amended 2026-10-04): a surface may
+  // loop, blink or pulse on its own. What is NOT allowed is motion a
+  // reader who asked for calm still gets. Every keyframes block and
+  // every animation sits inside the guard, so for that reader it is
+  // never defined — the same rule transitions have always been under.
+  const unguarded: string[] = [];
   for (const [name, css] of sources) {
-    if (name === "sheet") continue;
-    if (/@keyframes/.test(css)) offenders.push(`${name}.css declares @keyframes`);
-    if (/\banimation(-name)?\s*:/.test(css)) offenders.push(`${name}.css sets an animation`);
+    const ranges = guardedRanges(css);
+    const inside = (i: number) => ranges.some(([from, to]) => i > from && i < to);
+    for (const m of css.matchAll(/@keyframes\s+[\w-]+/g)) {
+      if (!inside(m.index!)) unguarded.push(`${name}.css — ${m[0]} outside the guard`);
+    }
+    for (const m of css.matchAll(/\banimation(-name)?\s*:/g)) {
+      if (!inside(m.index!)) {
+        const line = css.slice(0, m.index).split("\n").length;
+        unguarded.push(`${name}.css:${line} — animation outside the guard`);
+      }
+    }
   }
-  assertEquals(offenders, []);
+  assertEquals(unguarded, []);
 });
 
-Deno.test("the paper drifts slowly, on the liner only, inside the guard", () => {
-  // The one sanctioned ambient motion (§10, amended 2026-09-23). What
-  // keeps it one: a single keyframes block, applied on the liner's
-  // rows and nowhere else (so it reaches exactly the routes `Liner.on`
-  // names, and never cook mode), authored inside the reduced-motion
-  // guard so a reader who asked for stillness never has it defined,
-  // and no faster than 45 s a cycle — the floor that stops a drift
-  // becoming a marquee.
+Deno.test("nothing flashes above 3 Hz", () => {
+  // §12, never waived. A stepped animation whose steps turn something
+  // on and off is a flash; a cycle shorter than a third of a second
+  // with more than one step could flash faster than three times a
+  // second. Held on every animation, by its declared duration.
+  const fast: string[] = [];
+  for (const [name, css] of sources) {
+    for (const m of css.matchAll(/\banimation\s*:\s*([^;]+);/g)) {
+      const d = m[1].match(/(\d+(?:\.\d+)?)(ms|s)\b/);
+      if (!d) continue;
+      const ms = d[2] === "s" ? Number(d[1]) * 1000 : Number(d[1]);
+      if (ms < 334) fast.push(`${name}.css — ${m[1].trim()}`);
+    }
+  }
+  assertEquals(fast, []);
+});
+
+Deno.test("the paper drifts slowly, on the liner, inside the guard", () => {
+  // The drift (§10, amended 2026-09-23) is no longer an exception, but
+  // its shape is still a ruling: on the liner's rows, so it reaches
+  // exactly the routes `Liner.on` names and never cook mode, and no
+  // faster than 45 s a cycle — the floor that stops a drift becoming
+  // a marquee.
   const css = sources.get("sheet")!;
   const ranges = guardedRanges(css);
   const inside = (i: number) => ranges.some(([from, to]) => i > from && i < to);
 
   const keyframes = [...css.matchAll(/@keyframes\s+([\w-]+)/g)];
-  assertEquals(keyframes.map((m) => m[1]), ["liner-drift"], "sheet.css declares keyframes other than the drift");
-  assert(inside(keyframes[0].index!), "the drift's keyframes sit outside the reduced-motion guard");
+  assert(keyframes.some((m) => m[1] === "liner-drift"), "sheet.css declares no liner-drift keyframes");
 
-  const animations = [...css.matchAll(/([^{}]+)\{[^{}]*\banimation(?:-name)?\s*:\s*([^;]+);/g)];
-  assertEquals(animations.length, 1, "sheet.css sets more than one animation");
-  const [m] = animations;
+  const drift = [...css.matchAll(/([^{}]+)\{[^{}]*\banimation(?:-name)?\s*:\s*([^;]*liner-drift[^;]*);/g)];
+  assertEquals(drift.length, 1, "the drift is applied more than once, or not at all");
+  const [m] = drift;
   assertEquals(m[1].trim(), ".liner .liner-rows", "the drift is applied to something other than the liner's rows");
   assert(inside(m.index!), "the drift is applied outside the reduced-motion guard");
   const period = m[2].match(/(\d+(?:\.\d+)?)s\b/);
@@ -132,7 +154,10 @@ Deno.test("the shelf's motion is short and stepped", () => {
   // Under 200 ms, stepped or snappy easing, no spring that overshoots
   // more than it travels — machinery with good detents, not jelly.
   const css = sources.get("shelf")!;
-  const durations = [...css.matchAll(/(\d+)ms/g)].map((m) => Number(m[1]));
+  // Transitions only: a response to a hand is short. A loop (an
+  // animation) is a different thing and has the 3 Hz bar instead.
+  const durations = [...css.matchAll(/\btransition[^;:]*:\s*([^;]+);/g)]
+    .flatMap((t) => [...t[1].matchAll(/(\d+)ms/g)].map((m) => Number(m[1])));
   assert(durations.length > 0, "the shelf declares no durations at all");
 
   const tooSlow = durations.filter((d) => d > 200);

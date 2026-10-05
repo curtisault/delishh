@@ -354,6 +354,17 @@ sheet). The reader chose the console in its typed form.
 | The motion | **Five lines cut in 40 ms apart and a head sweeps down in five steps**, done by 200 ms, inside the guard, from `@starting-style` because the shell renders the lines only while the console is open. Nothing travels. Under reduced motion the five lines are simply there | A slide; a fade; anything the test would read as over 200 ms |
 | What is stored | **Nothing.** The console's open state and its unfolded lines live in the model and reset on arrival at `/`, as the filters do | A storage key (a fifth key is a colophon change, and the drawer is not worth a line in it) |
 
+## Ruled 2026-10-04, at ambient motion
+
+Ruled by the reader the same day as the console, when the closed
+console line proved hard to notice and the options that would fix it
+were blocked by a rule the product had set itself.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Ambient motion | **Allowed, anywhere.** §10's *zero ambient motion* clause is struck: a surface may loop, blink, pulse or scan on its own. The paper's drift and the leaf's landing stop being exceptions and are simply motion the product carries. `motion_test.ts` no longer fails on keyframes or animations | Keeping the clause and naming each loop as a dated exception, as the paper was (the reader: the rule was self-imposed and too restrictive) |
+| What stays | **§12's bars, which were never about taste.** Every transition, keyframes block and animation is authored inside the reduced-motion guard, so a reader who asked for calm never has it defined; no animation cycles fast enough to flash above 3 Hz. Both are machine-held. The shelf's 200 ms ceiling now reads off transitions only, since it was about acknowledging a hand, and the quiet-page and roulette rules are untouched | Striking the guard too (it is an accessibility bar, §12, not a style) |
+
 ## Open — deferred, not decided
 
 Carried out of the plans' *Open items*. Each is a decision **not to

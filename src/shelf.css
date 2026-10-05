@@ -690,10 +690,9 @@
 
 /* ---------- motion ---------- DS-01 §10.
 
-   THE ONLY MOTION ON THE SHELF, and it is all a response to a hand.
-   §10 opens the motion register at zero and keeps it there: nothing
-   loops, drifts, breathes or pulses. What the shelf is permitted is
-   acknowledgement — a tile that answers a press, a chip that answers
+   THE SHELF'S RESPONSES TO A HAND. Since §10 was amended 2026-10-04
+   motion may also run on its own, and that is authored where it is
+   used; what this block holds is acknowledgement — a tile that answers a press, a chip that answers
    a hover — under 200 ms, stepped easing, and no spring that
    overshoots more than it travels. Machinery with good detents, not
    jelly.
