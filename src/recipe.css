@@ -222,9 +222,20 @@
 /* The two actions, together at the edge. Both send something
    somewhere else — one to a shop, one to the heat — which is the seam
    this row is split on. Outlined first, filled last: the primary verb
-   is the one you reach past the other to get to. */
+   is the one you reach past the other to get to.
+
+   IT MAY SHRINK. This was `flex: none` until 2026-10-05, which gave
+   the row its full unwrapped width as a fixed size: the band wrapped
+   it onto its own line, but the row itself never got a reason to wrap
+   its three presses, so at a phone's width they ran past the leaf and
+   the page scrolled sideways (§12). A shrinkable item with no
+   min-width floor wraps as it was built to. Above the band's own wrap
+   point nothing changes — a line is filled before anything on it is
+   shrunk. */
 .recipe-actions {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
