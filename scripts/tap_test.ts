@@ -78,6 +78,7 @@ Deno.test("every control names the floor, one way or the other", () => {
     ["shelf", ".shelf-query"],
     ["recipe", ".scaler-btn"],
     ["print", ".printer-btn"],
+    ["print", ".printer-key"],
     ["list", ".list-tick"],
     ["plan", ".plan-entry-input"],
     ["roulette", ".roulette-entry-input"],

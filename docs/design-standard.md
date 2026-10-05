@@ -444,6 +444,12 @@ work.
 > is never the only carrier: the word changes, and `aria-pressed` says
 > so too.
 >
+> *Amended 2026-10-05:* the seat is for a press that is also a
+> toggle. A control that is a **switch** and never a press — the prep
+> card's key switch, the one on the page — reports by its own
+> mechanism instead: the slot turns and lights, the word changes,
+> `aria-pressed` says so. Still three carriers, still a hard cut.
+>
 > **What separates the two actions is still the fill.** COOK THIS is a
 > whole orange slab — the colour of where it goes (2026-09-21) — and
 > ADD TO LIST is the neutral one. Outlined first, filled last, and the

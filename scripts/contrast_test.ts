@@ -117,6 +117,14 @@ const PAIRS: { fg: string; bg: string; min: number; note?: string }[] = [
   { fg: "block-tx", bg: "block-bg", min: 4.5 },
   { fg: "data-accent", bg: "surface", min: 4.5 },
 
+  // The prep card's key switch (print.css, 2026-10-05): a slot on an
+  // ink face, unlit frost or lit volt, and the face's own ring on the
+  // page. All three are non-text marks, so 1.4.11's 3:1. --ink is one
+  // hex in both themes, so the slot pairs measure once and hold twice.
+  { fg: "frost", bg: "ink", min: 3, note: "the key switch's slot, off" },
+  { fg: "accent", bg: "ink", min: 3, note: "the key switch's slot, on" },
+  { fg: "rule", bg: "surface", min: 3, note: "the key switch's ring" },
+
   // The page layer: acid as a word. Body text, so full AA.
   { fg: "page-act", bg: "surface", min: 4.5 },
   { fg: "page-cold", bg: "surface", min: 4.5 },
