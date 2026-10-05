@@ -45,6 +45,13 @@ type alias Config msg =
     , prepCard : Bool
     , onPrepCard : msg
 
+    -- Whether the print picker is unfolded. Below 34rem it sits
+    -- behind one text press (docs/decisions.md, 2026-10-05); above,
+    -- the stylesheet draws the picker open and the press not at all.
+    -- The view draws both states and never knows the width.
+    , printerOpen : Bool
+    , onPrinter : msg
+
     -- Whether this recipe is already on the shopping list, and how to
     -- put it on or take it off. The button reads its own state: a
     -- control that said "Add" while the thing was already added is a
@@ -1136,31 +1143,72 @@ use, so nobody has to print one to find out what it does.
 -}
 printer : Config msg -> Html msg
 printer config =
-    div [ class "printer" ]
-        [ span [ class "printer-k u" ] [ text "Print" ]
-        , div
-            [ class "printer-set"
-            , attribute "role" "group"
-            , attribute "aria-label" "Print form"
-            ]
-            (List.map (formButton config) Print.all)
-        , Html.button
+    div [ class "printer", classList [ ( "open", config.printerOpen ) ] ]
+        [ -- The fold (docs/decisions.md, 2026-10-05). A button, because
+          -- it changes state; dressed as a line, because what was
+          -- asked for was something smaller than a press. Closed, it
+          -- names the form that will print and whether the prep card
+          -- rides along, so folding the picker never hides a state the
+          -- reader set. `aria-expanded` says open or closed to a
+          -- screen reader; the word says it to everyone.
+          Html.button
             [ Html.Attributes.type_ "button"
-            , class "press-block printer-prep u"
-            , classList
-                [ ( "active", config.prepCard )
-                , ( "is-seated", config.prepCard )
-                ]
-            , attribute "aria-pressed"
-                (if config.prepCard then
+            , class "printer-toggle u"
+            , attribute "aria-expanded"
+                (if config.printerOpen then
                     "true"
 
                  else
                     "false"
                 )
-            , onClick config.onPrepCard
+            , attribute "aria-controls" "printer-options"
+            , onClick config.onPrinter
             ]
-            [ text "+ Prep card" ]
+            (if config.printerOpen then
+                [ text "Hide print options" ]
+
+             else
+                [ text "Show print options"
+                , span [ class "printer-toggle-state mono" ]
+                    [ text
+                        (" · "
+                            ++ String.toLower (Print.label config.form)
+                            ++ (if config.prepCard then
+                                    " + prep"
+
+                                else
+                                    ""
+                               )
+                        )
+                    ]
+                ]
+            )
+        , div [ id "printer-options", class "printer-options" ]
+            [ span [ class "printer-k u" ] [ text "Print" ]
+            , div
+                [ class "printer-set"
+                , attribute "role" "group"
+                , attribute "aria-label" "Print form"
+                ]
+                (List.map (formButton config) Print.all)
+            , Html.button
+                [ Html.Attributes.type_ "button"
+                , class "press-block printer-prep u"
+                , classList
+                    [ ( "active", config.prepCard )
+                    , ( "is-seated", config.prepCard )
+                    ]
+                , attribute "aria-pressed"
+                    (if config.prepCard then
+                        "true"
+
+                     else
+                        "false"
+                    )
+                , onClick config.onPrepCard
+                ]
+                [ text "+ Prep card" ]
+            ]
         ]
 
 

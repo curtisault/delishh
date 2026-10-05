@@ -323,6 +323,10 @@ type alias Model =
     , form : Print.Form
     , prepCard : Bool
 
+    -- whether the print picker is unfolded on a narrow screen. Reset
+    -- with the two above: the three print facts travel together
+    , printerOpen : Bool
+
     -- where this document lives, for the printed footer's short URL.
     -- A sheet found in a drawer in three years should be able to say
     -- what it is and how out of date it is
@@ -443,6 +447,7 @@ init flags url key =
       , factor = factorFor (Route.fromUrl url) url
       , form = Print.Sheet
       , prepCard = False
+      , printerOpen = False
       , origin = origin url
       , today = flags.today
       , index = Fetching
@@ -704,6 +709,7 @@ type Msg
     | SetFactor Scale.Factor
     | SetForm Print.Form
     | TogglePrepCard
+    | TogglePrinter
     | GotIndex (Result Http.Error Shelf.Index)
     | ToggleInList
     | CheckItem String
@@ -824,6 +830,12 @@ update msg model =
 
                             else
                                 model.prepCard
+                        , printerOpen =
+                            if arrived then
+                                False
+
+                            else
+                                model.printerOpen
 
                         -- The shelf resets too. A filter set for last
                         -- week's dinner is not a preference about
@@ -1472,6 +1484,9 @@ update msg model =
         TogglePrepCard ->
             ( { model | prepCard = not model.prepCard }, Cmd.none )
 
+        TogglePrinter ->
+            ( { model | printerOpen = not model.printerOpen }, Cmd.none )
+
         SectionSeen anchor ->
             ( { model
                 | active =
@@ -1862,6 +1877,8 @@ page model =
                             , onForm = SetForm
                             , prepCard = model.prepCard
                             , onPrepCard = TogglePrepCard
+                            , printerOpen = model.printerOpen
+                            , onPrinter = TogglePrinter
                             , inList = GroceryList.member slug model.list
                             , onToggleList = ToggleInList
                             , planner =

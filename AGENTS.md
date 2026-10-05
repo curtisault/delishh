@@ -297,7 +297,15 @@ fixture must never drift under the suite. Keep it parsing.
   and a recipe is a different object — its nine blocks are a fixed
   form, not a specification. Giving them clause marks would be the
   "controlled document" register Revision 2 dropped. An empty block
-  is absent, never a heading over blank space.
+  is absent, never a heading over blank space. **Below 34rem the
+  plate re-forms** (`docs/decisions.md`, 2026-10-05): the facts and
+  the gauge strip are grids, the action row is 2 + 1 with COOK THIS
+  full-width last, and the print picker folds behind a text press
+  that names the form that will print. `.recipe-actions` must stay
+  shrinkable — `flex: none` on it is what once pushed the page
+  sideways at a phone's width. The fold's press is an **overlay**,
+  not a grown box (it is in `tap_test.ts`'s OVERLAYS list), and Elm
+  draws both of its states: the width decides which is seen.
 - `src/Scale.elm` — **the one place the product could quietly be
   wrong.** Multiply 3 eggs by 1.5 and the arithmetic says 4.5, which
   is not a thing you can put in a bowl. Rounding it to 5 is right;

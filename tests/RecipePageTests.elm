@@ -90,6 +90,8 @@ rendered recipe active =
             , form = Print.Sheet
             , onForm = always ()
             , prepCard = False
+            , printerOpen = False
+            , onPrinter = ()
             , onPrepCard = ()
             , inList = False
             , onToggleList = ()
@@ -106,6 +108,32 @@ plain =
     rendered full Nothing
 
 
+{-| The page with the print fold open or closed and the prep card on
+or off, everything else plain.
+-}
+printing : Bool -> Bool -> Query.Single ()
+printing open prep =
+    Query.fromHtml
+        (Page.Recipe.view
+            { recipe = full
+            , factor = Scale.one
+            , onScale = always ()
+            , form = Print.Sheet
+            , onForm = always ()
+            , prepCard = prep
+            , onPrepCard = ()
+            , printerOpen = open
+            , onPrinter = ()
+            , inList = False
+            , onToggleList = ()
+            , planner = noPlanner Plan.empty
+            , origin = "https://delishh.test"
+            , today = "2026-09-20"
+            , active = Nothing
+            }
+        )
+
+
 {-| The page with the recipe already on the shopping list.
 -}
 listed : Query.Single ()
@@ -118,6 +146,8 @@ listed =
             , form = Print.Sheet
             , onForm = always ()
             , prepCard = False
+            , printerOpen = False
+            , onPrinter = ()
             , onPrepCard = ()
             , inList = True
             , onToggleList = ()
@@ -154,6 +184,8 @@ planned planner =
             , form = Print.Sheet
             , onForm = always ()
             , prepCard = False
+            , printerOpen = False
+            , onPrinter = ()
             , onPrepCard = ()
             , inList = False
             , onToggleList = ()
@@ -204,6 +236,8 @@ navAnchors recipe =
         , form = Print.Sheet
         , onForm = always ()
         , prepCard = False
+        , printerOpen = False
+        , onPrinter = ()
         , onPrepCard = ()
         , inList = False
         , onToggleList = ()
@@ -312,6 +346,60 @@ suite =
                         |> Query.children []
                         |> Query.index -1
                         |> Query.has [ Selector.class "cook-enter" ]
+            ]
+        , describe "the print fold — docs/decisions.md, 2026-10-05"
+            [ test "closed, the press says what it will show" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "printer-toggle" ]
+                        |> Query.has
+                            [ Selector.text "Show print options"
+                            , Selector.attribute (Attr.attribute "aria-expanded" "false")
+                            ]
+            , test "open, it says what it will hide" <|
+                \_ ->
+                    printing True False
+                        |> Query.find [ Selector.class "printer-toggle" ]
+                        |> Query.has
+                            [ Selector.text "Hide print options"
+                            , Selector.attribute (Attr.attribute "aria-expanded" "true")
+                            ]
+            , test "it controls the picker by the picker's own id" <|
+                \_ ->
+                    -- The fold hides the picker only by its width, so
+                    -- the picker is always rendered and the press
+                    -- names it either way.
+                    plain
+                        |> Query.find [ Selector.class "printer-toggle" ]
+                        |> Query.has [ Selector.attribute (Attr.attribute "aria-controls" "printer-options") ]
+            , test "the picker carries that id, open or closed" <|
+                \_ ->
+                    Expect.all
+                        [ \_ -> plain |> Query.has [ Selector.id "printer-options" ]
+                        , \_ -> printing True False |> Query.has [ Selector.id "printer-options" ]
+                        ]
+                        ()
+            , test "closed, it names the form that will print" <|
+                \_ ->
+                    -- Folding the picker never hides a state the
+                    -- reader set.
+                    plain
+                        |> Query.find [ Selector.class "printer-toggle-state" ]
+                        |> Query.has [ Selector.text "sheet" ]
+            , test "closed, it says when the prep card rides along" <|
+                \_ ->
+                    printing False True
+                        |> Query.find [ Selector.class "printer-toggle-state" ]
+                        |> Query.has [ Selector.text "+ prep" ]
+            , test "open, there is no summary to repeat the picker" <|
+                \_ ->
+                    printing True True
+                        |> Query.hasNot [ Selector.class "printer-toggle-state" ]
+            , test "it is a button, not a link: it changes state" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "printer-toggle" ]
+                        |> Query.has [ Selector.tag "button" ]
             ]
         , describe "the plan control — docs/decisions.md"
             [ test "stands with the actions, before COOK THIS" <|
