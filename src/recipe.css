@@ -482,8 +482,67 @@
   .ing {
     grid-template-columns: 5.5rem 1fr;
   }
+  /* The facts, as a grid (2026-10-05). A wrapping row put KEEPS alone
+     on a second line wherever the yield's text happened to end. Yield
+     is the compound value and takes its own row; the times share one
+     row beneath it, each column to its content. KEEPS is optional, so
+     the row holds two or three without a special case. */
   .recipe-facts {
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
+    column-gap: 1.6rem;
+    row-gap: 0.7rem;
+  }
+  .recipe-fact:first-child {
+    grid-column: 1 / -1;
+  }
+  /* The gauge strip, a gauge a row (2026-10-05). Each gauge was a
+     column and the wrap landed the second one wherever the first
+     one's note ended, so nothing lined up. One grid with three shared
+     columns — label, value, note — aligns every row down the strip
+     and takes four lines where the columns took six. The label starts
+     each row explicitly, so a gauge without a note cannot shift the
+     rows after it. Paper has its own strip (print.css). */
+  .recipe-gauges {
+    display: grid;
+    grid-template-columns: max-content max-content 1fr;
+    column-gap: 0.7rem;
+    row-gap: 0.35rem;
+    align-items: baseline;
+    padding: 0.6rem 0;
+  }
+  .recipe-gauge {
+    display: contents;
+  }
+  .recipe-gauge-k {
+    grid-column: 1;
+  }
+  .recipe-gauge-v {
+    font-size: 0.85rem;
+  }
+  .recipe-gauge-n {
+    font-size: 0.58rem;
+  }
+  /* The action row, 2 + 1 (2026-10-05). The list and plan presses
+     share a row at half the width each and COOK THIS takes the full
+     width beneath them — the primary last, as in the DOM and the tab
+     order, and the biggest target on the plate. PLANNED grows with
+     the week, so three on one line was never a layout; each press
+     grows to its cell and its words may wrap inside it. */
+  .recipe-actions {
+    /* The whole line: as a flex item it would size to its two cells'
+       content and the grid would fill nothing. */
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0.6rem;
+  }
+  .recipe-actions .press-block {
+    justify-content: center;
+    text-align: center;
+  }
+  .recipe-actions .cook-enter {
+    grid-column: 1 / -1;
   }
   /* The serial row wraps, and the attribution takes its own line
      under the date — left, with everything else on the plate, rather
@@ -706,9 +765,14 @@
   align-items: center;
   min-height: var(--tap);
   margin-top: 0.8rem;
-  font-size: 0.66rem;
-  letter-spacing: 0.06em;
-  padding: 0.4rem 0.9rem;
+  /* The row's metrics (re-cut 2026-10-05): the face up from 0.66rem,
+     the side padding down from 0.9rem and the tracking from 0.06em.
+     Legibility is the face; width is the padding and the tracking,
+     and on a face that is already expanded the tracking was doing
+     little. All three presses share these. */
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  padding: 0.4rem 0.6rem;
 }
 .lister-btn.active {
   font-weight: 700;
@@ -735,9 +799,9 @@
   align-items: center;
   min-height: var(--tap);
   margin-top: 0.8rem;
-  font-size: 0.66rem;
-  letter-spacing: 0.06em;
-  padding: 0.4rem 0.9rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  padding: 0.4rem 0.6rem;
 }
 .recipe-actions .planner-btn {
   flex: none;

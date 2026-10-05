@@ -504,13 +504,15 @@
   align-items: center;
   min-height: var(--tap);
   margin-top: 0.8rem;
-  font-size: 0.66rem;
+  /* The action row's metrics — see .lister-btn in recipe.css. */
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
   /* Orange, not volt: the button names where it goes rather than
      that it is a button, and where it goes is the heat (§04, amended
      2026-09-21). */
   color: var(--ink);
   text-decoration: none;
-  padding: 0.4rem 0.9rem;
+  padding: 0.4rem 0.6rem;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
