@@ -352,7 +352,19 @@ sheet). The reader chose the console in its typed form.
 | The tap floor | **Every word grows to 2.75rem** with no edge, so the lines are 2.75rem apart. §12 allows an inline control the overlay instead, but a 2.75rem overlay on a 1.5rem line reaches into its neighbours above and below, which is the thing the overlay rule was written to prevent | The transparent overlay (vertical overlap); a tighter floor on the desktop (§12 is every surface) |
 | On | **The stencil, and a drawn square before the word.** A fill and a shape, as a chip that is on has a fill and a seat; drawn in CSS so a screen reader hears the word and `aria-pressed`, not "black square" | A colour alone; a seat (the words have no body to seat) |
 | The motion | **Five lines cut in 40 ms apart and a head sweeps down in five steps**, done by 200 ms, inside the guard, from `@starting-style` because the shell renders the lines only while the console is open. Nothing travels. Under reduced motion the five lines are simply there | A slide; a fade; anything the test would read as over 200 ms |
+| The signal | **A blinking cursor and a keycap.** The closed line was hard to notice. A block cursor in the query's accent ends the sentence and blinks every 1.2 s whenever the console is closed, and is gone while it is open (first cut: gone for the visit once opened — the reader wanted it back on collapse). The line ends in a stencil key carrying a drawn sliders mark, filled when closed and outlined when open (first cut: `OPEN ▾` in the data voice — the reader wanted a real icon). Under reduced motion the cursor is a still block and the key is the cue. The blink needed §10's ambient clause struck, ruled the same day | A stepped pulse on the label and rule (reads as loading); a scan crossing the line (busier than the line needs); typing the sentence out on arrival (signals once); a shell-prompt line (replaces the sentence) |
 | What is stored | **Nothing.** The console's open state and its unfolded lines live in the model and reset on arrival at `/`, as the filters do | A storage key (a fifth key is a colophon change, and the drawer is not worth a line in it) |
+
+## Ruled 2026-10-04, at ambient motion
+
+Ruled by the reader the same day as the console, when the closed
+console line proved hard to notice and the options that would fix it
+were blocked by a rule the product had set itself.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Ambient motion | **Allowed, anywhere.** §10's *zero ambient motion* clause is struck: a surface may loop, blink, pulse or scan on its own. The paper's drift and the leaf's landing stop being exceptions and are simply motion the product carries. `motion_test.ts` no longer fails on keyframes or animations | Keeping the clause and naming each loop as a dated exception, as the paper was (the reader: the rule was self-imposed and too restrictive) |
+| What stays | **§12's bars, which were never about taste.** Every transition, keyframes block and animation is authored inside the reduced-motion guard, so a reader who asked for calm never has it defined; no animation cycles fast enough to flash above 3 Hz. Both are machine-held. The shelf's 200 ms ceiling now reads off transitions only, since it was about acknowledging a hand, and the quiet-page and roulette rules are untouched | Striking the guard too (it is an accessibility bar, §12, not a style) |
 
 ## Open — deferred, not decided
 

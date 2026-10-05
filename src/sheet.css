@@ -206,8 +206,7 @@
    THE LINER IS FIXED AND THE LEAF SCROLLS OVER IT. Scrolling drags
    the sheet across the paper under your hand, which is what peeling
    a sticker sheet across a table looks like. The paper also drifts
-   along its own rows on its own — the one ambient motion in the
-   product, ruled below — and a reader who asked for stillness gets
+   along its own rows on its own, ruled below, and a reader who asked for stillness gets
    the same paper, held still.
 
    The words are GENERATED CONTENT, not text nodes: `content:` is not
@@ -293,11 +292,10 @@
   }
 }
 
-/* THE PAPER DRIFTS. The one sanctioned ambient motion in the product
-   (§10, amended 2026-09-23), everywhere the liner is — which is every
+/* THE PAPER DRIFTS (§10, amended 2026-09-23), everywhere the liner is — which is every
    route but cook mode, by `Liner.on`. The LEAF holds still; the
    margin it lies in is not the page, and that is the whole of the
-   argument. `motion_test.ts` holds this to one keyframes block, on
+   argument. `motion_test.ts` holds the drift to
    this selector, inside the guard, at a period of 45 s or more.
 
    The loop is seamless by construction rather than by tuning: the

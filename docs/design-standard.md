@@ -1147,12 +1147,22 @@ ink, small in pages, and traceable to the archive's current copy.
 ## 10. Motion — playful hands, still pages
 <!-- doc anchor=sec-motion toc="Motion" intent="Playful on the shelf, still on the page" body=clauses -->
 
-Revision 2 relaxes the total-stillness rule, but only on the shelf,
-and never ambiently.
+Revision 2 relaxed the total-stillness rule on the shelf. Since
+2026-10-04 motion may also run on its own.
 
-- **Zero ambient motion, everywhere** — with one named entry, the
-  backing paper, below. Nothing else loops, drifts, breathes, or
-  pulses on its own. Motion is always a response to the user's hand.
+> **Amendment 2026-10-04 — ambient motion is allowed.** The clause
+> that held the product at zero ambient motion, *nothing loops,
+> drifts, breathes, or pulses on its own*, is struck. A surface may
+> carry motion that runs without a hand, anywhere: a blink, a pulse,
+> a scan, a loop. It was a rule the product set itself, and it had
+> started to cost the shelf its legibility: the console's closed line
+> could not say *press here* the way a console does. What stays, and
+> is not part of this amendment, are §12's bars: **every motion,
+> looping or not, is authored inside the reduced-motion guard**, so a
+> reader who asked for calm never has it defined, and **nothing
+> flashes above 3 Hz**. The paper's drift and the leaf's landing,
+> below, were exceptions to the struck clause and are now simply
+> motion the product carries.
 - **The shelf may respond playfully.** Tiles, chips, and buttons may
   acknowledge press and hover — under 200 ms, stepped or snappy
   easing, no springs that overshoot more than they travel. Think
@@ -1186,8 +1196,9 @@ and never ambiently.
   inside `@media (prefers-reduced-motion: no-preference)`, so
   reduced-motion users never have motion defined at all rather than
   merely overridden.
-- **Sanctioned exception — the paper drifts** (amended 2026-09-23;
-  ruled shelf-only earlier the same day, then widened). Everywhere
+- **The paper drifts** (amended 2026-09-23, ruled shelf-only earlier
+  the same day, then widened; an exception until 2026-10-04, when
+  ambient motion stopped needing one). Everywhere
   the backing paper (§04) is — every route but cook mode — it creeps
   along its own rows on its own: two rows every sixty seconds, about
   1.6px a second, in a loop that closes on itself because the rows'

@@ -275,16 +275,20 @@ console config =
             , onClick config.onConsole
             ]
             [ span [ class "con-k mono u" ] [ text "Filter" ]
-            , span [ class "con-mark mono", attribute "aria-hidden" "true" ]
-                [ text
-                    (if config.console then
-                        "▾"
+            , span [ class "con-what" ]
+                [ text "by meal, flavour, effort, needs or place"
 
-                     else
-                        "▸"
-                    )
+                -- The cursor: a console waiting for you. It blinks
+                -- whenever the console is closed and is gone while
+                -- it is open, since an open console is no longer
+                -- waiting. Still, not gone, for a reader who asked
+                -- for calm.
+                , if config.console then
+                    text ""
+
+                  else
+                    span [ class "con-cursor", attribute "aria-hidden" "true" ] []
                 ]
-            , span [ class "con-what" ] [ text "by meal, flavour, effort, needs or place" ]
 
             -- The count only when something is on. A zero tells the
             -- reader nothing, and at a phone's width it is the 37px
@@ -294,6 +298,14 @@ console config =
 
               else
                 span [ class "con-count mono" ] [ text (String.fromInt on ++ " on") ]
+
+            -- The keycap: the one stencil block on the line, so the
+            -- eye finds it with no motion at all, carrying a drawn
+            -- sliders mark. Open, it goes from filled to outlined.
+            -- Hidden from assistive tech: the button's
+            -- `aria-expanded` already says what it says.
+            , span [ class "con-key", attribute "aria-hidden" "true" ]
+                [ span [ class "con-key-mark" ] [] ]
             ]
         , if config.console then
             div [ id "con-rows", class "con-rows" ]

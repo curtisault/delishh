@@ -1405,11 +1405,14 @@ update msg model =
             -- hand reaching for the words, and the console marks
             -- where the query landed in them. Only the first — a
             -- reader who closed it while typing keeps it closed.
-            ( { model
-                | filters = (\f -> { f | query = q }) model.filters
-                , console =
+            let
+                opens =
                     model.console
                         || (String.isEmpty model.filters.query && not (String.isEmpty q))
+            in
+            ( { model
+                | filters = (\f -> { f | query = q }) model.filters
+                , console = opens
               }
             , Cmd.none
             )

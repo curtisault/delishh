@@ -156,10 +156,11 @@ whose only job is to be read.
   whether they have headroom to darken something, and a comment that
   lies is worse than none. Adding a colour role means adding its pair
   here; a role with no pair is a colour nobody has checked.
-- `scripts/motion_test.ts` — the motion register (DS-01 §10). Fails
-  on any keyframes, on a transition authored **outside**
-  `prefers-reduced-motion: no-preference`, on shelf motion over
-  200 ms, on a negative bezier control point (an overshoot), and on a
+- `scripts/motion_test.ts` — the motion register (DS-01 §10). Ambient
+  motion is allowed (§10, amended 2026-10-04); what fails is any
+  transition, keyframes or animation authored **outside**
+  `prefers-reduced-motion: no-preference`, an animation cycle short
+  enough to flash above 3 Hz, a shelf transition over 200 ms, on a negative bezier control point (an overshoot), and on a
   focus outline hidden behind a motion query.
 - `scripts/storage_test.ts` — counts the `localStorage` keys
   `boot.js` declares and holds the colophon's and DS-01 §12's "N
@@ -357,7 +358,10 @@ fixture must never drift under the suite. Keep it parsing.
     removes them**. The lines are rendered only while open, so their
     stagger starts from `@starting-style`; without it the transition
     has no first state and the lines simply appear. The first letter
-    typed opens it (`Main.ShelfQuery`), and only the first.
+    typed opens it (`Main.ShelfQuery`), and only the first. The
+    closed line ends in a blinking cursor and a keycap with a drawn
+    sliders mark (a CSS mask, like the install press's). The cursor
+    shows whenever the console is closed.
   - **`pathLabel` and `pathNoun` are different words on purpose.**
     The console line and the active bar say "flavour" and "By
     flavour"; a lockout tag says "Hidden by flavour". Using one word
@@ -499,12 +503,12 @@ fixture must never drift under the suite. Keep it parsing.
   - **`body` has no background.** `html` is the canvas and the liner
     sits at z-index −1 between it and every in-flow block; a body fill
     paints straight over the paper and nothing fails.
-  - **The liner drifts, and it is the only thing that does.** The one
-    keyframes block in the product rides the liner's rows, so it
-    reaches exactly the routes `Liner.on` names and never cook mode.
-    The leaf holds still; the margin is not the page. `motion_test.ts`
-    holds the drift to that one block, inside the guard, at 45 s a
-    cycle or slower.
+  - **The liner drifts.** Its keyframes ride the liner's rows, so
+    the drift reaches exactly the routes `Liner.on` names and never
+    cook mode. The leaf holds still; the margin is not the page.
+    `motion_test.ts` holds the drift to that selector, inside the
+    guard, at 45 s a cycle or slower. Other things may loop too since
+    2026-10-04, each inside the guard.
   - **The leaf lands as a `box-shadow`, never a transform.**
     `Main.jumpTo` measures the anchor in the frame the page renders,
     so a leaf that arrived translated would put every deep link a few
