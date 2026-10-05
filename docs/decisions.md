@@ -383,6 +383,35 @@ still has every print option stating its use.
 | The print picker | **Folds behind one text press, SHOW PRINT OPTIONS, with the form that will print named beside it** (*· sheet*, and *+ prep* when the card is on), so folding never hides a state the reader set. Open, HIDE PRINT OPTIONS over the picker exactly as it was. Above 34rem the press is not drawn and the picker is always open; Elm draws both states and sets the word, the width decides which is seen. A `<button>`, since it changes state, with `aria-expanded` and `aria-controls`. Dressed as a line — no fill, no body, a volt rule under the words like the way-back link — because what was asked for was something smaller than a press; inline in a sentence it meets the tap floor with the transparent overlay (§12), listed in `tap_test.ts`. The open state lives in the model and resets on arrival beside the form and the prep card; nothing is stored | A press (what was asked to be smaller than); hiding the picker with no summary (a state the reader set, gone from view); a `<details>` element (its marker and summary line are not the house's); storing the open state (a fifth stored thing to name in the colophon and §12, for a preference about one visit) |
 | Why a fold is allowed | **A disclosure is a press, not a gesture.** §12's *nothing hides behind a gesture* is about swipes and long presses; the product already has two disclosures, the site nav's routes panel at 60rem and the shelf's console, and this is a third of the same kind. It is a cut, not a motion: `recipe.css` still carries no transition | — |
 
+## Ruled 2026-10-05, the prep card's switch
+
+Ruled by the reader from the plate: "+ Prep card" on the slab did
+not tell a regular user what it was for. The control was a toggle
+whose word never changed, so it read as a press that adds something,
+and nothing on it said what.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| The dress | **A key switch, not a press.** The TG-05 KEY SWITCH off cryovault's toggle bench (picked there 2026-08-25): a round ink face with one slot, horizontal and unlit for OFF, vertical and lit for ON, the word OFF / ON in mono beside it, the key stays in. Three carriers — the slot's angle, the word, `aria-pressed` — so the colour is never the only one (§12). The turn is a hard cut: no transition on the quiet layer (§10) | Keeping the slab with a changing word (a seated slab that says PREP CARD ON is still a press, and §04's seat was invented for presses that are also toggles, not for a switch); a checkbox (a form field, not a panel control — the same reason cryovault retired its stamp latch) |
+| The acid | **One acid, two cuts.** The lit slot is `--accent` on the ink face, and the lit word is `--page-act` on the page: the picker's actionable acid at the fill cut and the word cut. The switch spends nothing the active form button was not already spending, so the page's count holds | Cryovault's orange ON (there it was measured against a stratum ramp volt could not hold; here orange is heat and the rail's own mark, and a third hue on the picker would be the third acid §04 forbids) |
+| The note | **The switch says what the card is** — *Shopping list and prep tasks, on a page of its own* — beneath the row, dim, at the form notes' size. Every control states its own use (§2.5); this one had never said it | A tooltip (hidden behind a hover, which a phone has none of) |
+| The ring | **`--rule` at the set's weight.** An ink disc on the dark theme's ink-dark ground is found by its slot alone; the ring makes the face a findable control (1.4.11). `contrast_test.ts` holds the slot's two states on the face and the ring on the page | A hairline (under 3:1 after dark) |
+| The floor | **It grows.** It stands beside the segmented set, which grows, and a switch has room; `tap_test.ts` lists it under GROWS | An overlay (for a control that is not inline in a sentence) |
+
+## Ruled 2026-10-05, the query line's clear
+
+Picked by the reader off a bench of eight (the Query Clear Bench
+artifact: a keycap ×, the slab with the word, a volt slab ×, a
+backspace key, the word, an inline block, a count readout, an ESC
+key), each mounted live in the line as built, in both lightings.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| The dress | **CL-05, the word.** CLEAR in the data voice with a 2px volt rule under it, at the right end of the query line: the way-back link's dress and the print fold's. Text, because the line is an instrument and a slab on it is a sticker; the rule is the actionable acid the caret already wears. The browser's own cancel mark stays suppressed, so this is the only clear | A stencil keycap × (a second keycap over the filter line's, two keys on one panel); the slab with the word (a press on an instrument); a volt slab × (a second acid fill on the shelf's first screen); a backspace or ESC key (a key drawn for a key the field already answers to); an inline block (the matched letters' dress on the thing that removes them); a count readout (a register nobody asked to read) |
+| When it shows | **Hidden by visibility while the query is empty**, never by `display`: the box stays in the line, so the field is the same width before and after the first letter and nothing moves when the word appears. Out of the tab order and the accessibility tree while hidden | Removing it (the field widens and narrows by a word); showing it always (a control that does nothing) |
+| What it does | **Empties the query and puts the caret back** (`Main.ClearQuery`, `Browser.Dom.focus`). The console keeps its state: clearing is not typing, so it opens nothing, and a reader who opened it keeps it. The console's dimmed words return on their own, since the query that dimmed them is gone | Clearing the facets too (that is CLEAR ALL on the active bar, a different press); closing the console (a state the reader set) |
+| The floor | **The transparent overlay** (§12), since it is inline in the line and growing it would carry its rule to the foot of a 2.75rem box. Listed in `tap_test.ts` | Growing (the printer fold's reason, again) |
+
 ## Open — deferred, not decided
 
 Carried out of the plans' *Open items*. Each is a decision **not to

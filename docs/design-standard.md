@@ -444,6 +444,12 @@ work.
 > is never the only carrier: the word changes, and `aria-pressed` says
 > so too.
 >
+> *Amended 2026-10-05:* the seat is for a press that is also a
+> toggle. A control that is a **switch** and never a press — the prep
+> card's key switch, the one on the page — reports by its own
+> mechanism instead: the slot turns and lights, the word changes,
+> `aria-pressed` says so. Still three carriers, still a hard cut.
+>
 > **What separates the two actions is still the fill.** COOK THIS is a
 > whole orange slab — the colour of where it goes (2026-09-21) — and
 > ADD TO LIST is the neutral one. Outlined first, filled last, and the
@@ -973,7 +979,10 @@ QUERY ▸ caram_
   field is `QUERY ▸`, not a box with a magnifier in it, and the
   letters it matched are marked in the rows that stayed — the same
   courtesy the lockout tag pays the rows that went. A row is on the
-  page for a reason, and the reason should be visible in it.
+  page for a reason, and the reason should be visible in it. *Since
+  2026-10-05* the line ends in its own clear: the word, with the
+  actionable rule under it, shown only while there is something to
+  clear and never moving the field when it appears.
 - **How long it keeps is the last thing in the row**, with the place
   it keeps in (§06). Absent when the recipe has never said: nothing
   stands in for an unstated life, because a hedge in that slot is the

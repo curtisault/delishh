@@ -193,25 +193,95 @@
 .printer-btn.active .printer-btn-note {
   color: var(--ink);
 }
-/* Sizing only — the dress is the extruded slab (`.press-block` in
-   sheet.css, re-cut 2026-09-24). Shorter travel than the two
-   actions: the block is dress, the depth is sizing, and a 2rem
-   control standing 8px proud of the page would outweigh COOK THIS.
+/* THE PREP CARD'S KEY SWITCH (docs/decisions.md, 2026-10-05) — the
+   TG-05 KEY SWITCH off cryovault's toggle bench. Rotary panel
+   grammar: a round ink face with one slot, horizontal and unlit for
+   OFF, vertical and lit for ON. The key stays in. It replaced the
+   "+ Prep card" slab, which told a reader nothing about whether they
+   had one.
 
-   ON IS SEATED AND INVERTED. This is the one toggle in the pair
-   whose WORD cannot change — "+ Prep card" is what it adds either
-   way — so it keeps the applied-block inversion it already had and
-   the seat is a second carrier over the top of it, not a
-   replacement. `aria-pressed` is the third. */
-.printer-prep {
-  font-size: 0.6rem;
-  padding: 0.3rem 0.6rem;
+   THE TURN IS A HARD CUT. No transition, here or anywhere on the
+   quiet layer (§10; motion_test.ts holds recipe.css and cook.css to
+   none, and this file's screen half is under the same rule). A
+   rotate with nothing animating it is a shape, not a motion.
+
+   THREE CARRIERS. The slot's angle, the word (OFF / ON) and
+   `aria-pressed`. The lit slot is the page's actionable acid at the
+   fill cut, and the lit word is the same acid at the word cut
+   (--page-act): one acid, two cuts, so the switch spends nothing the
+   picker's active form was not already spending (§04).
+
+   The ring is --rule at the set's own weight, so the face is a
+   findable control after dark, where an ink disc on the ink-dark
+   ground would otherwise be found by its slot alone (1.4.11). The
+   note beneath says what the card is (§2.5). */
+.printer-key {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.3rem 0;
+  background: none;
+  border: 0;
+  color: var(--tx);
+  text-align: left;
+  cursor: pointer;
+  /* The tap floor (§12), grown to — it stands beside the segmented
+     set, which already grows. */
+  min-height: var(--tap);
+  min-width: var(--tap);
 }
-.printer-prep.active {
-  --press-face: var(--block-bg);
-  color: var(--block-tx);
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
+/* The row is its own box so the note's width never spaces the
+   label from the face. */
+.printer-key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.printer-key-label {
+  font-size: 0.6rem;
+}
+.printer-key-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 50%;
+  background: var(--ink);
+}
+.printer-key-slot {
+  width: 3px;
+  height: 0.7rem;
+  background: var(--frost);
+  transform: rotate(90deg);
+}
+.printer-key.on .printer-key-slot {
+  transform: none;
+  background: var(--accent);
+}
+/* The word. Data, so mono; a fixed width so ON and OFF do not shift
+   the note's edge beneath them. */
+.printer-key-mark {
+  min-width: 3ch;
+  font-size: 0.62rem;
+  color: var(--tx-dim);
+}
+.printer-key.on .printer-key-mark {
+  color: var(--page-act);
+  font-weight: 700;
+}
+.printer-key-note {
+  font-size: 0.58rem;
+  color: var(--tx-dim);
+}
+.printer-key:focus-visible {
+  outline: 3px solid var(--tx);
+  outline-offset: 2px;
 }
 
 /* ==========================================================================

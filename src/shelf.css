@@ -209,6 +209,53 @@
 .shelf-query::placeholder {
   color: var(--tx-dim);
 }
+/* THE CLEAR (docs/decisions.md, 2026-10-05: CL-05, THE WORD, off the
+   query clear bench). The word with a 2px volt rule under it, the
+   way-back link's dress and the print fold's: the quietest thing on
+   the line that still does something. Text and not a slab, because
+   the line is an instrument and a slab on an instrument is a
+   sticker; the rule is the actionable acid, which is what the caret
+   beside it already is.
+
+   HIDDEN BY VISIBILITY, NEVER DISPLAY. The box stays in the line
+   while the query is empty, so the field is the same width before
+   and after the first letter and nothing moves when the word
+   appears. The markup also takes it out of the tab order and the
+   accessibility tree while it is hidden.
+
+   Inline in the line, so it keeps its box and takes the transparent
+   overlay for the tap floor (§12, tap_test.ts). No transition: it
+   appears as a cut. */
+.query-clear {
+  position: relative;
+  flex: none;
+  align-self: center;
+  margin: 0;
+  padding: 0 0 0.1rem;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid var(--accent);
+  color: var(--tx);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+.query-clear::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+.query-line.is-empty .query-clear {
+  visibility: hidden;
+}
+.query-clear:focus-visible {
+  outline: 3px solid var(--tx);
+  outline-offset: 2px;
+}
 
 /* ---------- the console ----------
    DS-01 §07 as amended 2026-10-04: THE PATHS WITHOUT TILES.

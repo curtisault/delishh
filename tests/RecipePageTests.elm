@@ -391,6 +391,39 @@ suite =
                     printing False True
                         |> Query.find [ Selector.class "printer-toggle-state" ]
                         |> Query.has [ Selector.text "+ prep" ]
+            , test "the prep card is a switch that says OFF" <|
+                \_ ->
+                    -- A key switch, not a press (docs/decisions.md,
+                    -- 2026-10-05): the word changes with the state,
+                    -- so a reader who does not know what a prep
+                    -- card is can still see whether they have one.
+                    printing True False
+                        |> Query.find [ Selector.class "printer-key" ]
+                        |> Expect.all
+                            [ Query.has [ Selector.attribute (Attr.attribute "aria-pressed" "false") ]
+                            , Query.has [ Selector.text "OFF" ]
+                            , Query.hasNot [ Selector.class "on" ]
+                            ]
+            , test "and ON when it rides along" <|
+                \_ ->
+                    printing True True
+                        |> Query.find [ Selector.class "printer-key" ]
+                        |> Expect.all
+                            [ Query.has [ Selector.attribute (Attr.attribute "aria-pressed" "true") ]
+                            , Query.has [ Selector.text "ON" ]
+                            , Query.has [ Selector.class "on" ]
+                            ]
+            , test "the switch says what a prep card is" <|
+                \_ ->
+                    -- Every control states its own use (§2.5).
+                    plain
+                        |> Query.find [ Selector.class "printer-key-note" ]
+                        |> Query.has [ Selector.text "Shopping list and prep tasks" ]
+            , test "the switch is a button: it changes state" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "printer-key" ]
+                        |> Query.has [ Selector.tag "button" ]
             , test "open, there is no summary to repeat the picker" <|
                 \_ ->
                     printing True True

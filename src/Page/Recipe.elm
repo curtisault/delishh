@@ -1191,24 +1191,62 @@ printer config =
                 , attribute "aria-label" "Print form"
                 ]
                 (List.map (formButton config) Print.all)
-            , Html.button
-                [ Html.Attributes.type_ "button"
-                , class "press-block printer-prep u"
-                , classList
-                    [ ( "active", config.prepCard )
-                    , ( "is-seated", config.prepCard )
-                    ]
-                , attribute "aria-pressed"
-                    (if config.prepCard then
-                        "true"
+            , keySwitch config
+            ]
+        ]
+
+
+{-| The prep card's switch (docs/decisions.md, 2026-10-05). A key
+switch, not a press: the slot turns vertical and lights for ON,
+horizontal and unlit for OFF, and the word beside it changes. Three
+carriers — shape, word, `aria-pressed` — and the colour is never the
+only one (§12).
+
+The dress is the TG-05 KEY SWITCH, borrowed from cryovault's toggle
+bench: rotary panel grammar, the key stays in, and the turn is a hard
+cut. It replaced "+ Prep card" on the slab because a reader who did
+not know what a prep card was could not tell from the slab whether
+they had one, and a slab whose word never changes reads as a press
+that adds something rather than a state they can look at. The note
+beneath says what the card is, so nobody prints one to find out
+(§2.5).
+
+-}
+keySwitch : Config msg -> Html msg
+keySwitch config =
+    let
+        on =
+            config.prepCard
+    in
+    Html.button
+        [ Html.Attributes.type_ "button"
+        , class "printer-key"
+        , classList [ ( "on", on ) ]
+        , attribute "aria-pressed"
+            (if on then
+                "true"
+
+             else
+                "false"
+            )
+        , onClick config.onPrepCard
+        ]
+        [ span [ class "printer-key-row" ]
+            [ span [ class "printer-key-label u" ] [ text "Prep card" ]
+            , span [ class "printer-key-face", attribute "aria-hidden" "true" ]
+                [ span [ class "printer-key-slot" ] [] ]
+            , span [ class "printer-key-mark mono" ]
+                [ text
+                    (if on then
+                        "ON"
 
                      else
-                        "false"
+                        "OFF"
                     )
-                , onClick config.onPrepCard
                 ]
-                [ text "+ Prep card" ]
             ]
+        , span [ class "printer-key-note" ]
+            [ text "Shopping list and prep tasks, on a page of its own" ]
         ]
 
 
