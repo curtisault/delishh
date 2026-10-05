@@ -31,7 +31,11 @@
 
 .shelf-plate {
   border-bottom: 3px solid var(--rule);
-  padding-bottom: 1.1rem;
+  /* The console line ends the plate, and it carries its own breathing
+     room inside its 2.75rem tap height. 0.6rem here matches the
+     console's 0.6rem margin above, so the line sits centred between
+     the query and the rule. */
+  padding-bottom: 0.6rem;
   margin-bottom: 1.4rem;
   /* Contains the overprint. Without it the second screen multiplies
      against the page ground, and cyan over a dark ground is black —
@@ -246,7 +250,6 @@
   min-height: var(--tap);
   padding: 0;
   border: 0;
-  border-bottom: 1.5px solid var(--rule);
   border-radius: 0;
   background: none;
   color: var(--tx);
@@ -362,6 +365,11 @@
   border-left: 3px solid var(--con-acid);
   padding-left: 0.4rem;
   color: var(--tx);
+}
+/* The last line has no hairline: the plate's rule is right under it,
+   and two rules a few pixels apart read as one rule drawn twice. */
+.con-row:last-child {
+  border-bottom: 0;
 }
 .con-row.path-slot {
   --con-acid: var(--shelf-act);
