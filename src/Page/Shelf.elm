@@ -5,8 +5,10 @@ module Page.Shelf exposing (Config, view, viewFailed, viewLoading)
 **This is the loudest surface in the product**, and deliberately so.
 Browsing is the enjoyable half of a recipe archive: you are choosing
 what to cook, not following a procedure with a pan on the heat. So
-the four path tiles take full-acid fills, the flavour chips are
-stickers, and decoration is permitted here and nowhere else (§2.2).
+the plate overprints, the flavour chips are stickers, and decoration
+is permitted here and nowhere else (§2.2). The five paths are the
+**console** (§07 as amended 2026-10-04): one line under the query,
+five lines of words when it is open, and the words are the controls.
 
 The two refusals that shape the list:
 
@@ -27,14 +29,17 @@ import Flavor
 import Install
 import Html.Events exposing (onClick, onInput)
 import Reach
+import Set exposing (Set)
 import Shelf exposing (Filters, Path, Summary, Verdict(..))
 
 
 type alias Config msg =
     { index : Shelf.Index
     , filters : Filters
-    , openPath : Maybe Path
-    , onOpen : Maybe Path -> msg
+    , console : Bool
+    , unfolded : Set String
+    , onConsole : msg
+    , onUnfold : Path -> msg
     , onToggle : Path -> String -> msg
     , onQuery : String -> msg
     , onClear : msg
@@ -97,7 +102,6 @@ view config =
     div [ class "shelf-layout" ]
         [ div [ class "shelf leaf" ]
             [ masthead config
-            , tiles config
             , activeBar config
             , results config shown rows
             ]
@@ -125,6 +129,10 @@ masthead config =
                 )
             ]
         , searchLine config
+
+        -- The console is the query line's second row: one
+        -- instrument on the plate, the rule beneath both.
+        , console config
         ]
 
 
@@ -221,69 +229,121 @@ searchLine config =
 
 
 
--- THE FOUR PATHS
+-- THE CONSOLE
 
 
-{-| Full-acid tiles, one per way in. An open tile shows its chips
-beneath; one at a time, because four open facet sets is a wall rather
-than a choice — selections persist when a tile closes, which is what
-lets paths compose.
+{-| A console line shows this many words before it folds. Eight is
+past every closed vocabulary (the longest is seven), so only the
+open-ended group — the places — can ever fold.
 -}
-tiles : Config msg -> Html msg
-tiles config =
-    div [ class "paths" ]
-        (List.map (tile config) Shelf.paths)
+foldAt : Int
+foldAt =
+    8
 
 
-tile : Config msg -> Path -> Html msg
-tile config p =
+{-| The five paths as a console — DS-01 §07 as amended 2026-10-04.
+
+Closed, it is one line: `FILTER ▸ by meal, flavour, effort, needs or place`, with a count beside it once anything is on. Open, it is
+five lines, one per path, the path's noun with its acid as a bar and
+its words set in the data voice as presses. Text only: the words are
+the controls, and a word that is on wears the stencil.
+
+**The console reads the query.** A non-empty query marks the letters
+it reached in every word, the same mark the rows wear, and dims the
+words it did not reach — dims, never removes, because a reader who
+cannot see a word cannot tell *no such place* from *mistyped*. The
+shell also opens the console on the first letter typed, since typing
+is a hand reaching for it.
+
+The lines are rendered only while open, and the stagger they arrive
+with is CSS on a fresh element (`@starting-style`), so a reader who
+asked for calm gets five lines at once.
+
+-}
+console : Config msg -> Html msg
+console config =
     let
-        open =
-            config.openPath == Just p
-
-        chosen =
-            List.length (Shelf.facetValues p config.filters)
+        on =
+            List.length (List.concatMap Tuple.second (Shelf.active config.filters))
     in
-    div [ class "path", classList [ ( "open", open ) ] ]
+    div [ class "console", classList [ ( "open", config.console ) ] ]
         [ Html.button
             [ type_ "button"
-            , class ("press-block path-tile path-" ++ Shelf.path p)
-            , attribute "aria-expanded"
-                (if open then
-                    "true"
-
-                 else
-                    "false"
-                )
-            , onClick
-                (config.onOpen
-                    (if open then
-                        Nothing
+            , class "con-line"
+            , attribute "aria-expanded" (bool config.console)
+            , attribute "aria-controls" "con-rows"
+            , onClick config.onConsole
+            ]
+            [ span [ class "con-k mono u" ] [ text "Filter" ]
+            , span [ class "con-mark mono", attribute "aria-hidden" "true" ]
+                [ text
+                    (if config.console then
+                        "▾"
 
                      else
-                        Just p
+                        "▸"
                     )
-                )
-            ]
-            [ span [ class "path-label u" ] [ text (Shelf.pathLabel p) ]
-            , span [ class "path-note" ] [ text (Shelf.pathNote p) ]
-            , if chosen == 0 then
+                ]
+            , span [ class "con-what" ] [ text "by meal, flavour, effort, needs or place" ]
+
+            -- The count only when something is on. A zero tells the
+            -- reader nothing, and at a phone's width it is the 37px
+            -- that pushes the sentence onto a second line.
+            , if on == 0 then
                 text ""
 
               else
-                span [ class "path-count mono" ] [ text (String.fromInt chosen) ]
+                span [ class "con-count mono" ] [ text (String.fromInt on ++ " on") ]
             ]
-        , if open then
-            div [ class "path-chips" ]
-                (List.map (facetChip config p) (Shelf.vocabularyFor p config.index))
+        , if config.console then
+            div [ id "con-rows", class "con-rows" ]
+                (div [ class "con-head", attribute "aria-hidden" "true" ] []
+                    :: List.map (consoleRow config) Shelf.paths
+                )
 
           else
             text ""
         ]
 
 
-facetChip : Config msg -> Path -> String -> Html msg
-facetChip config p word =
+{-| One line of the console. `Shelf.fold` decides which words show
+and the view only draws them; an unfolded line shows the whole
+vocabulary until the reader leaves the shelf.
+-}
+consoleRow : Config msg -> Path -> Html msg
+consoleRow config p =
+    let
+        folded =
+            Shelf.fold foldAt p config.filters config.index
+
+        ( words, hidden ) =
+            if Set.member (Shelf.path p) config.unfolded then
+                ( Shelf.vocabularyFor p config.index, 0 )
+
+            else
+                ( folded.shown, folded.hidden )
+
+        more =
+            if hidden == 0 then
+                []
+
+            else
+                [ Html.button
+                    [ type_ "button"
+                    , class "con-word con-more mono"
+                    , onClick (config.onUnfold p)
+                    ]
+                    [ text ("+" ++ String.fromInt hidden ++ " more") ]
+                ]
+    in
+    div [ class ("con-row path-" ++ Shelf.path p) ]
+        [ span [ class "con-group mono u" ] [ text (Shelf.pathNoun p) ]
+        , span [ class "con-words" ] (List.map (consoleWord config p) words ++ more)
+        ]
+
+
+consoleWord : Config msg -> Path -> String -> Html msg
+consoleWord config p word =
     let
         on =
             List.member word (Shelf.facetValues p config.filters)
@@ -291,32 +351,37 @@ facetChip config p word =
         -- A vocabulary word is a key — `gluten-free` — and reads
         -- with its hyphen opened. A place is a name, as typed, and
         -- is shown as typed: nothing about it is a key.
-        ( shown, mark ) =
+        shown =
             case p of
                 Shelf.ByPlace ->
-                    ( word, "" )
+                    word
 
                 _ ->
-                    ( String.replace "-" " " word, " f-" ++ word )
+                    String.replace "-" " " word
+
+        typed =
+            not (List.isEmpty (Shelf.needles config.filters.query))
+
+        dim =
+            typed && not on && not (Shelf.reaches config.filters.query word)
     in
     Html.button
         [ type_ "button"
-        , -- `f-<word>` puts the flavour stencil on the filter chip
-          -- too — same mark, same place, so the association is built
-          -- where the words are first met. On any other path the
-          -- class matches no mask and draws nothing.
-          class ("press-block chip chip-" ++ Shelf.path p ++ " u" ++ mark)
-        , classList [ ( "on", on ), ( "is-seated", on ) ]
-        , attribute "aria-pressed"
-            (if on then
-                "true"
-
-             else
-                "false"
-            )
+        , class "con-word mono"
+        , classList [ ( "on", on ), ( "is-dim", dim ) ]
+        , attribute "aria-pressed" (bool on)
         , onClick (config.onToggle p word)
         ]
-        [ text shown ]
+        (List.map hit (Shelf.marks config.filters.query shown))
+
+
+bool : Bool -> String
+bool b =
+    if b then
+        "true"
+
+    else
+        "false"
 
 
 

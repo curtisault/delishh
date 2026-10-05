@@ -346,9 +346,22 @@ fixture must never drift under the suite. Keep it parsing.
     silently-vanished result means you cannot tell "nothing matches"
     from "I mis-set something three clicks ago". Returning the
     reasons is what makes that impossible to implement wrongly.
+  - **The paths are a console, not tiles** (DS-01 §07 as amended
+    2026-10-04): one line under the query, five lines of words when
+    open, the words themselves the controls. Three things hold it.
+    `Shelf.fold` decides which words a line shows — eight, the
+    most-backed first — and **never hides a word that is on or one
+    the query reaches**; the view only draws. The console reads the
+    query through `Shelf.marks` and `Shelf.reaches`, the same
+    `needles` the judgement uses, and **dims unmatched words, never
+    removes them**. The lines are rendered only while open, so their
+    stagger starts from `@starting-style`; without it the transition
+    has no first state and the lines simply appear. The first letter
+    typed opens it (`Main.ShelfQuery`), and only the first.
   - **`pathLabel` and `pathNoun` are different words on purpose.**
-    The tile says "By flavour"; a lockout tag says "Hidden by
-    flavour". Using one for both reads "Hidden by By flavour".
+    The console line and the active bar say "flavour" and "By
+    flavour"; a lockout tag says "Hidden by flavour". Using one word
+    for both reads "Hidden by By flavour".
   - **`marks` and `matchesQuery` read the same `needles`.** The
     highlight in a row is a view of the judgement, not a second
     opinion about it — a mark derived from its own notion of

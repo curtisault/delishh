@@ -334,7 +334,8 @@ type alias Model =
     -- note on `arrivalMirrors`
     , index : Fetch Shelf.Index
     , filters : Shelf.Filters
-    , openPath : Maybe Shelf.Path
+    , console : Bool
+    , unfolded : Set String
 
     -- cook mode. `done` and `timer` are reset by navigation like
     -- every other page state; the SCALE is not held here at all — it
@@ -446,7 +447,8 @@ init flags url key =
       , today = flags.today
       , index = Fetching
       , filters = Shelf.noFilters
-      , openPath = Nothing
+      , console = False
+      , unfolded = Set.empty
       , list =
             flags.list
                 |> Maybe.andThen (D.decodeString GroceryList.decoder >> Result.toMaybe)
@@ -734,7 +736,8 @@ type Msg
     | RouletteDay Plan.Day
     | RouletteClear
     | RouletteTick Time.Posix
-    | OpenPath (Maybe Shelf.Path)
+    | ToggleConsole
+    | Unfold Shelf.Path
     | ToggleFacet Shelf.Path String
     | ShelfQuery String
     | ClearFilters
@@ -833,12 +836,18 @@ update msg model =
 
                             else
                                 model.filters
-                        , openPath =
+                        , console =
                             if arrived then
-                                Nothing
+                                False
 
                             else
-                                model.openPath
+                                model.console
+                        , unfolded =
+                            if arrived then
+                                Set.empty
+
+                            else
+                                model.unfolded
                         -- The list itself survives navigation; the
                         -- ARMED state does not. Leaving the page and
                         -- coming back to find a live destructive
@@ -1382,14 +1391,28 @@ update msg model =
         GotIndex (Err error) ->
             ( { model | index = FetchFailed (Reach.fromHttp error) }, Cmd.none )
 
-        OpenPath p ->
-            ( { model | openPath = p }, Cmd.none )
+        ToggleConsole ->
+            ( { model | console = not model.console }, Cmd.none )
+
+        Unfold p ->
+            ( { model | unfolded = Set.insert (Shelf.path p) model.unfolded }, Cmd.none )
 
         ToggleFacet p value ->
             ( { model | filters = Shelf.toggle p value model.filters }, Cmd.none )
 
         ShelfQuery q ->
-            ( { model | filters = (\f -> { f | query = q }) model.filters }, Cmd.none )
+            -- The first letter typed opens the console: typing is a
+            -- hand reaching for the words, and the console marks
+            -- where the query landed in them. Only the first — a
+            -- reader who closed it while typing keeps it closed.
+            ( { model
+                | filters = (\f -> { f | query = q }) model.filters
+                , console =
+                    model.console
+                        || (String.isEmpty model.filters.query && not (String.isEmpty q))
+              }
+            , Cmd.none
+            )
 
         Stamp n ->
             ( { model
@@ -1439,7 +1462,7 @@ update msg model =
                     ( model, Cmd.none )
 
         ClearFilters ->
-            ( { model | filters = Shelf.clear model.filters, openPath = Nothing }
+            ( { model | filters = Shelf.clear model.filters }
             , Cmd.none
             )
 
@@ -1705,8 +1728,10 @@ page model =
                         Page.Shelf.view
                             { index = index
                             , filters = model.filters
-                            , openPath = model.openPath
-                            , onOpen = OpenPath
+                            , console = model.console
+                            , unfolded = model.unfolded
+                            , onConsole = ToggleConsole
+                            , onUnfold = Unfold
                             , onToggle = ToggleFacet
                             , onQuery = ShelfQuery
                             , onClear = ClearFilters

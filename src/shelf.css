@@ -206,131 +206,245 @@
   color: var(--tx-dim);
 }
 
-/* ---------- the five paths ----------
-   Full-acid tiles, one per way in. This is the sticker sheet: flat
-   colour, hard edges, ink text on every fill. */
+/* ---------- the console ----------
+   DS-01 §07 as amended 2026-10-04: THE PATHS WITHOUT TILES.
 
-.paths {
-  display: grid;
-  /* 10rem since the fifth tile (2026-10-04): five fit the column in one
-     row at the reading width, where 11rem left one tile alone below. */
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 0.5rem;
-  margin-bottom: 1.2rem;
+   One line under the query, and five lines when it is open: a path's
+   noun with its acid as a bar, then its words in the data voice as
+   presses. Text only — no slab, no box, no sticker. The words are
+   the controls, and a word that is on wears the stencil, so on has a
+   shape and a fill and not only a colour.
+
+   Why text. The tiles cost three rows of a phone's first screen to
+   say five words and five questions, and opened one group at a time
+   to a tray of chips. The console says the five words in one line
+   and, open, shows every word of every group at once — 24 today —
+   so a filter is one press away rather than two. The acid here is
+   five bars, the same five-on-one-surface the tiles were allowed and
+   less of it; the plate keeps the overprint, the rows keep the
+   stickers, and the shelf is as loud as it was.
+
+   THE WORDS GROW TO THE FLOOR. §12 allows an inline control the
+   transparent overlay instead, but a run of inline words on wrapped
+   lines is the case the overlay was never written for: a 2.75rem
+   overlay on a 1.5rem line reaches into the line above and the line
+   below, and a thumb aimed at one word lands on another. So each
+   word is a 2.75rem control and the lines are 2.75rem apart, which
+   is the honest height of twenty-four targets. A word has no edge:
+   its box is the floor and nothing else. */
+
+/* On the plate, under the query line: one instrument, two rows, the
+   plate's rule beneath both. */
+.console {
+  margin-top: 0.6rem;
 }
-/* Sizing and colour only — the dress is the extruded slab
-   (`.press-block` in sheet.css, re-cut 2026-09-24). The tiles are
-   the loudest thing in the product and they already carried a full
-   acid face, so the dress gives them a body under it and repaints
-   nothing: each still sets its own fill, now through `--press-face`
-   so the block's walls and milled corner derive from it. */
-.path-tile {
+.con-line {
   width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.15rem;
-  position: relative;
-  padding: 0.7rem 0.8rem;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--tap);
+  padding: 0;
+  border: 0;
+  border-bottom: 1.5px solid var(--rule);
+  border-radius: 0;
+  background: none;
+  color: var(--tx);
   text-align: left;
-  color: var(--shelf-tx);
-  /* The fills are the point of this surface, so they survive a
-     colour print of the shelf itself. */
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
+  cursor: pointer;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
 }
-/* One acid per path, named for what it is: meals are the actionable
-   "what's for dinner", flavour is the sweet end, effort is heat,
-   needs is the cold chain.
-
-   Each sets the FACE, and the rail is that acid's own milled edge:
-   a volt rail on an orange tile would be a second acid on a surface
-   whose whole grammar is one acid per path. */
-.path-tile.path-slot {
-  --press-face: var(--shelf-act);
+/* The label is the query's label's sibling and takes its role:
+   acid as a word where the ground can carry it, ink where it cannot
+   (`--data-accent`, see the query line). */
+.con-k,
+.con-mark {
+  color: var(--data-accent);
 }
-.path-tile.path-flavor {
-  --press-face: var(--shelf-live);
+.con-mark {
+  font-size: 0.62rem;
 }
-.path-tile.path-effort {
-  --press-face: var(--shelf-heat);
+.con-what {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tx-dim);
 }
-.path-tile.path-dietary {
-  --press-face: var(--shelf-cold);
-}
-/* The fifth path (2026-10-04) takes lilac, the one shelf acid no
-   surface had spoken for: time went to the plan press and work to
-   the list press. Gentle heat is the nearest name for a dish
-   somebody else perfected first. */
-.path-tile.path-inspired {
-  --press-face: var(--shelf-soft);
-}
-.path-label {
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-}
-.path-note {
-  font-size: 0.68rem;
-  opacity: 0.78;
-}
-/* How many chips are on in this path. A tile that is doing something
-   says so without being opened. */
-.path-count {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.6rem;
+.con-count {
+  margin-left: auto;
+  color: var(--tx-dim);
   font-size: 0.66rem;
-  font-weight: 700;
-  background: var(--shelf-tx);
-  color: var(--surface);
-  padding: 0.05rem 0.35rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.con-line:focus-visible {
+  outline: 3px solid var(--tx);
+  outline-offset: 2px;
 }
 
-.path-chips {
-  grid-column: 1 / -1;
+.con-rows {
+  position: relative;
+  padding: 0.3rem 0 0.2rem;
+}
+.con-row {
+  display: grid;
+  grid-template-columns: 5.2rem minmax(0, 1fr);
+  gap: 0 0.6rem;
+  align-items: start;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+@media (min-width: 34rem) {
+  .con-row {
+    grid-template-columns: 6rem minmax(0, 1fr);
+  }
+}
+/* The noun sits on the first line of its words, and its bar is the
+   path's acid: the one place the acid lands on this control, as a
+   mark beside a word and never under one. */
+.con-group {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  line-height: var(--tap);
+  border-left: 3px solid var(--con-acid);
+  padding-left: 0.4rem;
+  color: var(--tx);
+}
+.con-row.path-slot {
+  --con-acid: var(--shelf-act);
+}
+.con-row.path-flavor {
+  --con-acid: var(--shelf-live);
+}
+.con-row.path-effort {
+  --con-acid: var(--shelf-heat);
+}
+.con-row.path-dietary {
+  --con-acid: var(--shelf-cold);
+}
+.con-row.path-inspired {
+  --con-acid: var(--shelf-soft);
+}
+.con-words {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 0.7rem 0 0.2rem;
+  gap: 0 0.1rem;
 }
-/* Every chip carries its word. A chip that is only a colour is
-   confetti; one that says SWEET is navigation (§04).
-
-   Sizing only; the dress is the extruded slab. ON is the stencil
-   inversion it always was AND the seat: the chips are the one
-   control whose word cannot change to say it is on, so it keeps
-   both carriers.
-
-   IT TAKES BACK THE TWO PROPERTIES `.chip` SPENDS. A filter chip is
-   the base `.chip` component (recipe.css) wearing the dress, and
-   that component is a READ-ONLY tag everywhere else it appears — on
-   the recipe plate, on a shelf row — so it dims its own word and
-   draws its own hairline. Both are (0,1,0) and recipe.css loads
-   after sheet.css, so both beat the dress on order alone. Here the
-   chip is not a tag but a control, and the two have to be said again
-   at (0,2,0): full ink on the slab, and the slab's own edge. Without
-   them the tray renders as dimmed words in hairline boxes sitting on
-   press bodies, which is two components arguing in public. */
-.path-chips .chip {
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  padding: 0.3rem 0.55rem;
-  color: var(--press-tx);
-  border: 1px solid var(--press-edge);
+.con-word {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 0.3rem;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--tx);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-align: left;
+  cursor: pointer;
 }
-.path-chips .chip.on {
-  --press-face: var(--stencil-bg);
+/* On: the stencil, and a filled square before the word — the shape
+   a reduced-motion reader and a black-and-white print both get.
+   Drawn, not a character, so a screen reader hears the word and
+   `aria-pressed` and not "black square". */
+.con-word.on {
+  background: var(--stencil-bg);
   color: var(--stencil-tx);
 }
-
-/* The open tile's chips sit under the whole row, not under one
-   column: four chip sets in four columns would be unreadable, and a
-   full-width tray keeps the tiles the same size whatever is open. */
-.path {
-  display: contents;
+.con-word.on::before {
+  content: "";
+  width: 0.4em;
+  height: 0.4em;
+  margin-right: 0.4em;
+  background: currentColor;
 }
-.path.open .path-chips {
-  display: flex;
+/* The query reached other words and not this one. Dimmed, never
+   removed: a word the reader cannot see is one they cannot tell
+   "no such place" from "mistyped" about. */
+.con-word.is-dim {
+  color: var(--tx-dim);
+}
+/* The mark is the house's applied block, as on the rows. On a word
+   that is already on the stencil, the mark takes the stencil's own
+   accent so it does not vanish into the fill. */
+.con-word.on mark {
+  background: var(--stencil-mark);
+  color: var(--stencil-bg);
+}
+/* The fold's count, a press in the actionable's role as a word. */
+.con-more {
+  color: var(--data-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.con-word:focus-visible {
+  outline: 3px solid var(--tx);
+  outline-offset: -3px;
+}
+/* The print head: a rule that sweeps down the lines as they print.
+   Decoration, and it carries nothing — the lines are there whether
+   or not it moves. */
+.con-head {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 2px;
+  background: var(--data-accent);
+  pointer-events: none;
+  /* Gone once the sweep is over — and never there for a reader who
+     asked for calm, since only the guard below makes it visible. */
+  visibility: hidden;
+}
+
+/* ---------- the console's motion ---------- DS-01 §10.
+   A response to a hand: the press that opened it, or the first
+   letter typed. Five lines cut in 40ms apart and the head sweeps
+   down in five steps, all of it done by 200ms; nothing travels, and
+   the open console is the same console a reader who asked for calm
+   gets at once.
+
+   The lines are fresh elements when the console opens (the shell
+   renders them only while it is open), so the stagger starts from
+   `@starting-style`, as the leaf's landing does: without it a
+   transition has no first state to leave. Authored inside the
+   guard, like every transition on this surface. */
+@media (prefers-reduced-motion: no-preference) {
+  .con-row {
+    transition: visibility 1ms steps(1, end) var(--con-d);
+  }
+  .con-row:nth-child(2) {
+    --con-d: 0ms;
+  }
+  .con-row:nth-child(3) {
+    --con-d: 40ms;
+  }
+  .con-row:nth-child(4) {
+    --con-d: 80ms;
+  }
+  .con-row:nth-child(5) {
+    --con-d: 120ms;
+  }
+  .con-row:nth-child(6) {
+    --con-d: 160ms;
+  }
+  .con-head {
+    transition:
+      top 200ms steps(5, end),
+      visibility 1ms steps(1, end) 200ms;
+  }
+  @starting-style {
+    .con-row {
+      visibility: hidden;
+    }
+    .con-head {
+      top: 0;
+      visibility: visible;
+    }
+  }
 }
 
 /* ---------- what is narrowed ----------
@@ -553,7 +667,7 @@
    The shelf is a way of choosing, and paper cannot choose. If a
    reader prints it anyway they get the list, without the machinery. */
 @media print {
-  .paths,
+  .console,
   .active-bar,
   .shelf-search,
   .zero-clear {

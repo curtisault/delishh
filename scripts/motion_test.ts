@@ -194,11 +194,44 @@ Deno.test("the leaf seats in under 150ms, inside the guard, in the chrome sheet 
     "the leaf transitions transform — a leaf that moves puts every anchor jump off",
   );
 
+  // Two sheets may author a first state for a fresh element: the
+  // chrome sheet, for the leaf's landing, and the shelf, for the
+  // console's lines (§07 as amended 2026-10-04), which the shell
+  // renders only while the console is open. The console's first
+  // state is a stagger of cuts and never a travel: it may hold
+  // visibility and the print head's `top`, and nothing that moves a
+  // control — a line that arrived translated would be a second
+  // landing, and the leaf is the one.
   for (const [name, css] of sources) {
-    for (const m of css.matchAll(/@starting-style/g)) {
-      assertEquals(name, "sheet", `${name}.css declares @starting-style; only the leaf lands`);
-      const inside = ranges.some(([from, to]) => m.index! > from && m.index! < to);
-      assert(inside, "sheet.css authors @starting-style outside the reduced-motion guard");
+    const own = guardedRanges(css);
+    for (const m of css.matchAll(/@starting-style\s*\{/g)) {
+      assert(
+        name === "sheet" || name === "shelf",
+        `${name}.css declares @starting-style; only the leaf lands and only the console prints`,
+      );
+      const inside = own.some(([from, to]) => m.index! > from && m.index! < to);
+      assert(inside, `${name}.css authors @starting-style outside the reduced-motion guard`);
+      if (name === "shelf") {
+        const block = balanced(css, m.index! + m[0].length - 1);
+        assert(
+          !/transform|box-shadow|opacity|translate/.test(block),
+          "the console's first state moves something; it may only hold visibility and the head's top",
+        );
+      }
     }
   }
 });
+
+/** The text of a `{ … }` block, nested braces included, from the
+ * index of its opening brace. */
+function balanced(css: string, open: number): string {
+  let depth = 0;
+  for (let i = open; i < css.length; i++) {
+    if (css[i] === "{") depth++;
+    if (css[i] === "}") {
+      depth--;
+      if (depth === 0) return css.slice(open, i + 1);
+    }
+  }
+  return css.slice(open);
+}

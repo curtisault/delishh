@@ -7,9 +7,11 @@ module Shelf exposing
     , Verdict(..)
     , active
     , clear
+    , countFor
     , decoder
     , facetValues
     , facetsOf
+    , fold
     , judge
     , marks
     , matchesQuery
@@ -18,10 +20,10 @@ module Shelf exposing
     , noFilters
     , path
     , pathLabel
-    , pathNote
     , pathNoun
     , paths
     , ranked
+    , reaches
     , toggle
     , vocabularyFor
     )
@@ -106,8 +108,10 @@ type alias Index =
 
 
 {-| The five ways in — DS-01 §07, the fifth added 2026-10-04. Each
-answers a different question, and the tiles are the loudest surface
-in the product because choosing is the enjoyable part.
+answers a different question. Since the same day they are the five
+lines of the console rather than five tiles: the words themselves are
+the controls, and the shelf is still the loud surface because
+choosing is the enjoyable part.
 
 Four read a facet every recipe carries. The fifth, `ByPlace`, reads
 the attribution, which only some do: a recipe with no `inspired:` is
@@ -147,10 +151,11 @@ pathLabel p =
             "Inspired by"
 
 
-{-| The path's facet as a bare noun, for prose that already supplies
-the preposition. `pathLabel` reads "By flavour" on a tile, which makes
-"Hidden by By flavour" in a lockout tag — the two want different
-words, so they get them.
+{-| The path's facet as a bare noun: the console's line label, and the
+word in prose that already supplies the preposition. `pathLabel`
+reads "By flavour" in the active bar, which makes "Hidden by By
+flavour" in a lockout tag — the two want different words, so they
+get them.
 -}
 pathNoun : Path -> String
 pathNoun p =
@@ -169,28 +174,6 @@ pathNoun p =
 
         ByPlace ->
             "place"
-
-
-{-| The question the path answers. Every tile states its own use, so
-nobody has to press one to find out what it does (DS-01 §2.5).
--}
-pathNote : Path -> String
-pathNote p =
-    case p of
-        ByMeal ->
-            "What's for dinner?"
-
-        ByFlavor ->
-            "Sweet, spicy, or both"
-
-        ByEffort ->
-            "What am I up for?"
-
-        ByNeeds ->
-            "Gluten-free, and make it Thai"
-
-        ByPlace ->
-            "The one from that restaurant"
 
 
 {-| Which facet a path filters on. One facet each, deliberately: a
@@ -338,6 +321,77 @@ vocabularyFor p index =
         |> List.head
         |> Maybe.map Tuple.second
         |> Maybe.withDefault []
+
+
+{-| How many recipes carry a word on a path. A fact read off the
+index, never a guess: it decides which words a folded console line
+shows first, and nothing else.
+-}
+countFor : Path -> String -> List Summary -> Int
+countFor p word recipes =
+    List.length (List.filter (\recipe -> List.member word (facetsOf p recipe)) recipes)
+
+
+{-| Whether a query reaches a word — the same `needles` the judgement
+and the marks read, so a word the console dims is one the list would
+not have matched on. Against the word as the vocabulary spells it,
+hyphen and all: "gluten free" typed as two words reaches
+`gluten-free` because both needles are in it.
+-}
+reaches : String -> String -> Bool
+reaches query word =
+    let
+        folded =
+            String.toLower word
+    in
+    List.any (\needle -> String.contains needle folded) (needles query)
+
+
+{-| The console's fold — DS-01 §07 as amended 2026-10-04. A line
+shows at most `cap` words; the rest are behind a count the reader can
+press. Which words show is decided here and not in the view, because
+it is three rules and each one is a refusal:
+
+  - A vocabulary within the cap shows whole. Only one group, the
+    places, is open-ended; the four closed vocabularies never fold.
+  - Past the cap, the words with the most recipes behind them show
+    first, in the vocabulary's own order. A filter that would leave
+    nothing is the least useful one to offer first.
+  - **The fold never hides a selection or a word the query reaches.**
+    A word that is on, or that the reader has typed towards, is
+    shown whatever its count — otherwise the console could be
+    narrowing on a word the reader cannot see.
+
+`hidden` is how many are behind the fold; zero means the line is
+whole.
+
+-}
+fold : Int -> Path -> Filters -> Index -> { shown : List String, hidden : Int }
+fold cap p filters index =
+    let
+        words =
+            vocabularyFor p index
+
+        chosen =
+            selected p filters
+
+        top =
+            words
+                |> List.sortBy (\w -> negate (countFor p w index.recipes))
+                |> List.take cap
+                |> Set.fromList
+
+        keep w =
+            Set.member w top || Set.member w chosen || reaches filters.query w
+
+        shown =
+            if List.length words <= cap then
+                words
+
+            else
+                List.filter keep words
+    in
+    { shown = shown, hidden = List.length words - List.length shown }
 
 
 {-| Every path the reader has actually narrowed on, with its values —
