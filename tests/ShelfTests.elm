@@ -317,7 +317,64 @@ suite =
                     Shelf.marks "vegan" "Salted Caramel"
                         |> Expect.equal [ ( "Salted Caramel", False ) ]
             ]
+        , describe "the console's fold (DS-01 §07, amended 2026-10-04)"
+            [ test "a vocabulary within the cap shows whole" <|
+                \_ ->
+                    Shelf.fold 10 Shelf.ByPlace noFilters places
+                        |> .hidden
+                        |> Expect.equal 0
+            , test "past the cap, the most-backed words show first, in the vocabulary's order" <|
+                \_ ->
+                    -- Ten places, three backed by recipes. A cap of
+                    -- four shows the three and the first of the rest.
+                    Shelf.fold 4 Shelf.ByPlace noFilters places
+                        |> Expect.equal { shown = [ "Alder", "Dishoom", "Kiln", "Padella" ], hidden = 6 }
+            , test "the fold never hides a selection" <|
+                \_ ->
+                    -- Nobody has cooked anything from Trullo yet;
+                    -- the reader has it on, so it shows.
+                    Shelf.fold 4 Shelf.ByPlace (with Shelf.ByPlace "Trullo") places
+                        |> .shown
+                        |> List.member "Trullo"
+                        |> Expect.equal True
+            , test "the fold never hides a word the query reaches" <|
+                \_ ->
+                    Shelf.fold 4 Shelf.ByPlace { noFilters | query = "roch" } places
+                        |> .shown
+                        |> List.member "Rochelle Canteen"
+                        |> Expect.equal True
+            , test "a count is the recipes carrying the word, no more" <|
+                \_ ->
+                    Shelf.countFor Shelf.ByPlace "Dishoom" places.recipes
+                        |> Expect.equal 2
+            , test "a query reaches a word by any of its needles, hyphen or not" <|
+                \_ ->
+                    -- The same needles the judgement reads: "gluten
+                    -- free" as two words reaches the key spelled
+                    -- with a hyphen, and a single letter reaches
+                    -- nothing.
+                    ( Shelf.reaches "gluten free" "gluten-free", Shelf.reaches "g" "gluten-free" )
+                        |> Expect.equal ( True, False )
+            ]
         ]
+
+
+{-| An index of ten places, three with recipes behind them: Dishoom
+twice, Kiln and Padella once, and Alder first in the vocabulary with
+none.
+-}
+places : Shelf.Index
+places =
+    let
+        names =
+            [ "Alder", "Dishoom", "Kiln", "Padella", "Rochelle Canteen", "Trullo", "Bao", "Hoppers", "Koya", "Lyle's" ]
+
+        from name slug =
+            { slug = slug, title = slug, tested = "2026-01-01", active = 10, total = 20, slot = [ "dinner" ], course = "main", flavor = [], method = "bake", effort = "relaxed", dietary = [], cuisine = [], keepsFor = Nothing, inspired = Just name }
+    in
+    { vocabulary = [ ( Shelf.ByPlace, names ) ]
+    , recipes = [ from "Dishoom" "a", from "Dishoom" "b", from "Kiln" "c", from "Padella" "d" ]
+    }
 
 
 noFilters : Shelf.Filters

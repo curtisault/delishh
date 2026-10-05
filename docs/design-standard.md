@@ -915,8 +915,34 @@ a fifth, since 2026-10-04, for the dish you are trying to get back to:
 > to fill the gap (§12). The tile takes lilac, the one shelf acid no
 > surface had spoken for (§04).
 
-Paths are presented as full-acid tiles — this is the loudest surface
-in the product. Selecting within a path composes with the others:
+> **Amendment 2026-10-04 — the console: the paths without tiles.**
+> The five paths are no longer tiles. They are a **console**: one
+> line under the query, `FILTER ▸ by meal, flavour, effort, needs or place`, with a count beside it once anything is on, and when it
+> is open five lines, one per path, the path's noun with its acid as
+> a bar and its words set in the data voice as presses. Text only.
+> The words are the controls, every word of every path is on screen
+> at once, and a word that is on wears the stencil. Three rules hold
+> it. **It folds**: a line shows eight words, the eight with the most
+> recipes behind them, and the rest wait behind a count the reader
+> can press — only the places can ever fold, since every closed
+> vocabulary is shorter. **It reads the query**: a query marks the
+> letters it reached in every word, as the rows do, and dims the
+> words it did not reach — dims, never removes, because a word the
+> reader cannot see is one they cannot tell *no such place* from
+> *mistyped* about; and the fold never hides a word the query reaches
+> or a word that is on. **It opens on the first letter typed**, since
+> typing is a hand reaching for it. Every word is a 2.75rem control
+> with no edge, so the lines are 2.75rem apart, which is the honest
+> height of twenty-four targets. The tiles went because they cost
+> three rows of a phone's first screen to say five words, and opened
+> one path at a time to a tray; the console says the five in one line
+> and shows all twenty-four when asked. The acid is five bars, less
+> than the tiles carried; the plate keeps the overprint and the rows
+> keep the stickers. The lines print in 40 ms steps under a sweeping
+> head, within §10's register.
+
+Paths were presented as full-acid tiles until 2026-10-04 — this is
+the loudest surface in the product, and it still is. Selecting within a path composes with the others:
 start from SWEET, then narrow to `effort: relaxed`. The facets all
 come from frontmatter (§06), which is why the schema is the thing to
 build first.
