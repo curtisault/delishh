@@ -258,12 +258,8 @@
 /* The label is the query's label's sibling and takes its role:
    acid as a word where the ground can carry it, ink where it cannot
    (`--data-accent`, see the query line). */
-.con-k,
-.con-mark {
+.con-k {
   color: var(--data-accent);
-}
-.con-mark {
-  font-size: 0.62rem;
 }
 .con-what {
   font-family: var(--font-body);
@@ -272,12 +268,67 @@
   text-transform: none;
   color: var(--tx-dim);
 }
+.con-what {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .con-count {
-  margin-left: auto;
   color: var(--tx-dim);
   font-size: 0.66rem;
   letter-spacing: 0.04em;
   white-space: nowrap;
+}
+/* THE CURSOR. A block at the end of the sentence, in the query's
+   accent: a console waiting for input, which is the one thing this
+   line needs to say before it says anything else. It is there
+   whenever the console is closed and gone while it is open. Outside
+   the guard it is a still block, which still reads as a cursor;
+   inside it, it blinks (below). */
+.con-cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.05em;
+  margin-left: 0.3em;
+  vertical-align: -0.18em;
+  background: var(--data-accent);
+}
+/* THE KEYCAP. The one stencil block on the line, at its right end:
+   found by the eye with no motion at all, which is what a reader who
+   asked for calm gets in place of the blink. It carries a sliders
+   mark — three rails, a knob on each at a different setting — the
+   common sign for filters, and a mixing desk's, which is the console
+   this line is.
+
+   The mark is a MASK, as the install press's is: cut out of
+   `currentColor`, so it takes the key's ink in both lightings and
+   there is no colour in the drawing to drift from theme.css.
+
+   Open, the key goes from filled to outlined: a shape, not only a
+   colour. It is part of the line's press, not a second control, so
+   the line's whole width stays the target. */
+.con-key {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1.5px solid var(--stencil-bg);
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
+}
+.console.open .con-key {
+  background: transparent;
+  color: var(--tx);
+  border-color: var(--rule);
+}
+.con-key-mark {
+  width: 1.1rem;
+  height: 1.1rem;
+  background: currentColor;
+  -webkit-mask: var(--sliders-mark) center / contain no-repeat;
+  mask: var(--sliders-mark) center / contain no-repeat;
+  --sliders-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 4.5h20v2H2zM2 11h20v2H2zM2 17.5h20v2H2z'/%3E%3Cpath d='M14 2h4v7h-4zM5 8.5h4v7H5zM11 15h4v7h-4z'/%3E%3C/svg%3E");
 }
 .con-line:focus-visible {
   outline: 3px solid var(--tx);
@@ -412,6 +463,20 @@
    `@starting-style`, as the leaf's landing does: without it a
    transition has no first state to leave. Authored inside the
    guard, like every transition on this surface. */
+/* The blink: a hard on and off every 1.2 s, under 1 Hz and far
+   under §12's 3 Hz bar. Ambient, which §10 allows since 2026-10-04,
+   and inside the guard, which it always requires. */
+@media (prefers-reduced-motion: no-preference) {
+  .con-cursor {
+    animation: con-blink 1.2s steps(1, end) infinite;
+  }
+  @keyframes con-blink {
+    50% {
+      visibility: hidden;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .con-row {
     transition: visibility 1ms steps(1, end) var(--con-d);

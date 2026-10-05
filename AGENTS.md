@@ -358,7 +358,10 @@ fixture must never drift under the suite. Keep it parsing.
     removes them**. The lines are rendered only while open, so their
     stagger starts from `@starting-style`; without it the transition
     has no first state and the lines simply appear. The first letter
-    typed opens it (`Main.ShelfQuery`), and only the first.
+    typed opens it (`Main.ShelfQuery`), and only the first. The
+    closed line ends in a blinking cursor and a keycap with a drawn
+    sliders mark (a CSS mask, like the install press's). The cursor
+    shows whenever the console is closed.
   - **`pathLabel` and `pathNoun` are different words on purpose.**
     The console line and the active bar say "flavour" and "By
     flavour"; a lockout tag says "Hidden by flavour". Using one word
