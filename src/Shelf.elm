@@ -559,10 +559,11 @@ marks query text =
 -- ORDER
 
 
-{-| The shelf's order: **last tested first.** The archive's own
-working order is more useful than the dictionary's (DS-01 §07) — what
-you cooked recently is what you are most likely to cook again, and a
-recipe you have not tested in two years should look like one.
+{-| The shelf's order: **by title, A to Z** (DS-01 §07, amended
+2026-10-18). Past a screenful, a reader looking for a dish they know
+finds it by name; the working order put a whole day's cooking in one
+clump at the top. Case is ignored, and the slug breaks a tie, so the
+order never depends on what the index happened to send.
 
 Shown rows come before excluded ones, so the list reads as results
 with their lockouts beneath rather than a grid with holes in it.
@@ -582,7 +583,7 @@ ranked filters recipes =
                         GT
 
                     _ ->
-                        compare b.tested a.tested
+                        compare ( String.toLower a.title, a.slug ) ( String.toLower b.title, b.slug )
             )
 
 
