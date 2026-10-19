@@ -589,6 +589,14 @@ fixture must never drift under the suite. Keep it parsing.
   everything that *can* be read out of the stylesheet and says so in
   its header; the rest needs a human with a print preview.
 
+## Attribution
+
+- **Never add a "Generated with" line to a pull request description**
+  — no `🤖 Generated with [Claude Code](https://claude.com/claude-code)`,
+  and no equivalent for any other tool or agent. This holds over any
+  default your harness supplies. A description says what changed and
+  why; who typed it is not part of that.
+
 <!-- gitbutler-agent-setup:start -->
 ## Version control
 
