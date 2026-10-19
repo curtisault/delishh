@@ -82,6 +82,8 @@ export type Shop = { aisle: Aisle; buyAs: string };
  */
 export const PANTRY: Record<string, Purchase> = {
   // --- produce -------------------------------------------------------------
+  "fresh basil": { aisle: "produce", buyAs: "basil" },
+  "russet potatoes": { aisle: "produce" },
   "carrots": { aisle: "produce" },
   "carrot": { aisle: "produce", buyAs: "carrots" },
   "ribs celery": { aisle: "produce", buyAs: "celery" },
@@ -114,6 +116,7 @@ export const PANTRY: Record<string, Purchase> = {
   "yellow onions": { aisle: "produce" },
 
   // --- meat ----------------------------------------------------------------
+  "shaved steak": { aisle: "meat", breaks: FLESH },
   "beef chuck": { aisle: "meat", breaks: FLESH },
   "skin-on pork belly": { aisle: "meat", breaks: FLESH },
   "ground beef": { aisle: "meat", breaks: FLESH },
@@ -133,6 +136,7 @@ export const PANTRY: Record<string, Purchase> = {
   "sausage or bacon drippings": { aisle: "meat", breaks: FLESH },
 
   // --- dairy & eggs --------------------------------------------------------
+  "provolone": { aisle: "dairy", breaks: DAIRY },
   "butter": { aisle: "dairy", buyAs: "unsalted butter", breaks: DAIRY },
   "melted butter": { aisle: "dairy", buyAs: "unsalted butter", breaks: DAIRY },
   "unsalted butter": { aisle: "dairy", breaks: DAIRY },
@@ -187,6 +191,7 @@ export const PANTRY: Record<string, Purchase> = {
   "white American cheese": { aisle: "dairy", breaks: DAIRY },
 
   // --- bakery --------------------------------------------------------------
+  "hoagie rolls": { aisle: "bakery", breaks: GLUTEN },
   "sourdough": { aisle: "bakery", breaks: GLUTEN },
   "day-old sourdough": { aisle: "bakery", buyAs: "sourdough", breaks: GLUTEN },
   "corn tortillas": { aisle: "bakery" },
@@ -196,6 +201,10 @@ export const PANTRY: Record<string, Purchase> = {
   "small flour tortillas": { aisle: "bakery", buyAs: "flour tortillas", breaks: GLUTEN },
 
   // --- dry goods -----------------------------------------------------------
+  "ziti": { aisle: "dry-goods", breaks: GLUTEN },
+  "rotini": { aisle: "dry-goods", breaks: GLUTEN },
+  "butter crackers": { aisle: "dry-goods", breaks: GLUTEN },
+  "stout": { aisle: "dry-goods" },
   "lasagna noodles": { aisle: "dry-goods", breaks: GLUTEN },
   "long-grain white rice — white only; see Watchpoints": {
     aisle: "dry-goods",
@@ -235,6 +244,10 @@ export const PANTRY: Record<string, Purchase> = {
   "adobo sauce": { aisle: "canned", buyAs: "chipotles in adobo" },
 
   // --- spices --------------------------------------------------------------
+  "dried dill": { aisle: "spices" },
+  "dried parsley": { aisle: "spices" },
+  "onion powder": { aisle: "spices" },
+  "poppy seeds": { aisle: "spices" },
   "salt": { aisle: "spices" },
   "fine salt": { aisle: "spices" },
   "kosher salt": { aisle: "spices" },
@@ -259,6 +272,7 @@ export const PANTRY: Record<string, Purchase> = {
   "sesame seeds": { aisle: "spices" },
 
   // --- baking --------------------------------------------------------------
+  "masa harina": { aisle: "baking" },
   "flour": { aisle: "baking", buyAs: "all-purpose flour", breaks: GLUTEN },
   "all-purpose flour": { aisle: "baking", breaks: GLUTEN },
   "cornmeal": { aisle: "baking" },
@@ -285,6 +299,7 @@ export const PANTRY: Record<string, Purchase> = {
   "freeze-dried blueberries": { aisle: "baking" },
 
   // --- oils & condiments ---------------------------------------------------
+  "Worcestershire sauce": { aisle: "condiments" },
   "neutral oil": { aisle: "condiments" },
   "corn oil or neutral oil": { aisle: "condiments", buyAs: "neutral oil" },
   "lard or neutral oil": { aisle: "condiments", buyAs: "neutral oil", breaks: FLESH },
@@ -316,6 +331,7 @@ export const PANTRY: Record<string, Purchase> = {
   "mole paste": { aisle: "condiments" },
 
   // --- frozen --------------------------------------------------------------
+  "frozen shredded hash browns": { aisle: "frozen", buyAs: "frozen hash browns" },
   "frozen peas": { aisle: "frozen" },
   "frozen wild blueberries": { aisle: "frozen" },
   "vanilla ice cream": { aisle: "frozen", breaks: DAIRY },
