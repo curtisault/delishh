@@ -987,8 +987,12 @@ QUERY ▸ caram_
   it keeps in (§06). Absent when the recipe has never said: nothing
   stands in for an unstated life, because a hedge in that slot is the
   archive filling a silence it has no right to fill.
-- **Default sort is last tested.** The archive's own working order
-  beats the dictionary's.
+- **Default sort is by title, A to Z**, case ignored. *Amended
+  2026-10-18:* it was last tested, on the grounds that the archive's
+  own working order beats the dictionary's. Past a screenful that
+  stopped being true — a reader comes to the shelf for a dish they
+  already know by name, and a day's cooking landed as one clump at
+  the top, all sharing a date.
 - **Zero results is designed copy with an action:**
   `NOTHING MATCHES. CLOSEST BY TIME ▸`. A dead end is a design
   failure, not an edge case.

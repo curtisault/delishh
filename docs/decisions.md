@@ -412,6 +412,15 @@ key), each mounted live in the line as built, in both lightings.
 | What it does | **Empties the query and puts the caret back** (`Main.ClearQuery`, `Browser.Dom.focus`). The console keeps its state: clearing is not typing, so it opens nothing, and a reader who opened it keeps it. The console's dimmed words return on their own, since the query that dimmed them is gone | Clearing the facets too (that is CLEAR ALL on the active bar, a different press); closing the console (a state the reader set) |
 | The floor | **The transparent overlay** (§12), since it is inline in the line and growing it would carry its rule to the foot of a 2.75rem box. Listed in `tap_test.ts` | Growing (the printer fold's reason, again) |
 
+## Ruled 2026-10-18, at the shelf's order
+
+Ruled by the reader once the corpus reached 28, the day seven
+casseroles landed with one tested date between them. §07 amended.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| The default order | **By title, A to Z, case ignored; the slug breaks a tie.** `Shelf.ranked` sorts on it and `build-content.ts` writes the index in the same order, so the JSON and the shelf never disagree. Shown rows still come before excluded ones | Last tested, newest first (the order this replaces: right while the shelf fit on a screen, wrong once a reader scrolls for a name, and a batch cooked in one day reads as one clump); a sort control (a choice nobody asked for, and a second state to carry) |
+
 ## Open — deferred, not decided
 
 Carried out of the plans' *Open items*. Each is a decision **not to

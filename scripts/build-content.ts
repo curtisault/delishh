@@ -236,7 +236,7 @@ async function main() {
         .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
     },
     recipes: [...recipes]
-      .sort((a, b) => (a.tested < b.tested ? 1 : a.tested > b.tested ? -1 : a.slug.localeCompare(b.slug)))
+      .sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }) || a.slug.localeCompare(b.slug))
       .map((r) => ({
         slug: r.slug,
         title: r.title,

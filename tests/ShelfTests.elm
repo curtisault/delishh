@@ -193,17 +193,34 @@ suite =
                         |> Expect.equal (Excluded [])
             ]
         , describe "order"
-            [ test "default sort is last tested, newest first" <|
+            [ test "default sort is by title, A to Z" <|
                 \_ ->
-                    -- The archive's own working order beats the
-                    -- dictionary's (DS-01 §07).
+                    -- DS-01 §07, amended 2026-10-18.
                     Shelf.ranked Shelf.noFilters corpus
                         |> List.map (Tuple.first >> .slug)
                         |> Expect.equal [ "fridge-pickles", "salted-caramel" ]
+            , test "the tested date does not order the shelf" <|
+                \_ ->
+                    -- The newest recipe, titled last, stays last.
+                    Shelf.ranked Shelf.noFilters
+                        [ { pickles | title = "Zucchini Pickles", tested = "2026-10-18" }, caramel ]
+                        |> List.map (Tuple.first >> .slug)
+                        |> Expect.equal [ "salted-caramel", "fridge-pickles" ]
+            , test "case does not order the shelf" <|
+                \_ ->
+                    Shelf.ranked Shelf.noFilters
+                        [ { caramel | title = "salted caramel" }, { pickles | title = "Toffee" } ]
+                        |> List.map (Tuple.first >> .slug)
+                        |> Expect.equal [ "salted-caramel", "fridge-pickles" ]
+            , test "the slug breaks a tie between titles" <|
+                \_ ->
+                    Shelf.ranked Shelf.noFilters [ recipe "b", recipe "a" |> (\r -> { r | title = "b" }) ]
+                        |> List.map (Tuple.first >> .slug)
+                        |> Expect.equal [ "a", "b" ]
             , test "shown rows come before excluded ones" <|
                 \_ ->
-                    -- Pickles are newer, so only the filter can put
-                    -- caramel first.
+                    -- Pickles come first by title, so only the filter
+                    -- can put caramel first.
                     Shelf.ranked (with Shelf.ByFlavor "sweet") corpus
                         |> List.map (Tuple.first >> .slug)
                         |> Expect.equal [ "salted-caramel", "fridge-pickles" ]
