@@ -475,6 +475,64 @@
   text-decoration: none;
 }
 
+/* The way back and the way to send it (DS-01 §06, amended
+   2026-10-21): BACK and SHARE above the plate, in the way-back link's
+   dress — the words and a volt rule, no body — because neither is
+   about the dish, and the action row's three faces stay three. The
+   button is dressed down to match the link exactly. Inline in a line,
+   so each meets the tap floor with the transparent overlay (§12). */
+.recipe-way {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1.5rem;
+}
+.recipe-way-link {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0.1rem;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid var(--accent);
+  color: var(--tx);
+  font-size: 0.62rem;
+  line-height: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.recipe-way-link::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: min(0px, calc((100% - var(--tap)) / 2));
+  right: min(0px, calc((100% - var(--tap)) / 2));
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+/* What the last press did. Empty, it is out of the flow, so the row
+   stays two ends and no gap; said, it takes a line of its own under
+   SHARE. Never `display: contents`, which drops the live region from
+   the accessibility tree in some browsers. */
+.recipe-way-said {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--tx-dim);
+}
+.recipe-way-said:empty {
+  position: absolute;
+}
+.recipe-way-said:not(:empty) {
+  flex-basis: 100%;
+  text-align: right;
+}
+.recipe-way-address {
+  color: var(--tx);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
 /* ---------- narrow ----------
    One tier, in rem, no device detection. Nothing clips and nothing
    hides behind a gesture. */
@@ -576,7 +634,8 @@
 .scaler-btn:focus-visible,
 .printer-btn:focus-visible,
 .printer-toggle:focus-visible,
-.recipe-back:focus-visible {
+.recipe-back:focus-visible,
+.recipe-way-link:focus-visible {
   outline: 3px solid var(--tx);
   outline-offset: 2px;
 }

@@ -184,6 +184,7 @@ Deno.test("screen controls do not print", () => {
       ".scaler",
       ".printer",
       ".recipe-back",
+      ".recipe-way",
       ".recipe-nav",
       ".cook-enter",
     ]

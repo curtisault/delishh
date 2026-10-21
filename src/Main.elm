@@ -134,6 +134,20 @@ rule).
 port planShared : (String -> msg) -> Sub msg
 
 
+{-| A recipe's address, out from its SHARE press: `{ title, url }`.
+boot.js offers the share sheet, or copies the address where there is
+none, and calls either before anything is awaited — Safari refuses
+both outside the press.
+-}
+port shareRecipe : E.Value -> Cmd msg
+
+
+{-| What that press did, back: shared, copied, refused, unsupported,
+failed. Reported, never assumed, like the picture's.
+-}
+port recipeShared : (String -> msg) -> Sub msg
+
+
 {-| Which section the reader is currently inside, reported by boot.js.
 
 This is a port because `elm/browser` has no scroll subscription — it
@@ -378,6 +392,11 @@ type alias Model =
     , pickerPlaced : Maybe Plan.Day
     , pickerRefused : Maybe Plan.Day
 
+    -- what the recipe page's SHARE last did, when the reader needs
+    -- telling. Page state: a "Link copied." about the last recipe
+    -- would be a sentence about the wrong link
+    , recipeSent : Maybe Page.Recipe.Sent
+
     -- the shared picture, which draw it is waiting for, and what the
     -- last share or copy did. Dropped by any change to the week, the
     -- theme, or the route: a picture of last minute's week is a
@@ -467,6 +486,7 @@ init flags url key =
       , pickerOpen = False
       , pickerPlaced = Nothing
       , pickerRefused = Nothing
+      , recipeSent = Nothing
       , picture = Page.Plan.NotMade
       , pictureGen = 0
       , pictureOutcome = Nothing
@@ -734,6 +754,8 @@ type Msg
     | SharePicture
     | CopyPicture
     | PictureShared String
+    | ShareRecipe
+    | RecipeShared String
     | RouletteInput String
     | RouletteAdd
     | RouletteRemove String
@@ -914,6 +936,12 @@ update msg model =
 
                             else
                                 model.pickerRefused
+                        , recipeSent =
+                            if arrived then
+                                Nothing
+
+                            else
+                                model.recipeSent
                         , spin =
                             if arrived then
                                 Roulette.Idle
@@ -1318,6 +1346,24 @@ update msg model =
         PictureShared word ->
             ( { model | pictureOutcome = Just (Page.Plan.outcomeFromString word) }, Cmd.none )
 
+        ShareRecipe ->
+            case model.recipe of
+                Fetched r ->
+                    ( { model | recipeSent = Nothing }
+                    , shareRecipe
+                        (E.object
+                            [ ( "title", E.string r.title )
+                            , ( "url", E.string (model.origin ++ Route.toPath (Route.Recipe r.slug)) )
+                            ]
+                        )
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        RecipeShared word ->
+            ( { model | recipeSent = Page.Recipe.sentFromString word }, Cmd.none )
+
         RouletteInput typed ->
             ( { model | rouletteEntry = typed, rouletteRefusal = Nothing }, Cmd.none )
 
@@ -1544,6 +1590,7 @@ subscriptions model =
         -- share sheet stays open as long as the reader leaves it.
         , planPicture GotPicture
         , planShared PictureShared
+        , recipeShared RecipeShared
         , case model.timer of
             Just _ ->
                 Time.every 1000 Tick
@@ -1902,6 +1949,8 @@ page model =
                                 , onDay = PickerDay
                                 , onLabel = PickerLabel
                                 }
+                            , onShare = ShareRecipe
+                            , sent = model.recipeSent
                             , origin = model.origin
                             , today = model.today
 

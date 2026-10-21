@@ -95,6 +95,8 @@ rendered recipe active =
             , onPrepCard = ()
             , inList = False
             , onToggleList = ()
+            , onShare = ()
+            , sent = Nothing
             , planner = noPlanner Plan.empty
             , origin = "https://delishh.test"
             , today = "2026-09-20"
@@ -106,6 +108,33 @@ rendered recipe active =
 plain : Query.Single ()
 plain =
     rendered full Nothing
+
+
+{-| The page after a SHARE press came back saying `sent`.
+-}
+sharing : Maybe Page.Recipe.Sent -> Query.Single ()
+sharing sent =
+    Query.fromHtml
+        (Page.Recipe.view
+            { recipe = full
+            , factor = Scale.one
+            , onScale = always ()
+            , form = Print.Sheet
+            , onForm = always ()
+            , prepCard = False
+            , printerOpen = False
+            , onPrinter = ()
+            , onPrepCard = ()
+            , inList = False
+            , onToggleList = ()
+            , onShare = ()
+            , sent = sent
+            , planner = noPlanner Plan.empty
+            , origin = "https://delishh.test"
+            , today = "2026-09-20"
+            , active = Nothing
+            }
+        )
 
 
 {-| The page with the print fold open or closed and the prep card on
@@ -126,6 +155,8 @@ printing open prep =
             , onPrinter = ()
             , inList = False
             , onToggleList = ()
+            , onShare = ()
+            , sent = Nothing
             , planner = noPlanner Plan.empty
             , origin = "https://delishh.test"
             , today = "2026-09-20"
@@ -151,6 +182,8 @@ listed =
             , onPrepCard = ()
             , inList = True
             , onToggleList = ()
+            , onShare = ()
+            , sent = Nothing
             , planner = noPlanner Plan.empty
             , origin = "https://delishh.test"
             , today = "2026-09-20"
@@ -189,6 +222,8 @@ planned planner =
             , onPrepCard = ()
             , inList = False
             , onToggleList = ()
+            , onShare = ()
+            , sent = Nothing
             , planner = planner
             , origin = "https://delishh.test"
             , today = "2026-09-20"
@@ -241,6 +276,8 @@ navAnchors recipe =
         , onPrepCard = ()
         , inList = False
         , onToggleList = ()
+        , onShare = ()
+        , sent = Nothing
         , planner = noPlanner Plan.empty
         , origin = "https://delishh.test"
         , today = "2026-09-20"
@@ -346,6 +383,69 @@ suite =
                         |> Query.children []
                         |> Query.index -1
                         |> Query.has [ Selector.class "cook-enter" ]
+            ]
+        , describe "the way back and the share — DS-01 §06, amended 2026-10-21"
+            [ test "BACK is a real link to the shelf" <|
+                \_ ->
+                    -- boot.js makes a plain press a step back through
+                    -- history; the address is what a new tab, a
+                    -- landing with nothing behind it, and no script get
+                    plain
+                        |> Query.find [ Selector.tag "a", Selector.class "recipe-way-link" ]
+                        |> Query.has [ Selector.attribute (Attr.href "/"), Selector.text "Back" ]
+            , test "and it is marked as the way back, or boot.js passes it by" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.tag "a", Selector.class "recipe-way-link" ]
+                        |> Query.has [ Selector.attribute (Attr.attribute "data-way-back" "") ]
+            , test "SHARE is a button, not a link" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.tag "button", Selector.class "recipe-way-link" ]
+                        |> Query.has [ Selector.text "Share" ]
+            , test "it is not a fourth face in the action row" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "recipe-actions" ]
+                        |> Query.hasNot [ Selector.class "recipe-way-link" ]
+            , test "it leads the plate" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "recipe-plate" ]
+                        |> Query.children []
+                        |> Query.index 0
+                        |> Query.has [ Selector.class "recipe-way" ]
+            , test "a sheet that opened says nothing" <|
+                \_ ->
+                    sharing (Page.Recipe.sentFromString "shared")
+                        |> Query.find [ Selector.class "recipe-way-said" ]
+                        |> Query.children []
+                        |> Query.count (Expect.equal 0)
+            , test "nor does one the reader closed" <|
+                \_ ->
+                    Page.Recipe.sentFromString "refused"
+                        |> Expect.equal Nothing
+            , test "a copied link says so" <|
+                \_ ->
+                    sharing (Page.Recipe.sentFromString "copied")
+                        |> Query.find [ Selector.class "recipe-way-said" ]
+                        |> Query.has [ Selector.text "Link copied." ]
+            , test "a browser that can do neither shows the plain address" <|
+                \_ ->
+                    -- a control that did nothing must not be the end
+                    -- of it: the address is the share, by hand
+                    sharing (Page.Recipe.sentFromString "unsupported")
+                        |> Query.find [ Selector.class "recipe-way-address" ]
+                        |> Query.has [ Selector.text "https://delishh.test/recipe/salted-caramel" ]
+            , test "and so does one that failed" <|
+                \_ ->
+                    Page.Recipe.sentFromString "failed"
+                        |> Expect.equal (Just Page.Recipe.Unsent)
+            , test "the sentence is a live region before it has anything to say" <|
+                \_ ->
+                    plain
+                        |> Query.find [ Selector.class "recipe-way-said" ]
+                        |> Query.has [ Selector.attribute (Attr.attribute "role" "status") ]
             ]
         , describe "the print fold — docs/decisions.md, 2026-10-05"
             [ test "closed, the press says what it will show" <|

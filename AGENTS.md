@@ -381,6 +381,15 @@ fixture must never drift under the suite. Keep it parsing.
     the view lying about the reader's own query. It also refuses to
     mark anything when case-folding changes a string's length: the
     wrong letters filled is worse than none.
+- `src/wayback.js` — the recipe page's BACK and cook mode's EXIT
+  (`data-way-back`), ruled 2026-10-21. **Not `history.back()`**: every
+  side-nav anchor is a pushed entry, and a recipe opened from a
+  message has nothing of ours behind it. boot.js wraps
+  `pushState`/`replaceState` before Elm boots so each entry carries
+  how many steps back the nearest different page is; a plain press
+  goes that far, or follows the link's own address when it is 0.
+  Elm's `Nav.pushUrl` writes an empty state it never reads — that is
+  the room this uses. `wayback_test.ts` walks it.
 - `src/Cook.elm` / `src/Page/Cook.elm` — cook mode, at
   `/recipe/<slug>/cook`. Four things that look like details and are
   not:
