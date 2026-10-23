@@ -323,7 +323,15 @@ console config =
                 , span [ class "con-caret", attribute "aria-hidden" "true" ] []
                 ]
             , span [ class "con-what" ]
-                [ text "meal, flavour, effort, needs or place"
+                [ -- The sentence says the state in words as well as
+                  -- shapes (2026-10-23): closed, what is behind the
+                  -- line; open, what the lines beneath are for, and
+                  -- that this same line puts them away.
+                  if config.console then
+                    text "Press a word to filter · close"
+
+                  else
+                    text "meal, flavour, effort, needs or place"
 
                 -- The cursor: a console waiting for you. It blinks
                 -- whenever the console is closed and is gone while
