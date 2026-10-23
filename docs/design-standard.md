@@ -940,7 +940,7 @@ a fifth, since 2026-10-04, for the dish you are trying to get back to:
 
 > **Amendment 2026-10-04 — the console: the paths without tiles.**
 > The five paths are no longer tiles. They are a **console**: one
-> line under the query, `FILTER ▸ by meal, flavour, effort, needs or place`, with a count beside it once anything is on, and when it
+> line under the query, `FILTER ▸ meal, flavour, effort, needs or place` (*by* dropped 2026-10-23, to seat a caret you can see), with a count beside it once anything is on, and when it
 > is open five lines, one per path, the path's noun with its acid as
 > a bar and its words set in the data voice as presses. Text only.
 > The words are the controls, every word of every path is on screen

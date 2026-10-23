@@ -309,7 +309,32 @@
    acid as a word where the ground can carry it, ink where it cannot
    (`--data-accent`, see the query line). */
 .con-k {
+  flex: none;
+  white-space: nowrap;
   color: var(--data-accent);
+}
+/* The caret: a triangle in the label's ink, drawn with borders so its
+   size is set here rather than by a font's small `▸`, which read as a
+   speck. Turned a quarter down while the console is open. A shape, so
+   it says the state to a reader who asked for calm as plainly as to
+   one who sees it turn. */
+.con-caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 0.4rem;
+  vertical-align: 0.05em;
+  border-left: 0.5rem solid currentColor;
+  border-top: 0.32rem solid transparent;
+  border-bottom: 0.32rem solid transparent;
+}
+.console.open .con-caret {
+  transform: rotate(90deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .con-caret {
+    transition: transform 150ms ease-out;
+  }
 }
 .con-what {
   font-family: var(--font-body);
