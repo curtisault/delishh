@@ -287,7 +287,26 @@
 /* On the plate, under the query line: one instrument, two rows, the
    plate's rule beneath both. */
 .console {
+  position: relative;
   margin-top: 0.6rem;
+}
+/* The tether (2026-10-23): open, the key's outline carries on down
+   the panel's right edge to the rule beneath, so the lines read as
+   having opened out of the key rather than sitting under the line.
+   The right edge, because the left is where every row wears its
+   acid. It starts at the key's foot: the key is 2rem, centred in a
+   line of --tap, so its foot is half their sum below the top. It
+   runs on through the plate's 0.6rem padding-bottom to meet the
+   plate's rule: change one, change the other. */
+.console.open::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: calc((var(--tap) + 2rem) / 2);
+  bottom: -0.6rem;
+  width: 1.5px;
+  background: var(--rule);
+  pointer-events: none;
 }
 .con-line {
   width: 100%;
@@ -428,7 +447,9 @@
   grid-template-columns: 5.2rem minmax(0, 1fr);
   gap: 0 0.6rem;
   align-items: start;
-  padding: 0.2rem 0;
+  /* the right padding keeps the words clear of the tether while each
+     row's hairline still runs to meet it */
+  padding: 0.2rem 0.6rem 0.2rem 0;
   border-bottom: 1px solid var(--hairline);
 }
 @media (min-width: 34rem) {
@@ -541,8 +562,8 @@
 }
 
 /* ---------- the console's motion ---------- DS-01 §10.
-   A response to a hand: the press that opened it, or the first
-   letter typed. Five lines cut in 40ms apart and the head sweeps
+   A response to a hand: the press that opened it (only that, since
+   2026-10-22). Five lines cut in 40ms apart and the head sweeps
    down in five steps, all of it done by 200ms; nothing travels, and
    the open console is the same console a reader who asked for calm
    gets at once.
