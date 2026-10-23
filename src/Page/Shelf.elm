@@ -354,9 +354,8 @@ console config =
               else
                 span [ class "con-count mono" ] [ text (String.fromInt on ++ " on") ]
 
-            -- The keycap: the one stencil block on the line, so the
-            -- eye finds it with no motion at all, carrying a drawn
-            -- sliders mark. Open, it goes from filled to outlined and
+            -- The keycap, at the line's end, carrying a drawn sliders
+            -- mark. Open, it goes from outlined to filled and
             -- the mark becomes an ×: what a press will do.
             -- Hidden from assistive tech: the button's
             -- `aria-expanded` already says what it says.

@@ -386,9 +386,9 @@
   vertical-align: -0.18em;
   background: var(--data-accent);
 }
-/* THE KEYCAP. The one stencil block on the line, at its right end:
-   found by the eye with no motion at all, which is what a reader who
-   asked for calm gets in place of the blink. It carries a sliders
+/* THE KEYCAP. The key at the line's right end. For a reader who
+   asked for calm, the still cues to the closed line are the key's
+   box, the caret and the sentence, in place of the blink. It carries a sliders
    mark — three rails, a knob on each at a different setting — the
    common sign for filters, and a mixing desk's, which is the console
    this line is.
@@ -397,11 +397,14 @@
    `currentColor`, so it takes the key's ink in both lightings and
    there is no colour in the drawing to drift from theme.css.
 
-   Open, the key goes from filled to outlined, and its mark from the
-   sliders to an ×: the key shows what a press will do, open or
-   close (2026-10-22). Both are shapes, not only a colour. It is part
-   of the line's press, not a second control, so the line's whole
-   width stays the target. */
+   Closed, the key is outlined; open, it is filled — pressed in, the
+   way a switch that is on reads (2026-10-23; it was the other way
+   round, and filled read as *on* while the console was shut). Its
+   mark goes from the sliders to an ×: the key shows what a press
+   will do. Both are shapes, not only a colour. It is part of the
+   line's press, not a second control, so the line's whole width
+   stays the target. `--rule` and `--stencil-bg` are one ink in both
+   themes, so the filled key and the tether below it join. */
 .con-key {
   flex: none;
   display: inline-flex;
@@ -409,14 +412,14 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border: 1.5px solid var(--stencil-bg);
-  background: var(--stencil-bg);
-  color: var(--stencil-tx);
-}
-.console.open .con-key {
+  border: 1.5px solid var(--rule);
   background: transparent;
   color: var(--tx);
-  border-color: var(--rule);
+}
+.console.open .con-key {
+  border-color: var(--stencil-bg);
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
 }
 .con-key-mark {
   width: 1.1rem;
