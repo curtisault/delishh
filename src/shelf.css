@@ -287,7 +287,26 @@
 /* On the plate, under the query line: one instrument, two rows, the
    plate's rule beneath both. */
 .console {
+  position: relative;
   margin-top: 0.6rem;
+}
+/* The tether (2026-10-23): open, the key's outline carries on down
+   the panel's right edge to the rule beneath, so the lines read as
+   having opened out of the key rather than sitting under the line.
+   The right edge, because the left is where every row wears its
+   acid. It starts at the key's foot: the key is 2rem, centred in a
+   line of --tap, so its foot is half their sum below the top. It
+   runs on through the plate's 0.6rem padding-bottom to meet the
+   plate's rule: change one, change the other. */
+.console.open::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: calc((var(--tap) + 2rem) / 2);
+  bottom: -0.6rem;
+  width: 1.5px;
+  background: var(--rule);
+  pointer-events: none;
 }
 .con-line {
   width: 100%;
@@ -309,7 +328,32 @@
    acid as a word where the ground can carry it, ink where it cannot
    (`--data-accent`, see the query line). */
 .con-k {
+  flex: none;
+  white-space: nowrap;
   color: var(--data-accent);
+}
+/* The caret: a triangle in the label's ink, drawn with borders so its
+   size is set here rather than by a font's small `▸`, which read as a
+   speck. Turned a quarter down while the console is open. A shape, so
+   it says the state to a reader who asked for calm as plainly as to
+   one who sees it turn. */
+.con-caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 0.4rem;
+  vertical-align: 0.05em;
+  border-left: 0.5rem solid currentColor;
+  border-top: 0.32rem solid transparent;
+  border-bottom: 0.32rem solid transparent;
+}
+.console.open .con-caret {
+  transform: rotate(90deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .con-caret {
+    transition: transform 150ms ease-out;
+  }
 }
 .con-what {
   font-family: var(--font-body);
@@ -342,9 +386,9 @@
   vertical-align: -0.18em;
   background: var(--data-accent);
 }
-/* THE KEYCAP. The one stencil block on the line, at its right end:
-   found by the eye with no motion at all, which is what a reader who
-   asked for calm gets in place of the blink. It carries a sliders
+/* THE KEYCAP. The key at the line's right end. For a reader who
+   asked for calm, the still cues to the closed line are the key's
+   box, the caret and the sentence, in place of the blink. It carries a sliders
    mark — three rails, a knob on each at a different setting — the
    common sign for filters, and a mixing desk's, which is the console
    this line is.
@@ -353,9 +397,14 @@
    `currentColor`, so it takes the key's ink in both lightings and
    there is no colour in the drawing to drift from theme.css.
 
-   Open, the key goes from filled to outlined: a shape, not only a
-   colour. It is part of the line's press, not a second control, so
-   the line's whole width stays the target. */
+   Closed, the key is outlined; open, it is filled — pressed in, the
+   way a switch that is on reads (2026-10-23; it was the other way
+   round, and filled read as *on* while the console was shut). Its
+   mark goes from the sliders to an ×: the key shows what a press
+   will do. Both are shapes, not only a colour. It is part of the
+   line's press, not a second control, so the line's whole width
+   stays the target. `--rule` and `--stencil-bg` are one ink in both
+   themes, so the filled key and the tether below it join. */
 .con-key {
   flex: none;
   display: inline-flex;
@@ -363,14 +412,14 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border: 1.5px solid var(--stencil-bg);
-  background: var(--stencil-bg);
-  color: var(--stencil-tx);
-}
-.console.open .con-key {
+  border: 1.5px solid var(--rule);
   background: transparent;
   color: var(--tx);
-  border-color: var(--rule);
+}
+.console.open .con-key {
+  border-color: var(--stencil-bg);
+  background: var(--stencil-bg);
+  color: var(--stencil-tx);
 }
 .con-key-mark {
   width: 1.1rem;
@@ -379,6 +428,13 @@
   -webkit-mask: var(--sliders-mark) center / contain no-repeat;
   mask: var(--sliders-mark) center / contain no-repeat;
   --sliders-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 4.5h20v2H2zM2 11h20v2H2zM2 17.5h20v2H2z'/%3E%3Cpath d='M14 2h4v7h-4zM5 8.5h4v7H5zM11 15h4v7h-4z'/%3E%3C/svg%3E");
+  /* the ×: two strokes at the knobs' weight, so it is as dark a mark
+     as the sliders it replaces */
+  --close-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 5l14 14M19 5L5 19' stroke='black' stroke-width='3.2'/%3E%3C/svg%3E");
+}
+.console.open .con-key-mark {
+  -webkit-mask-image: var(--close-mark);
+  mask-image: var(--close-mark);
 }
 .con-line:focus-visible {
   outline: 3px solid var(--tx);
@@ -394,7 +450,9 @@
   grid-template-columns: 5.2rem minmax(0, 1fr);
   gap: 0 0.6rem;
   align-items: start;
-  padding: 0.2rem 0;
+  /* the right padding keeps the words clear of the tether while each
+     row's hairline still runs to meet it */
+  padding: 0.2rem 0.6rem 0.2rem 0;
   border-bottom: 1px solid var(--hairline);
 }
 @media (min-width: 34rem) {
@@ -507,8 +565,8 @@
 }
 
 /* ---------- the console's motion ---------- DS-01 §10.
-   A response to a hand: the press that opened it, or the first
-   letter typed. Five lines cut in 40ms apart and the head sweeps
+   A response to a hand: the press that opened it (only that, since
+   2026-10-22). Five lines cut in 40ms apart and the head sweeps
    down in five steps, all of it done by 200ms; nothing travels, and
    the open console is the same console a reader who asked for calm
    gets at once.

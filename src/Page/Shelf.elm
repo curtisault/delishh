@@ -278,7 +278,7 @@ foldAt =
 
 {-| The five paths as a console — DS-01 §07 as amended 2026-10-04.
 
-Closed, it is one line: `FILTER ▸ by meal, flavour, effort, needs or place`, with a count beside it once anything is on. Open, it is
+Closed, it is one line: `FILTER ▸ meal, flavour, effort, needs or place`, with a count beside it once anything is on. Open, it is
 five lines, one per path, the path's noun with its acid as a bar and
 its words set in the data voice as presses. Text only: the words are
 the controls, and a word that is on wears the stencil.
@@ -308,9 +308,30 @@ console config =
             , attribute "aria-controls" "con-rows"
             , onClick config.onConsole
             ]
-            [ span [ class "con-k mono u" ] [ text "Filter" ]
+            [ span [ class "con-k mono u" ]
+                [ text "Filter"
+
+                -- The caret, the query line's `▸` drawn at a size the
+                -- glyph cannot reach (a font's small triangle is half
+                -- an x-height, and read as a speck): pointing along
+                -- the line closed, turned down to the lines beneath
+                -- open. The universal mark of a thing that unfolds, at
+                -- the start of the line where the eye begins
+                -- (2026-10-22). Inside the label, not a flex item of
+                -- its own: a third gap is what pushed the sentence
+                -- onto a second line at a phone's width.
+                , span [ class "con-caret", attribute "aria-hidden" "true" ] []
+                ]
             , span [ class "con-what" ]
-                [ text "by meal, flavour, effort, needs or place"
+                [ -- The sentence says the state in words as well as
+                  -- shapes (2026-10-23): closed, what is behind the
+                  -- line; open, what the lines beneath are for, and
+                  -- that this same line puts them away.
+                  if config.console then
+                    text "Press a word to filter · close"
+
+                  else
+                    text "meal, flavour, effort, needs or place"
 
                 -- The cursor: a console waiting for you. It blinks
                 -- whenever the console is closed and is gone while
@@ -333,9 +354,9 @@ console config =
               else
                 span [ class "con-count mono" ] [ text (String.fromInt on ++ " on") ]
 
-            -- The keycap: the one stencil block on the line, so the
-            -- eye finds it with no motion at all, carrying a drawn
-            -- sliders mark. Open, it goes from filled to outlined.
+            -- The keycap, at the line's end, carrying a drawn sliders
+            -- mark. Open, it goes from outlined to filled and
+            -- the mark becomes an ×: what a press will do.
             -- Hidden from assistive tech: the button's
             -- `aria-expanded` already says what it says.
             , span [ class "con-key", attribute "aria-hidden" "true" ]
