@@ -286,9 +286,8 @@ the controls, and a word that is on wears the stencil.
 **The console reads the query.** A non-empty query marks the letters
 it reached in every word, the same mark the rows wear, and dims the
 words it did not reach — dims, never removes, because a reader who
-cannot see a word cannot tell *no such place* from *mistyped*. The
-shell also opens the console on the first letter typed, since typing
-is a hand reaching for it.
+cannot see a word cannot tell *no such place* from *mistyped*. Typing
+never opens or closes it; only its own press does (2026-10-22).
 
 The lines are rendered only while open, and the stagger they arrive
 with is CSS on a fresh element (`@starting-style`), so a reader who

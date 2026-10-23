@@ -953,8 +953,9 @@ a fifth, since 2026-10-04, for the dish you are trying to get back to:
 > words it did not reach — dims, never removes, because a word the
 > reader cannot see is one they cannot tell *no such place* from
 > *mistyped* about; and the fold never hides a word the query reaches
-> or a word that is on. **It opens on the first letter typed**, since
-> typing is a hand reaching for it. Every word is a 2.75rem control
+> or a word that is on. **Only its own press opens or closes it**
+> (amended 2026-10-22; it had opened on the first letter typed):
+> typing leaves it as it was. Every word is a 2.75rem control
 > with no edge, so the lines are 2.75rem apart, which is the honest
 > height of twenty-four targets. The tiles went because they cost
 > three rows of a phone's first screen to say five words, and opened
