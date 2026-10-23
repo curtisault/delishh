@@ -365,8 +365,8 @@ fixture must never drift under the suite. Keep it parsing.
     `needles` the judgement uses, and **dims unmatched words, never
     removes them**. The lines are rendered only while open, so their
     stagger starts from `@starting-style`; without it the transition
-    has no first state and the lines simply appear. The first letter
-    typed opens it (`Main.ShelfQuery`), and only the first. The
+    has no first state and the lines simply appear. **Typing never
+    opens or closes it** (2026-10-22); only its own press does. The
     closed line ends in a blinking cursor and a keycap with a drawn
     sliders mark (a CSS mask, like the install press's). The cursor
     shows whenever the console is closed.

@@ -1460,26 +1460,16 @@ update msg model =
             ( { model | filters = Shelf.toggle p value model.filters }, Cmd.none )
 
         ShelfQuery q ->
-            -- The first letter typed opens the console: typing is a
-            -- hand reaching for the words, and the console marks
-            -- where the query landed in them. Only the first — a
-            -- reader who closed it while typing keeps it closed.
-            let
-                opens =
-                    model.console
-                        || (String.isEmpty model.filters.query && not (String.isEmpty q))
-            in
-            ( { model
-                | filters = (\f -> { f | query = q }) model.filters
-                , console = opens
-              }
+            -- Typing never opens or closes the console
+            -- (docs/decisions.md, 2026-10-22): only its own press
+            -- does. Open, it still marks where the query landed.
+            ( { model | filters = (\f -> { f | query = q }) model.filters }
             , Cmd.none
             )
 
         ClearQuery ->
-            -- The query line's CLEAR. The console stays as it is: a
-            -- reader who opened it keeps it, and clearing is not
-            -- typing, so it does not open one that is closed. The
+            -- The query line's CLEAR. The console stays as it is, as
+            -- it does for typing: only its own press moves it. The
             -- caret goes back to the field, because the press that
             -- emptied it took the focus with it.
             ( { model | filters = (\f -> { f | query = "" }) model.filters }
