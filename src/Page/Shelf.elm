@@ -335,7 +335,8 @@ console config =
 
             -- The keycap: the one stencil block on the line, so the
             -- eye finds it with no motion at all, carrying a drawn
-            -- sliders mark. Open, it goes from filled to outlined.
+            -- sliders mark. Open, it goes from filled to outlined and
+            -- the mark becomes an ×: what a press will do.
             -- Hidden from assistive tech: the button's
             -- `aria-expanded` already says what it says.
             , span [ class "con-key", attribute "aria-hidden" "true" ]

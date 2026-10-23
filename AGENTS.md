@@ -368,7 +368,8 @@ fixture must never drift under the suite. Keep it parsing.
     has no first state and the lines simply appear. **Typing never
     opens or closes it** (2026-10-22); only its own press does. The
     closed line ends in a blinking cursor and a keycap with a drawn
-    sliders mark (a CSS mask, like the install press's). The cursor
+    sliders mark (a CSS mask, like the install press's); open, the
+    mark is an × (2026-10-22). The cursor
     shows whenever the console is closed.
   - **`pathLabel` and `pathNoun` are different words on purpose.**
     The console line and the active bar say "flavour" and "By

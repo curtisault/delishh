@@ -448,6 +448,17 @@ query and the rows.
 |----------|--------|----------------------|
 | What opens the console | **Only its own press.** Typing and CLEAR leave it as it was. Open, it still marks where the query landed in its words; closed, the rows are the answer | Opening on the first letter (the ruling this replaces, in the archive); opening once a query reaches a word in it (the same surprise, later) |
 
+## Ruled 2026-10-22, at the console's state
+
+The reader could not tell the console open from closed: the line read
+the same either way, and the only sign was the keycap's fill, which
+read backwards (filled reads *on*). Five changes were proposed and
+taken one at a time, each approved on the live page before the next.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| The key's mark | **The mark says what a press will do: the sliders closed, an × open.** A second CSS mask, `--close-mark`, two strokes at the knobs' weight so it is as dark a mark as the sliders; the first cut, at the rails' weight, read faint beside them | One mark in both states (the state left to the fill alone) |
+
 ## Open — deferred, not decided
 
 Carried out of the plans' *Open items*. Each is a decision **not to

@@ -353,9 +353,11 @@
    `currentColor`, so it takes the key's ink in both lightings and
    there is no colour in the drawing to drift from theme.css.
 
-   Open, the key goes from filled to outlined: a shape, not only a
-   colour. It is part of the line's press, not a second control, so
-   the line's whole width stays the target. */
+   Open, the key goes from filled to outlined, and its mark from the
+   sliders to an ×: the key shows what a press will do, open or
+   close (2026-10-22). Both are shapes, not only a colour. It is part
+   of the line's press, not a second control, so the line's whole
+   width stays the target. */
 .con-key {
   flex: none;
   display: inline-flex;
@@ -379,6 +381,13 @@
   -webkit-mask: var(--sliders-mark) center / contain no-repeat;
   mask: var(--sliders-mark) center / contain no-repeat;
   --sliders-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 4.5h20v2H2zM2 11h20v2H2zM2 17.5h20v2H2z'/%3E%3Cpath d='M14 2h4v7h-4zM5 8.5h4v7H5zM11 15h4v7h-4z'/%3E%3C/svg%3E");
+  /* the ×: two strokes at the knobs' weight, so it is as dark a mark
+     as the sliders it replaces */
+  --close-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 5l14 14M19 5L5 19' stroke='black' stroke-width='3.2'/%3E%3C/svg%3E");
+}
+.console.open .con-key-mark {
+  -webkit-mask-image: var(--close-mark);
+  mask-image: var(--close-mark);
 }
 .con-line:focus-visible {
   outline: 3px solid var(--tx);
