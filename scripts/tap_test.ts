@@ -105,6 +105,7 @@ Deno.test("every control names the floor, one way or the other", () => {
     ["plan", ".plan-clear"],
     ["plan", ".plan-cancel"],
     ["recipe", ".plan-picker-link"],
+    ["recipe", ".recipe-way-link"],
     ["print", ".printer-toggle"],
     ["roulette", ".roulette-veto"],
     ["roulette", ".roulette-drop"],

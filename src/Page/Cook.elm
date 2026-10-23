@@ -266,9 +266,15 @@ header config =
     div [ id "cook-head", class "cook-head" ]
         [ div [ class "cook-head-row" ]
             [ h1 [ class "cook-title" ] [ text r.title ]
-            , a
+            , -- The way back (src/wayback.js): back through history to
+              -- the recipe it was entered from, so the recipe's own
+              -- BACK then reaches the shelf rather than this screen.
+              -- Opened from a link, there is nothing behind it, and
+              -- this is the recipe's address.
+              a
                 [ class "press-block cook-exit u"
                 , href ("/recipe/" ++ r.slug)
+                , attribute "data-way-back" ""
                 ]
                 [ text "Exit" ]
             ]

@@ -421,6 +421,22 @@ casseroles landed with one tested date between them. §07 amended.
 |----------|--------|----------------------|
 | The default order | **By title, A to Z, case ignored; the slug breaks a tie.** `Shelf.ranked` sorts on it and `build-content.ts` writes the index in the same order, so the JSON and the shelf never disagree. Shown rows still come before excluded ones | Last tested, newest first (the order this replaces: right while the shelf fit on a screen, wrong once a reader scrolls for a name, and a batch cooked in one day reads as one clump); a sort control (a choice nobody asked for, and a second state to carry) |
 
+## Ruled 2026-10-21, at the recipe page's way back and share
+
+Asked for by the reader after a design review on the live page at
+1440 and 390 px: on a phone the only way off a recipe was MENU, then
+HOME, and an installed app has no browser back. Mocked in the page
+before building. §06 amended.
+
+| Decision | Ruling | Rejected alternatives |
+|----------|--------|----------------------|
+| Where | **One line above the plate: BACK left, SHARE right**, in the way-back link's dress (`.recipe-way-link`), each meeting the tap floor with the overlay. The action row keeps exactly three faces | SHARE as a fourth press in the action row (four acids, and the row's rule is three); the site bar (a recipe's control in the shell's chrome); a sticky bar (chrome over the page on the one surface meant to be quiet) |
+| What BACK does | **History back, with the shelf as the fallback.** A real `<a href="/">` marked `data-way-back`; `src/wayback.js` stamps every entry the shell pushes with how many steps back the nearest *different page* is, and a plain press goes that far. Side-nav anchors are places on a page, so BACK walks past them; a landing entry carries nothing, so a recipe opened from a message goes to the shelf as a new page. The count rides in the entry's own state, so it is right whichever direction the reader arrived from and survives a reload. A modified click is the link's address | `history.back()` (walks up the recipe a section at a time; leaves the app from a shared link); tracking the previous route in Elm (wrong after the browser's own back — a recipe reached backwards would believe the shelf was behind it); always the shelf (grows the history, so the system back from the shelf returns to the recipe) |
+| Cook mode's EXIT | **The same way back.** Cook mode is entered only from its recipe, so EXIT steps back to it rather than pushing it again — otherwise the recipe's BACK would land in cook mode | Leaving EXIT a push |
+| What SHARE sends | **The plain address**, `origin + /recipe/<slug>`, with the title. Not the scale and not the form: what the reader set is for their own kitchen | The scale in the address (cook mode's URL already carries one for a bookmark) |
+| How | **The share sheet, else the clipboard, else the address on the page.** One port out (`shareRecipe`), one back (`recipeShared`), called before anything is awaited. A sheet that opened or was closed says nothing; a copy says *Link copied.*; neither shows the address in the data voice, selectable. Page state, dropped on arrival | Reusing the picture's port (its verbs act on a blob); a sentence after every share (the sheet is its own answer) |
+| A link into the installed app | **`launch_handler: navigate-existing`, then `auto`.** Where the app catches its links (Android; desktop Chrome where allowed), a tapped recipe opens in the window already open, at its address. Not `focus-existing`, which raises the window and leaves it where it was unless the page reads `launchQueue`. **iOS cannot:** a link always opens in Safari, and Safari cannot even tell the app is installed — separate storage. Nothing is built for it | `focus-existing` with a `launchQueue` consumer (a second navigation path for the same result); an "open in the app" banner on iOS (a guess about an install the page cannot see) |
+
 ## Open — deferred, not decided
 
 Carried out of the plans' *Open items*. Each is a decision **not to

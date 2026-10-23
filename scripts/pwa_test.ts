@@ -73,6 +73,14 @@ Deno.test("the manifest opens the whole site, standalone", () => {
   assertEquals(manifest.display, "standalone");
 });
 
+Deno.test("a caught link lands in the open window, at its address", () => {
+  // focus-existing would raise the window and leave it on whatever it
+  // was showing: a tapped recipe link that opens the shopping list.
+  assertEquals(manifest.launch_handler, {
+    client_mode: ["navigate-existing", "auto"],
+  });
+});
+
 Deno.test("the manifest's colours are theme.css's", () => {
   assertEquals(manifest.background_color, tokenIn(theme, "--surface"));
   assertEquals(manifest.theme_color, tokenIn(theme, "--stencil-bg"));

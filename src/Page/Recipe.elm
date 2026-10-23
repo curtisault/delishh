@@ -1,4 +1,4 @@
-module Page.Recipe exposing (Config, Planner, view, viewFailed, viewLoading)
+module Page.Recipe exposing (Config, Planner, Sent(..), sentFromString, view, viewFailed, viewLoading)
 
 {-| A recipe, rendered — DS-01 §06.
 
@@ -61,6 +61,10 @@ type alias Config msg =
 
     -- The week, and this recipe's place in it. See `Planner`.
     , planner : Planner msg
+
+    -- SHARE, and what the last press did. See `Sent`.
+    , onShare : msg
+    , sent : Maybe Sent
     , origin : String
     , today : String
 
@@ -91,6 +95,37 @@ type alias Planner msg =
     , onDay : Plan.Day -> msg
     , onLabel : Maybe Plan.Slot -> msg
     }
+
+
+
+{-| What a SHARE press did, when the reader needs telling.
+
+A share sheet is its own answer and a closed one is the reader's own
+act, so neither says anything; the page speaks only when the link went
+somewhere the reader cannot see (the clipboard), or nowhere at all —
+and then it shows the address, because a link nobody can copy is a
+control that did nothing.
+
+-}
+type Sent
+    = Copied
+    | Unsent
+
+
+sentFromString : String -> Maybe Sent
+sentFromString word =
+    case word of
+        "shared" ->
+            Nothing
+
+        "refused" ->
+            Nothing
+
+        "copied" ->
+            Just Copied
+
+        _ ->
+            Just Unsent
 
 
 
@@ -306,7 +341,8 @@ plate config =
             config.recipe
     in
     div [ class "recipe-plate" ]
-        ([ div [ class "recipe-serial mono" ]
+        ([ way config
+         , div [ class "recipe-serial mono" ]
             ([ -- The method leads the plate: the word for the acid the
                -- whole page runs on. Information is never colour-only
                -- (§04), and this is that rule kept where it is loudest.
@@ -379,6 +415,60 @@ plate config =
                  , dayPicker config
                ]
         )
+
+
+{-| The way out of the page, and the way to send it (DS-01 §06,
+amended 2026-10-21). Above the plate, in the way-back link's dress:
+the quietest controls on the page, because neither is about the dish.
+SHARE is not a fourth face in the action row — that row holds exactly
+three, and a link is not a process (§04).
+
+BACK is a real link to the shelf. boot.js turns a plain press into a
+step back through history when a page of this archive is behind it
+(`src/wayback.js`), so a reader who came from the plan returns to the
+plan and the side nav's anchors are walked past, not up. A recipe
+opened from a message has nothing behind it, and BACK is the shelf.
+
+The share is the recipe's plain address: no scale, no form. Neither
+prints.
+
+-}
+way : Config msg -> Html msg
+way config =
+    let
+        address =
+            config.origin ++ Route.toPath (Route.Recipe config.recipe.slug)
+    in
+    div [ class "recipe-way" ]
+        [ a
+            [ class "recipe-way-link u"
+            , href (Route.toPath Route.Home)
+            , attribute "data-way-back" ""
+            ]
+            [ span [ attribute "aria-hidden" "true" ] [ text "← " ], text "Back" ]
+        , Html.button
+            [ Html.Attributes.type_ "button"
+            , class "recipe-way-link u"
+            , onClick config.onShare
+            ]
+            [ text "Share", span [ attribute "aria-hidden" "true" ] [ text " ↗" ] ]
+
+        -- Always drawn, so a screen reader is listening before the
+        -- sentence arrives; empty, it takes no room.
+        , p [ class "recipe-way-said", attribute "role" "status" ]
+            (case config.sent of
+                Nothing ->
+                    []
+
+                Just Copied ->
+                    [ text "Link copied." ]
+
+                Just Unsent ->
+                    [ text "This browser cannot share or copy. The address: "
+                    , span [ class "mono recipe-way-address" ] [ text address ]
+                    ]
+            )
+        ]
 
 
 {-| The attribution: who the dish is after (DS-01 §06, amended

@@ -366,6 +366,7 @@
   .planner-btn,
   .plan-picker,
   .recipe-back,
+  .recipe-way,
   .cook-enter {
     display: none !important;
   }

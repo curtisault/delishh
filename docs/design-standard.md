@@ -781,6 +781,23 @@ Blocks 6 and 7 are the ones conventional recipe sites omit, and
 they're the reason to build this at all. A published rescue is the
 most generous sentence a recipe can contain.
 
+> **Amendment 2026-10-21 — the way back, and the way to send it.**
+> Above the plate, before the method mark, one line: **BACK** at the
+> left, **SHARE** at the right, both in the way-back link's dress —
+> the words in the display voice and a volt rule beneath, no body.
+> They are the quietest controls on the page because neither is about
+> the dish. SHARE is not a fourth face in the action row, which holds
+> three (§04): a link is not a process. BACK returns to the last
+> *page* the reader was on — never up the recipe a section at a time,
+> never out of the archive — and is the shelf when nothing of ours is
+> behind it; an app on a home screen has no browser back of its own.
+> SHARE sends the recipe's plain address, never the scale or the
+> form, through the share sheet where there is one and the clipboard
+> where there is not, and **says so only when the reader cannot see
+> it**: *Link copied.*, or, where neither exists, the address itself
+> to copy by hand. Neither prints (§09). Cook mode's EXIT takes the
+> same way back.
+
 ### The bench specimen
 
 One real recipe, built first and kept forever, on which every rule

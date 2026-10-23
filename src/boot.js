@@ -16,6 +16,7 @@ import './plan.css'
 import './roulette.css'
 import './print.css'
 import { Elm } from './Main.elm'
+import { followTheWayBack, keepTheWayBack } from './wayback.js'
 
 const THEME_KEY = 'delishh-theme'
 const LIST_KEY = 'delishh-list'
@@ -87,6 +88,11 @@ const installAtBoot = runningInstalled
     : import.meta.env.DEV
       ? 'prompt'
       : 'none'
+
+// The way back (src/wayback.js). Stamped before Elm boots, so the
+// first entry it pushes already carries its count.
+keepTheWayBack(history, location)
+followTheWayBack(document, history)
 
 const app = Elm.Main.init({
   flags: {
@@ -652,6 +658,31 @@ async function copyPicture() {
     return err && err.name === 'NotAllowedError' ? 'refused' : 'failed'
   }
 }
+
+// A recipe's address, from its SHARE press: the share sheet where the
+// browser has one, the clipboard where it does not. Called with no
+// await before it, for the same reason the picture's share is.
+async function shareLink(link) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: link.title, url: link.url })
+      return 'shared'
+    } catch (err) {
+      return err && (err.name === 'AbortError' || err.name === 'NotAllowedError') ? 'refused' : 'failed'
+    }
+  }
+  if (!navigator.clipboard || !navigator.clipboard.writeText) return 'unsupported'
+  try {
+    await navigator.clipboard.writeText(link.url)
+    return 'copied'
+  } catch (_) {
+    return 'failed'
+  }
+}
+
+app.ports.shareRecipe.subscribe(async (link) => {
+  app.ports.recipeShared.send(await shareLink(link))
+})
 
 app.ports.sharePlan.subscribe(async (req) => {
   switch (req.do) {
