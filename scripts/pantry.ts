@@ -182,6 +182,7 @@ export const PANTRY: Record<string, Purchase> = {
     breaks: DAIRY,
   },
   "whole-milk low-moisture mozzarella": { aisle: "dairy", breaks: DAIRY },
+  "whole-milk ricotta": { aisle: "dairy", breaks: DAIRY },
   "whole-milk ricotta — whole-milk only; see Watchpoints": {
     aisle: "dairy",
     buyAs: "whole-milk ricotta",
@@ -219,6 +220,7 @@ export const PANTRY: Record<string, Purchase> = {
   "chicken broth": { aisle: "canned", breaks: FLESH },
   "evaporated milk": { aisle: "canned", breaks: DAIRY },
   "tomato paste": { aisle: "canned" },
+  "marinara sauce": { aisle: "canned" },
   "black beans": { aisle: "canned", buyAs: "canned black beans" },
   "can black beans": { aisle: "canned", buyAs: "canned black beans" },
   "great northern beans": {
