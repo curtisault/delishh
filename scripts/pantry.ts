@@ -146,6 +146,7 @@ export const PANTRY: Record<string, Purchase> = {
   "whole milk": { aisle: "dairy", breaks: DAIRY },
   "whole milk or cream": { aisle: "dairy", buyAs: "whole milk", breaks: DAIRY },
   "cream cheese": { aisle: "dairy", breaks: DAIRY },
+  "cottage cheese": { aisle: "dairy", breaks: DAIRY },
   "sour cream": { aisle: "dairy", buyAs: "full-fat sour cream", breaks: DAIRY },
   "full-fat sour cream — no substitutes": {
     aisle: "dairy",
@@ -203,6 +204,7 @@ export const PANTRY: Record<string, Purchase> = {
 
   // --- dry goods -----------------------------------------------------------
   "ziti": { aisle: "dry-goods", breaks: GLUTEN },
+  "spaghetti": { aisle: "dry-goods", breaks: GLUTEN },
   "rotini": { aisle: "dry-goods", breaks: GLUTEN },
   "butter crackers": { aisle: "dry-goods", breaks: GLUTEN },
   "stout": { aisle: "dry-goods" },
@@ -265,6 +267,7 @@ export const PANTRY: Record<string, Purchase> = {
   "dry mustard": { aisle: "spices" },
   "fennel seed": { aisle: "spices" },
   "garlic powder": { aisle: "spices" },
+  "Italian seasoning": { aisle: "spices" },
   "ground coriander": { aisle: "spices" },
   "cinnamon": { aisle: "spices", buyAs: "ground cinnamon" },
   "ground cinnamon": { aisle: "spices" },
