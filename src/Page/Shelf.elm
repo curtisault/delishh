@@ -123,10 +123,10 @@ masthead config =
                 [ text (String.fromInt (List.length config.index.recipes)) ]
             , text
                 (if List.length config.index.recipes == 1 then
-                    " recipe, newest batch first."
+                    " recipe."
 
                  else
-                    " recipes, newest batch first."
+                    " recipes, A to Z."
                 )
             ]
         , searchLine config
